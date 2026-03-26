@@ -1,0 +1,17 @@
+---
+argument_specs:
+  main:
+    short_description: Set adduser and useradd defaults
+    description:
+      - Set adduser and useradd defaults using defined templates.
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      adduser_conf_template:
+        description: "adduser.conf template location."
+        type: "path"
+        default: "etc/adduser.conf.j2"
+      useradd_template:
+        description: "useradd template location."
+        type: "path"
+        default: "etc/default/useradd.j2"

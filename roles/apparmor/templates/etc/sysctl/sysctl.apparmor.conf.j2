@@ -1,0 +1,7 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+# Managed by Ansible role {{ ansible_role_name }}
+
+### AppArmor related settings
+{% for key, value in apparmor_sysctl_settings.items() %}
+{{ key }} = {{ value }}
+{% endfor %}

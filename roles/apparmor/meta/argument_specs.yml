@@ -1,0 +1,46 @@
+---
+argument_specs:
+  main:
+    short_description: AppArmor installation and configuration.
+    description:
+      - This role manages AppArmor installation and configuration.
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      sysctl_apparmor_config_template:
+        description: "AppArmor sysctl configuration template location."
+        type: "path"
+        default: "etc/sysctl/sysctl.apparmor.conf.j2"
+      apparmor_sysctl_settings:
+        type: "dict"
+        default:
+          - kernel.apparmor_display_secid_mode: 0
+          - kernel.apparmor_restrict_unprivileged_io_uring: 0
+          - kernel.apparmor_restrict_unprivileged_unconfined: 1
+          - kernel.apparmor_restrict_unprivileged_userns: 1
+          - kernel.apparmor_restrict_unprivileged_userns_complain: 0
+          - kernel.apparmor_restrict_unprivileged_userns_force: 0
+          - kernel.unprivileged_userns_apparmor_policy: 1
+        description: "AppArmor sysctl settings."
+        options:
+          kernel.apparmor_display_secid_mode:
+            description: "If 1, AppArmor will provide a human-readable mapping of internal security IDs."
+            type: "int"
+          kernel.apparmor_restrict_unprivileged_io_uring:
+            description: "If 1, restrict unprivileged io_uring operations."
+            type: "int"
+          kernel.apparmor_restrict_unprivileged_unconfined:
+            description: "If 1, enforces extra security restrictions on unprivileged unconfined processes."
+            type: "int"
+          kernel.apparmor_restrict_unprivileged_userns:
+            description: "If 1, restricts unprivileged user namespaces."
+            type: "int"
+          kernel.apparmor_restrict_unprivileged_userns_complain:
+            description: "If 1, unprivileged user namespaces will be put into complain mode."
+            type: "int"
+          kernel.apparmor_restrict_unprivileged_userns_force:
+            description: "If 1, all confined applications will have the user namespace mediation enforced."
+            type: "int"
+          kernel.unprivileged_userns_apparmor_policy:
+            description: "If 1, unprivileged user namespaces will be restricted to the AppArmor policy."
+            type: "int"

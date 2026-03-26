@@ -1,0 +1,61 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for the host and reconnect
+          ansible.builtin.wait_for:
+            port: 22
+            host: "{{ (ansible_facts.ssh_host | default(ansible_facts.host)) | default(inventory_hostname) }}"
+            delay: 10
+            timeout: 120
+
+    - name: Include default vars
+      ansible.builtin.include_vars:
+        dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/"
+        extensions:
+          - yml
+
+    - name: Include host vars
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Verify /etc/default/useradd settings
+      ansible.builtin.command:
+        cmd: grep -vE '^#|^$' /etc/default/useradd
+      register: useradd_output
+      changed_when: false
+
+    - name: Print /etc/default/useradd settings
+      ansible.builtin.debug:
+        var: useradd_output.stdout_lines
+
+    - name: Assert /etc/default/useradd settings
+      ansible.builtin.assert:
+        that:
+          - useradd_output.stdout is search('INACTIVE=30')
+          - useradd_output.stdout is search('SHELL=/bin/false')
+
+    - name: Verify /etc/adduser.conf settings
+      ansible.builtin.command:
+        cmd: grep -vE '^#|^$' /etc/adduser.conf
+      register: adduser_output
+      changed_when: false
+
+    - name: Print /etc/adduser.conf settings
+      ansible.builtin.debug:
+        var: adduser_output.stdout_lines
+
+    - name: Assert /etc/adduser.conf settings
+      ansible.builtin.assert:
+        that:
+          - adduser_output.stdout is search('USERGROUPS=yes')
+          - adduser_output.stdout is search('SETGID_HOME=no')

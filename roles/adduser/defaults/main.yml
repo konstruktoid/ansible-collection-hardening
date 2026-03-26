@@ -1,0 +1,6 @@
+---
+# adduser.conf template location.
+adduser_conf_template: "etc/adduser.conf.j2"
+
+# useradd template location.
+useradd_template: "etc/default/useradd.j2"

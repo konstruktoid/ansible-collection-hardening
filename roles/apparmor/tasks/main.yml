@@ -1,0 +1,97 @@
+---
+- name: Set sysctl configuration directory as fact
+  block:
+    - name: Stat /usr/lib/sysctl.d/ exists
+      ansible.builtin.stat:
+        path: /usr/lib/sysctl.d/
+      register: usr_lib_sysctl_d
+
+    - name: Set sysctl fact
+      ansible.builtin.set_fact:
+        usr_lib_sysctl_d_dir: "{{ true if usr_lib_sysctl_d.stat.exists else false }}"
+
+    - name: Determine sysctl configuration directory
+      ansible.builtin.set_fact:
+        sysctl_conf_dir: "{{ '/usr/lib/sysctl.d' if usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"
+
+    - name: Print sysctl configuration directory
+      ansible.builtin.debug:
+        msg: "Using {{ sysctl_conf_dir }} as sysctl configuration directory"
+
+- name: Configure and enable AppArmor
+  become: true
+  when:
+    - ansible_facts.os_family == "Debian"
+  block:
+    - name: Install AppArmor packages
+      ansible.builtin.apt:
+        name:
+          - apparmor
+          - apparmor-profiles
+          - apparmor-utils
+        update_cache: true
+        state: present
+
+    - name: AppArmor sysctl settings
+      ansible.builtin.template:
+        src: "{{ sysctl_apparmor_config_template }}"
+        dest: "{{ sysctl_conf_dir }}/zz-apparmor-hardening.conf"
+        mode: "0644"
+        owner: root
+        group: root
+        backup: false
+      notify:
+        - Restart sysctl
+
+    - name: Set Debian family AppArmor grub cmdline
+      ansible.builtin.lineinfile:
+        line: GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX apparmor=1 security=apparmor"
+        regexp: "^GRUB_CMDLINE_LINUX="
+        dest: /etc/default/grub.d/99-hardening-apparmor.cfg
+        state: present
+        create: true
+        mode: "0640"
+        owner: root
+        group: root
+      notify:
+        - Update GRUB
+
+    - name: Configure pam_apparmor
+      ansible.builtin.lineinfile:
+        line: session optional pam_apparmor.so order=user,group,default
+        dest: /etc/pam.d/apparmor
+        state: present
+        create: true
+        mode: "0640"
+        owner: root
+        group: root
+      notify:
+        - Update GRUB
+
+    - name: Get AppArmor status
+      environment:
+        PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      ansible.builtin.command:
+        cmd: aa-status --complaining
+      register: get_apparmor_complaining
+      changed_when: get_apparmor_complaining.stdout != "0"
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Enforce AppArmor profiles
+      ansible.builtin.command:
+        cmd: find /etc/apparmor.d/ -maxdepth 1 -type f -exec aa-enforce {} \;
+      register: enforce_apparmor_profiles
+      changed_when: enforce_apparmor_profiles.rc != 0
+      failed_when: enforce_apparmor_profiles.rc != 0
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+        - get_apparmor_complaining.stdout != "0"
+
+    - name: Enable apparmor
+      ansible.builtin.systemd_service:
+        name: apparmor
+        enabled: true
+        state: started
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]

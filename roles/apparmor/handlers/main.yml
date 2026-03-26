@@ -1,0 +1,17 @@
+---
+- name: Restart sysctl
+  become: true
+  ansible.builtin.service:
+    name: systemd-sysctl
+    state: restarted
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+- name: Update GRUB
+  become: true
+  ansible.builtin.command:
+    cmd: update-grub
+  register: update_grub
+  changed_when: update_grub.rc == 0
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]

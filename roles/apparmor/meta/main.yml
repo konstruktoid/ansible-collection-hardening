@@ -1,0 +1,24 @@
+---
+galaxy_info:
+  role_name: apparmor
+  author: konstruktoid
+  description: AppArmor installation and configuration.
+  license: apache
+  min_ansible_version: "2.18"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+  galaxy_tags:
+    - cis
+    - debian
+    - disa
+    - hardening
+    - security
+    - system
+    - systemd
+    - ubuntu

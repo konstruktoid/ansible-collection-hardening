@@ -1,0 +1,47 @@
+---
+- name: Converge
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Install OpenSSL on AlmaLinux
+      become: true
+      ansible.builtin.dnf:
+        name: openssl
+        state: present
+      when:
+        - ansible_facts.distribution == 'AlmaLinux'
+
+    - name: Install acl on Debian
+      become: true
+      ansible.builtin.apt:
+        name: acl
+        state: present
+        install_recommends: false
+        update_cache: true
+      when:
+        - ansible_facts.os_family == 'Debian'
+
+    - name: Stat /usr/lib/sysctl.d/ exists
+      ansible.builtin.stat:
+        path: /usr/lib/sysctl.d/
+      register: usr_lib_sysctl_d
+
+    - name: Set sysctl fact
+      ansible.builtin.set_fact:
+        usr_lib_sysctl_d_dir: "{{ true if usr_lib_sysctl_d.stat.exists else false }}"
+
+    - name: Determine sysctl configuration directory
+      ansible.builtin.set_fact:
+        sysctl_conf_dir: "{{ '/usr/lib/sysctl.d' if usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"
+
+    - name: Create sysctl configuration directory
+      ansible.builtin.file:
+        path: "{{ sysctl_conf_dir }}"
+        state: directory
+        mode: "0755"
+        owner: root
+        group: root
+
+    - name: Include Ansible role
+      ansible.builtin.import_role:
+        name: konstruktoid.hardening.apparmor

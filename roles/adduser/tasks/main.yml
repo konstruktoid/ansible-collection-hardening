@@ -1,0 +1,20 @@
+---
+- name: Add configuration file for adduser and addgroup
+  become: true
+  ansible.builtin.template:
+    src: "{{ adduser_conf_template }}"
+    dest: /etc/adduser.conf
+    backup: true
+    mode: "0644"
+    owner: root
+    group: root
+
+- name: Add configuration file for useradd
+  become: true
+  ansible.builtin.template:
+    src: "{{ useradd_template }}"
+    dest: /etc/default/useradd
+    backup: true
+    mode: "0644"
+    owner: root
+    group: root

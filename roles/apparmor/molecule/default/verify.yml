@@ -1,0 +1,56 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for the host and reconnect
+          ansible.builtin.wait_for:
+            port: 22
+            host: "{{ (ansible_facts.ssh_host | default(ansible_facts.host)) | default(inventory_hostname) }}"
+            delay: 10
+            timeout: 120
+
+    - name: Include default vars
+      ansible.builtin.include_vars:
+        dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/"
+        extensions:
+          - yml
+
+    - name: Include host vars
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: AppArmor block
+      when:
+        - ansible_facts.os_family == "Debian"
+        - not ansible_facts.virtualization_type in ["container", "docker", "podman"]
+      block:
+        - name: Get sysctl settings
+          become: true
+          ansible.builtin.command: sysctl -a
+          changed_when: false
+          register: sysctl_output
+
+        - name: Assert that AppArmor is enabled
+          ansible.builtin.assert:
+            that:
+              - ansible_facts.apparmor.status == "enabled"
+
+        - name: Assert AppArmor sysctl settings
+          ansible.builtin.assert:
+            that:
+              - "'kernel.apparmor_display_secid_mode = 0' in sysctl_output.stdout"
+              - "'kernel.apparmor_restrict_unprivileged_io_uring = 0' in sysctl_output.stdout"
+              - "'kernel.apparmor_restrict_unprivileged_unconfined = 1' in sysctl_output.stdout"
+              - "'kernel.apparmor_restrict_unprivileged_userns = 1' in sysctl_output.stdout"
+              - "'kernel.apparmor_restrict_unprivileged_userns_complain = 0' in sysctl_output.stdout"
+              - "'kernel.apparmor_restrict_unprivileged_userns_force = 0' in sysctl_output.stdout"
+              - "'kernel.unprivileged_userns_apparmor_policy = 1' in sysctl_output.stdout"
