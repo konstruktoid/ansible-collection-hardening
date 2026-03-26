@@ -1,0 +1,39 @@
+---
+namespace: konstruktoid
+name: hardening
+version: 0.0.1
+readme: README.md
+authors:
+  - 'Thomas Sjögren (@konstruktoid)'
+description: A collection of Ansible content for hardening Linux servers.
+license_file: 'LICENSE'
+tags:
+  - almalinux
+  - audit
+  - compliance
+  - debian
+  - hardening
+  - linux
+  - rhel
+  - security
+  - ubuntu
+dependencies: {}
+repository: https://github.com/konstruktoid/ansible-collection-hardening
+issues: https://github.com/konstruktoid/ansible-collection-hardening/issues
+build_ignore:
+  - '*.deb'
+  - '*.html'
+  - '*.log'
+  - '*.retry'
+  - '*.rpm'
+  - '*suid.list'
+  - '.ansible'
+  - '.cache'
+  - '.env.yml'
+  - '.scannerwork'
+  - '.sonar'
+  - '.tox'
+  - '.vagrant'
+  - '.yamllint'
+  - 'drafts/*'
+  - 'hosts'
