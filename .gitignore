@@ -12,5 +12,7 @@
 .tox
 .vagrant
 .yamllint
-drafts/*
 hosts
+roles/*
+!roles/adduser
+!roles/apparmor

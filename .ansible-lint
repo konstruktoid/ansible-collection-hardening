@@ -1,0 +1,8 @@
+---
+profile: production
+exclude_paths:
+  - .env.yml
+  - .git/
+  - .github/
+  - .pre-commit-config.yaml
+  - .tox/
