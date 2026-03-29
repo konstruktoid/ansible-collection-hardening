@@ -1,5 +1,4 @@
 ---
-
 # OpenSSH ssh_config template location.
 ssh_config_template: "etc/ssh/ssh_config.j2"
 
@@ -8,16 +7,19 @@ sshd_accept_env: "LANG LC_*"
 
 # Only the network(s) defined in C(sshd_admin_net) are allowed to connect to C(sshd_ports).
 sshd_admin_net: ["192.168.0.0/24", "192.168.1.0/24"]
+
 # Specifies whether ssh-agent forwarding is permitted.
 sshd_allow_agent_forwarding: false
 
 # If specified, login is allowed only for users whose primary group or supplementary group list matches one of the patterns.
 sshd_allow_groups: ["sudo"]
+
 # Specifies whether TCP forwarding is permitted.
 sshd_allow_tcp_forwarding: false
 
 # If specified, login is allowed only for users whose user name matches one of the patterns.
 sshd_allow_users: []
+
 # The authentication methods that must be successfully completed in order to grant access to a user.
 sshd_authentication_methods: "any"
 
@@ -29,8 +31,10 @@ sshd_banner: "/etc/issue.net"
 
 # Specifies which algorithms are allowed for signing of certificates by certificate authorities.
 sshd_ca_signature_algorithms: ["ecdsa-sha2-nistp384", "ecdsa-sha2-nistp521", "ssh-ed25519", "rsa-sha2-512"]
+
 # Specifies the ciphers allowed. Multiple ciphers must be comma-separated.
 sshd_ciphers: ["chacha20-poly1305@openssh.com", "aes256-gcm@openssh.com", "aes256-ctr"]
+
 # Sets the number of client alive messages which may be sent without sshd receiving any messages back from the client.
 sshd_client_alive_count_max: 1
 
@@ -54,8 +58,10 @@ sshd_debian_banner: false
 
 # Login is disallowed for users whose primary group or supplementary group list matches one of the patterns.
 sshd_deny_groups: []
+
 # Login is disallowed for users whose user name matches one of the patterns.
 sshd_deny_users: []
+
 # Specifies whether remote hosts are allowed to connect to ports forwarded for the client.
 sshd_gateway_ports: false
 
@@ -74,6 +80,7 @@ sshd_host_key_algorithms:
 
 # Specifies a file containing a private host key used by SSH. If empty C(RSA), C(ECDSA), and C(ED25519) will be used, if supported by the installed sshd version.
 sshd_host_keys_files: []
+
 # Owner group of the host keys.
 sshd_host_keys_group: "root"
 
@@ -108,6 +115,7 @@ sshd_kex_algorithms:
 
 # Specifies the addresses sshd should listen on.
 sshd_listen: ["0.0.0.0"]
+
 # Gives the verbosity level that is used when logging messages from sshd.
 sshd_log_level: "verbose"
 
@@ -116,14 +124,19 @@ sshd_login_grace_time: 20
 
 # Specifies the available MAC (Message Authentication Code) algorithms.
 sshd_macs: ["hmac-sha2-512-etm@openssh.com", "hmac-sha2-256-etm@openssh.com", "hmac-sha2-512", "hmac-sha2-256"]
+
 # Add a conditional block for addresses.
 sshd_match_addresses: []
+
 # Add a conditional block for groups.
 sshd_match_groups: []
+
 # Add a conditional block for ports.
 sshd_match_local_ports: []
+
 # Add a conditional block for users.
 sshd_match_users: []
+
 # Specifies the maximum number of authentication attempts permitted per connection.
 sshd_max_auth_tries: 3
 
@@ -150,6 +163,7 @@ sshd_permit_user_environment: false
 
 # Specifies the port number that sshd listens on.
 sshd_ports: [22]
+
 # Specifies whether sshd should print the last user login when a user logs in interactively.
 sshd_print_last_log: true
 
