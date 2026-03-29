@@ -1,0 +1,73 @@
+---
+dependency:
+  name: galaxy
+  enabled: true
+driver:
+  name: vagrant
+  provider:
+    name: virtualbox
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      callback_whitelist: profile_tasks
+  env:
+    ANSIBLE_ROLES_PATH: ${MOLECULE_PROJECT_DIRECTORY}/..:/.ansible/roles:/usr/share/ansible/roles:/etc/ansible/roles
+  playbooks:
+    converge: ../default/converge.yml
+    verify: ../default/verify.yml
+  log: true
+  inventory:
+    host_vars:
+      jammy:
+platforms:
+  - name: jammy
+    box: bento/ubuntu-22.04
+    config_options:
+      vm.boot_timeout: 600
+      synced_folder: false
+    provider_raw_config_args:
+      - customize ['modifyvm', :id, '--uart1', '0x3F8', '4']
+      - customize ['modifyvm', :id, '--uartmode1', 'file', File::NULL]
+    instance_raw_config_args:
+      - vbguest.auto_update = false
+    memory: 1024
+verifier:
+  name: ansible
+scenario:
+  name: custom
+  create_sequence:
+    - dependency
+    - create
+    - prepare
+  check_sequence:
+    - dependency
+    - cleanup
+    - destroy
+    - create
+    - prepare
+    - converge
+    - check
+    - destroy
+  converge_sequence:
+    - dependency
+    - create
+    - prepare
+    - converge
+  destroy_sequence:
+    - dependency
+    - cleanup
+    - destroy
+  test_sequence:
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - side_effect
+    - verify
+    - cleanup
+    - destroy
