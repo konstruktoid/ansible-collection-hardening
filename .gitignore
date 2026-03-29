@@ -16,3 +16,4 @@ hosts
 roles/*
 !roles/adduser
 !roles/apparmor
+!roles/ssh
