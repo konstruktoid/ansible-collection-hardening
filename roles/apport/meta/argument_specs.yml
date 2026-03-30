@@ -1,0 +1,13 @@
+---
+argument_specs:
+  main:
+    short_description: Manage Apport
+    description:
+      - Manage Apport
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      disable_apport:
+        description: "If True, disable the C(Apport) crash reporting system."
+        type: "bool"
+        default: "True"

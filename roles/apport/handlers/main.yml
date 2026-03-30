@@ -1,0 +1,10 @@
+---
+- name: Mask apport
+  become: true
+  ansible.builtin.systemd_service:
+    name: apport.service
+    masked: true
+    enabled: false
+    state: stopped
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]

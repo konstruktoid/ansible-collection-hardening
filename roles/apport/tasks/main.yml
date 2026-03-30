@@ -1,0 +1,20 @@
+---
+- name: Disable apport
+  become: true
+  ansible.builtin.lineinfile:
+    regexp: ^enabled=
+    line: enabled=0
+    dest: /etc/default/apport
+    mode: "0644"
+    state: present
+    create: false
+    backrefs: true
+  register: default_apport
+  notify:
+    - Mask apport
+  when:
+    - disable_apport
+  failed_when:
+    - default_apport.rc is defined
+    - default_apport.rc !=0
+    - not default_apport.rc == 257
