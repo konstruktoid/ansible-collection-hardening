@@ -34,6 +34,8 @@
         mode: "0440"
         state: present
         create: true
+        owner: root
+        group: root
         validate: visudo -cf %s
 
     - name: Configure sudo logfile
@@ -43,6 +45,8 @@
         mode: "0440"
         state: present
         create: true
+        owner: root
+        group: root
         validate: visudo -cf %s
       when:
         - not sudo_rs_present
@@ -54,6 +58,8 @@
         mode: "0440"
         state: present
         create: true
+        owner: root
+        group: root
         validate: visudo -cf %s
 
     - name: Configure sudo disable visiblepw
@@ -63,6 +69,8 @@
         mode: "0440"
         state: present
         create: true
+        owner: root
+        group: root
         validate: visudo -cf %s
 
     - name: Configure sudo passwd_timeout
@@ -72,6 +80,8 @@
         mode: "0440"
         state: present
         create: true
+        owner: root
+        group: root
         validate: visudo -cf %s
 
     - name: Configure sudo timestamp_timeout
@@ -81,6 +91,8 @@
         mode: "0440"
         state: present
         create: true
+        owner: root
+        group: root
         validate: visudo -cf %s
 
     - name: Configure sudo timestamp_type
@@ -90,6 +102,8 @@
         mode: "0440"
         state: present
         create: true
+        owner: root
+        group: root
         validate: visudo -cf %s
       when:
         - not sudo_rs_present
@@ -101,6 +115,8 @@
         mode: "0440"
         state: present
         create: true
+        owner: root
+        group: root
         validate: visudo -cf %s
       loop:
         - "!rootpw"
@@ -113,6 +129,8 @@
         mode: "0440"
         state: present
         create: true
+        owner: root
+        group: root
         validate: visudo -cf %s
       when:
         - not sudo_rs_present
@@ -127,9 +145,11 @@
   become: true
   ansible.builtin.lineinfile:
     dest: /etc/pam.d/su
-    regexp: "auth required pam_wheel.*$"
+    regexp: "^auth\\s+required\\s+pam_wheel\\.so(\\s+.*)?$"
     line: auth required pam_wheel.so use_uid group=sugroup
     insertbefore: BOF
     mode: "0644"
     state: present
     create: true
+    owner: root
+    group: root
