@@ -47,13 +47,12 @@
         msg: "sudo-rs is present: {{ sudo_rs_present }}"
 
     - name: Register sudo settings
+      become: true
       ansible.builtin.command:
         cmd: grep -REvh '#|^$' /etc/sudoers /etc/sudoers.d/
       register: sudo_settings_output
       changed_when: false
       failed_when: sudo_settings_output.rc != 0
-      args:
-        executable: /bin/bash
 
     - name: Assert sudo settings output
       ansible.builtin.assert:
@@ -83,3 +82,16 @@
           - "'!targetpw' in sudo_settings_output.stdout"
       when:
         - sudo_rs_present
+
+    - name: Assert su group configuration
+      become: true
+      ansible.builtin.command:
+        cmd: grep -Ev '#|^$' /etc/pam.d/su
+      register: su_group_check
+      changed_when: false
+      failed_when: su_group_check.rc != 0
+
+    - name: Assert su group configuration output
+      ansible.builtin.assert:
+        that:
+          - "'auth required pam_wheel.so use_uid group=sugroup' in su_group_check.stdout_lines"
