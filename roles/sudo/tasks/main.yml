@@ -1,0 +1,155 @@
+---
+- name: Configure sudo
+  become: true
+  block:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+      when:
+        - ansible_facts.os_family == "Debian"
+
+    - name: Ensure sudo is installed
+      ansible.builtin.package:
+        name: sudo
+        state: present
+
+    - name: Check sudo type
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          sudo --version | head -n 1
+      args:
+        executable: /bin/bash
+      register: sudo_type_check
+      changed_when: false
+
+    - name: Set fact for sudo type
+      ansible.builtin.set_fact:
+        sudo_rs_present: "{{ 'sudo-rs' in sudo_type_check.stdout or 'sudo-rs' in sudo_type_check.stderr }}"
+
+    - name: Configure sudo use_pty
+      ansible.builtin.lineinfile:
+        line: Defaults use_pty
+        dest: /etc/sudoers.d/011_use_pty
+        mode: "0440"
+        state: present
+        create: true
+        owner: root
+        group: root
+        validate: visudo -cf %s
+
+    - name: Configure sudo logfile
+      ansible.builtin.lineinfile:
+        line: Defaults logfile={{ sudo_logfile }}
+        dest: /etc/sudoers.d/012_logfile
+        mode: "0440"
+        state: present
+        create: true
+        owner: root
+        group: root
+        validate: visudo -cf %s
+      when:
+        - not sudo_rs_present
+
+    - name: Configure sudo disable pwfeedback
+      ansible.builtin.lineinfile:
+        line: Defaults !pwfeedback
+        dest: /etc/sudoers.d/013_pwfeedback
+        mode: "0440"
+        state: present
+        create: true
+        owner: root
+        group: root
+        validate: visudo -cf %s
+
+    - name: Configure sudo disable visiblepw
+      ansible.builtin.lineinfile:
+        line: Defaults !visiblepw
+        dest: /etc/sudoers.d/014_visiblepw
+        mode: "0440"
+        state: present
+        create: true
+        owner: root
+        group: root
+        validate: visudo -cf %s
+
+    - name: Configure sudo passwd_timeout
+      ansible.builtin.lineinfile:
+        line: Defaults passwd_timeout={{ sudo_passwd_timeout }}
+        dest: /etc/sudoers.d/015_passwdtimeout
+        mode: "0440"
+        state: present
+        create: true
+        owner: root
+        group: root
+        validate: visudo -cf %s
+
+    - name: Configure sudo timestamp_timeout
+      ansible.builtin.lineinfile:
+        line: Defaults timestamp_timeout={{ sudo_timestamp_timeout }}
+        dest: /etc/sudoers.d/016_timestamptimeout
+        mode: "0440"
+        state: present
+        create: true
+        owner: root
+        group: root
+        validate: visudo -cf %s
+
+    - name: Configure sudo timestamp_type
+      ansible.builtin.lineinfile:
+        line: Defaults timestamp_type=tty
+        dest: /etc/sudoers.d/017_timestamptype
+        mode: "0440"
+        state: present
+        create: true
+        owner: root
+        group: root
+        validate: visudo -cf %s
+      when:
+        - not sudo_rs_present
+
+    - name: Configure sudo to disable rootpw and targetpw
+      ansible.builtin.lineinfile:
+        line: Defaults {{ item }}
+        dest: /etc/sudoers.d/018_userpassword
+        mode: "0440"
+        state: present
+        create: true
+        owner: root
+        group: root
+        validate: visudo -cf %s
+      loop:
+        - "!rootpw"
+        - "!targetpw"
+
+    - name: Configure sudo to disable runaspw
+      ansible.builtin.lineinfile:
+        line: Defaults !runaspw
+        dest: /etc/sudoers.d/018_userpassword
+        mode: "0440"
+        state: present
+        create: true
+        owner: root
+        group: root
+        validate: visudo -cf %s
+      when:
+        - not sudo_rs_present
+
+- name: Create su group sugroup
+  become: true
+  ansible.builtin.group:
+    name: sugroup
+    state: present
+
+- name: Configure su group
+  become: true
+  ansible.builtin.lineinfile:
+    dest: /etc/pam.d/su
+    regexp: "^auth\\s+required\\s+pam_wheel\\.so(\\s+.*)?$"
+    line: auth required pam_wheel.so use_uid group=sugroup
+    insertbefore: BOF
+    mode: "0644"
+    state: present
+    create: true
+    owner: root
+    group: root

@@ -18,3 +18,4 @@ roles/*
 !roles/apparmor
 !roles/apport
 !roles/ssh
+!roles/sudo
