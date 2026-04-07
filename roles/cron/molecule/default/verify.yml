@@ -1,0 +1,88 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  gather_facts: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for the host and reconnect
+          ansible.builtin.wait_for:
+            port: 22
+            host: "{{ (ansible_facts.ssh_host | default(ansible_facts.host)) | default(inventory_hostname) }}"
+            delay: 10
+            timeout: 120
+
+    - name: Include default vars
+      ansible.builtin.include_vars:
+        dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/"
+        extensions:
+          - yml
+
+    - name: Include host vars
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Assert that the atd service is masked
+      ansible.builtin.assert:
+        that:
+          - "'atd' in ansible_facts.services"
+          - ansible_facts.services['atd'].state == "masked"
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Gather file stats for cron.allow
+      ansible.builtin.stat:
+        path: /etc/cron.allow
+      register: cron_allow
+
+    - name: Gather file stats for cron.deny
+      ansible.builtin.stat:
+        path: /etc/cron.deny
+      register: cron_deny
+
+    - name: Gather file stats for crontab
+      ansible.builtin.stat:
+        path: /etc/crontab
+      register: crontab_file
+
+    - name: Assert cron.allow exists and is secure
+      ansible.builtin.assert:
+        that:
+          - cron_allow.stat.exists
+          - cron_allow.stat.pw_name == "root"
+          - cron_allow.stat.gr_name == "root"
+          - cron_allow.stat.mode == "0600"
+        fail_msg: "cron.allow is not properly secured"
+
+    - name: Assert cron.deny is absent
+      ansible.builtin.assert:
+        that:
+          - not cron_deny.stat.exists or cron_deny.stat.size == 0
+        fail_msg: "cron.deny should not exist or must be empty"
+
+    - name: Gather cron directories
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - /etc/cron.hourly
+        - /etc/cron.daily
+        - /etc/cron.weekly
+        - /etc/cron.monthly
+      register: cron_dirs
+
+    - name: Assert cron directories permissions
+      ansible.builtin.assert:
+        that:
+          - item.stat.pw_name == "root"
+          - item.stat.gr_name == "root"
+          - item.stat.mode == "0700"
+      when:
+        - item.stat.exists
+      loop: "{{ cron_dirs.results }}"
