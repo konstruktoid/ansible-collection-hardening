@@ -2,6 +2,9 @@
 - name: Configure scheduled command services
   become: true
   block:
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
     - name: Remove cron.deny and at.deny
       ansible.builtin.file:
         path: "{{ item }}"
@@ -47,10 +50,8 @@
         enabled: false
         state: stopped
       register: mask_atd
-      failed_when:
-        - mask_atd is not success
-        - not "Could not find the requested service" in mask_atd.msg
       when:
+        - "'atd' in ansible_facts.services"
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
 
     - name: Set cron permissions

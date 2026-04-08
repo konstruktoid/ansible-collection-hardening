@@ -35,7 +35,8 @@
     - name: Assert that the atd service is masked
       ansible.builtin.assert:
         that:
-          - ansible_facts.services['atd'].state == "masked"
+          - ansible_facts.services['atd.service'].status == "masked"
+          - ansible_facts.services['atd.service'].state == "stopped"
       when:
         - "'atd' in ansible_facts.services"
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
