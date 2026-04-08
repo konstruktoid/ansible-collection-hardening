@@ -51,7 +51,7 @@
           ansible.builtin.debug:
             msg: "{{ aide_include_d }}"
 
-        - name: Check if AIDE include directory exits
+        - name: Check if AIDE include directory exists
           ansible.builtin.stat:
             path: "{{ aide_include_d }}"
           register: aide_config_d
@@ -93,6 +93,7 @@
               - "'!/var/lib/lxcfs' in aide_settings.stdout"
               - "'!/var/lib/private/systemd' in aide_settings.stdout"
               - "'!/var/log/audit' in aide_settings.stdout"
+              - "'!/var/log/journal' in aide_settings.stdout"
           when:
             - not aide_config_d.stat.exists
 
