@@ -75,9 +75,9 @@
       ansible.builtin.set_fact:
         aide_include_d: "{{ 'false' if grep_aide_include.rc != 0 else grep_aide_include.stdout.split()[1] }}"
 
-    - name: Check if AIDE include directory exits
+    - name: Check if AIDE include directory exists
       ansible.builtin.stat:
-        path: "{{ aide_include_d }}"
+        path: "{{ '/nonexistent' if aide_include_d.rc != 0 else aide_include_d }}"
       register: aide_config_d
 
     - name: Add auditd tools in main config
