@@ -1,0 +1,31 @@
+---
+galaxy_info:
+  role_name: cron
+  author: konstruktoid
+  description: Configure scheduled command services
+  license: apache
+  min_ansible_version: "2.18"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+    - name: EL
+      versions:
+        - "9"
+        - "10"
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+  galaxy_tags:
+    - almalinux
+    - atd
+    - centos
+    - cis
+    - cron
+    - debian
+    - disa
+    - hardening
+    - security
+    - system
+    - ubuntu
