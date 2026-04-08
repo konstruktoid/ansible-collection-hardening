@@ -1,0 +1,13 @@
+# Managed by Ansible role {{ ansible_role_name }}
+
+[Unit]
+Description=Aide check every day at midnight
+
+[Timer]
+OnCalendar=*-*-* 00:00:00
+Persistent=true
+RandomizedDelaySec=3600
+Unit=aidecheck.service
+
+[Install]
+WantedBy=timers.target
