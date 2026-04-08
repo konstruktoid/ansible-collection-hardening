@@ -5,7 +5,7 @@ argument_specs:
     description:
       - This role installs and configures AIDE.
     author:
-      - 'Thomas Sjögren (@konstruktoid)'
+      - "Thomas Sjögren (@konstruktoid)"
     options:
       aide_checksums:
         description: "Modifies the AIDE C(Checksums) variable."
