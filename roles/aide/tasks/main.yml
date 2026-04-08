@@ -187,11 +187,13 @@
         - ansible_facts.os_family == "RedHat"
 
     - name: Copy RedHat AIDE database
-      ansible.builtin.command:
-        cmd: cp /var/lib/aide/aide.db.gz /var/lib/aide/aide.db.new.gz
-      register: cp_redhat_aide_db
-      changed_when: cp_redhat_aide_db.rc != 0
-      failed_when: cp_redhat_aide_db.rc != 0
+      ansible.builtin.copy:
+        src: /var/lib/aide/aide.db.gz
+        dest: /var/lib/aide/aide.db.new.gz
+        remote_src: true
+        owner: root
+        group: root
+        mode: "0640"
       when:
         - ansible_facts.os_family == "RedHat"
         - not rhelaidedbnew.stat.exists
