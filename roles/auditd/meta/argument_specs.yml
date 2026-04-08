@@ -1,0 +1,129 @@
+---
+argument_specs:
+  main:
+    short_description: Installation and configuration of auditd
+    description:
+      - Installation and configuration of auditd.
+    author:
+      - konstruktoid
+    options:
+      auditd_apply_audit_rules:
+        description: "If True, the role applies the auditd rules from the included template file."
+        type: "bool"
+        default: "True"
+      auditd_action_mail_acct:
+        description: "This option should contain a valid email address or alias."
+        type: "str"
+        default: "root"
+      auditd_admin_space_left_action:
+        description: "This parameter tells the system what action to take when the system has detected that it is starting to get low on disk space."
+        type: "str"
+        default: "suspend"
+        choices:
+          - "email"
+          - "exec"
+          - "halt"
+          - "ignore"
+          - "rotate"
+          - "single"
+          - "suspend"
+          - "syslog"
+      auditd_disk_error_action:
+        description: "This parameter tells the system what action to take whenever there is an error detected."
+        type: "str"
+        default: "suspend"
+        choices:
+          - "email"
+          - "exec"
+          - "halt"
+          - "ignore"
+          - "rotate"
+          - "single"
+          - "suspend"
+          - "syslog"
+      auditd_disk_full_action:
+        description: "This parameter tells the system what action to take when the system has detected that the partition to which log files are is full."
+        type: "str"
+        default: "suspend"
+        choices:
+          - "email"
+          - "exec"
+          - "halt"
+          - "ignore"
+          - "rotate"
+          - "single"
+          - "suspend"
+          - "syslog"
+      auditd_enable_flag:
+        description: "Set enabled flag for auditd service."
+        type: "int"
+        default: 2
+        choices:
+          - 0
+          - 1
+          - 2
+      auditd_flush:
+        description: "When to flush the audit records to disk."
+        type: "str"
+        default: "incremental_async"
+        choices:
+          - "data"
+          - "incremental_async"
+          - "incremental"
+          - "none"
+          - "sync"
+      auditd_ignore_errors:
+        description: "If True, the audit daemon will ignore errors when reading rules from a file."
+        type: "bool"
+        default: false
+      auditd_max_log_file:
+        description: "This keyword specifies the maximum file size in megabytes. When this limit is reached, it will trigger a configurable action."
+        type: "int"
+        default: 20
+      auditd_max_log_file_action:
+        description: "This parameter tells the system what action to take when the system has detected that the max file size limit has been reached."
+        type: "str"
+        default: "rotate"
+        choices:
+          - "ignore"
+          - "keep_logs"
+          - "rotate"
+          - "syslog"
+          - "suspend"
+      auditd_mode:
+        description: "Set failure mode."
+        type: "int"
+        default: 1
+        choices:
+          - 0
+          - 1
+          - 2
+      auditd_num_logs:
+        description: "Specifies the number of log files to keep if rotate is given as the max_log_file_action."
+        type: "int"
+        default: 5
+      auditd_space_left:
+        description: "If the free space in the filesystem containing log_file drops below this value (in mb), the audit daemon takes the action specified by space_left_action." # noqa: yaml[line-length]
+        type: "int"
+        default: 75
+      auditd_space_left_action:
+        description: "This parameter tells the system what action to take when the system has detected that it is starting to get low on disk space."
+        type: "str"
+        default: "email"
+        choices:
+          - "email"
+          - "exec"
+          - "halt"
+          - "ignore"
+          - "rotate"
+          - "single"
+          - "suspend"
+          - "syslog"
+      grub_audit_backlog_cmdline:
+        description: "Set the audit backlog limit in the GRUB command line."
+        type: "str"
+        default: "audit_backlog_limit=8192"
+      grub_audit_cmdline:
+        description: "Enable auditd in the GRUB command line."
+        type: "str"
+        default: "audit=1"

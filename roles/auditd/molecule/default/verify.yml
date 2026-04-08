@@ -1,0 +1,119 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for the host and reconnect
+          ansible.builtin.wait_for:
+            port: 22
+            host: "{{ (ansible_facts.ssh_host | default(ansible_facts.host)) | default(inventory_hostname) }}"
+            delay: 10
+            timeout: 120
+
+    - name: Include default vars
+      ansible.builtin.include_vars:
+        dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/"
+        extensions:
+          - yml
+
+    - name: Include host vars
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Verify auditd
+      become: true
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+        - manage_auditd
+      block:
+        - name: Verify auditd configuration
+          ansible.builtin.lineinfile:
+            dest: /etc/audit/auditd.conf
+            line: "{{ item }}"
+            state: present
+          check_mode: true
+          register: auditd_conf
+          failed_when: auditd_conf is changed
+          with_items:
+            - action_mail_acct = {{ auditd_action_mail_acct }}
+            - admin_space_left_action = {{ auditd_admin_space_left_action }}
+            - disk_error_action = {{ auditd_disk_error_action }}
+            - disk_full_action = {{ auditd_disk_full_action }}
+            - flush = {{ auditd_flush }}
+            - max_log_file = {{ auditd_max_log_file }}
+            - max_log_file_action = {{ auditd_max_log_file_action }}
+            - name_format = hostname
+            - num_logs = {{ auditd_num_logs }}
+            - space_left = {{ auditd_space_left }}
+            - space_left_action = {{ auditd_space_left_action }}
+
+        - name: Verify auditd rules
+          become: true
+          ansible.builtin.shell:
+            cmd: |
+              set -o pipefail
+              auditctl -l | grep "^{{ item }}$"
+          register: auditd_rules
+          changed_when: false
+          failed_when: auditd_rules.rc != 0
+          args:
+            executable: /bin/bash
+          loop:
+            - "-a always,exit -F arch=b32 -S open -F dir=/etc -F success=0 -F key=access"
+            - "-a always,exit -F arch=b32 -S open -F dir=/tmp -F success=0 -F key=access"
+            - "-a always,exit -F arch=b32 -S open -F dir=/var -F success=0 -F key=access"
+            - "-a always,exit .* key=actions"
+            - "-a always,exit .* key=audispconfig"
+            - "-a always,exit .* key=audit_rules_usergroup_modification"
+            - "-a always,exit .* key=audit_time_rules"
+            - "-a always,exit .* key=cron"
+            - "-a always,exit .* path=/etc/ld.so.conf .* key=libpath"
+
+        - name: Verify auditd settings
+          ansible.builtin.shell:
+            cmd: |
+              set -o pipefail
+              grep "^{{ item }}$" /etc/audit/audit.rules
+          register: auditd_settings
+          changed_when: false
+          failed_when: auditd_settings.rc != 0
+          args:
+            executable: /bin/bash
+          loop:
+            - "{{ '-i' if auditd_ignore_errors else '-c' }}"
+            - "-f {{ auditd_mode | int }}"
+            - "-e {{ auditd_enable_flag }}"
+
+    - name: Verify GRUB settings
+      become: true
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Verify RedHat GRUB audit settings
+          ansible.builtin.shell: |
+            set -o pipefail
+            grubby --info="/boot/vmlinuz-$(uname -r)" | grep "^args.*{{ grub_audit_cmdline }} {{ grub_audit_backlog_cmdline }}"
+          register: audit_grubenv
+          changed_when: false
+          failed_when: audit_grubenv.rc != 0
+          when:
+            - ansible_facts.os_family == "RedHat"
+            - manage_auditd
+
+        - name: Verify Debian audit GRUB settings
+          ansible.builtin.shell:
+            cmd: grep "linux.*{{ grub_audit_cmdline }} {{ grub_audit_backlog_cmdline }}" /boot/grub/grub.cfg
+          register: audit_grub_cfg
+          changed_when: false
+          failed_when: audit_grub_cfg.rc != 0
+          when:
+            - ansible_facts.os_family == "Debian"
+            - manage_auditd
