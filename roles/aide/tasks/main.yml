@@ -202,7 +202,7 @@
       ansible.builtin.command:
         cmd: aideinit --force --yes
       register: init_debian_aide
-      changed_when: init_debian_aide.rc != 0
+      changed_when: init_debian_aide.rc == 0
       failed_when: init_debian_aide.rc != 0
       when:
         - ansible_facts.os_family == "Debian"
