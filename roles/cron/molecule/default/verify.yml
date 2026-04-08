@@ -56,6 +56,15 @@
         path: /etc/crontab
       register: crontab_file
 
+    - name: Assert crontab is secure
+      ansible.builtin.assert:
+        that:
+          - crontab_file.stat.exists
+          - crontab_file.stat.pw_name == "root"
+          - crontab_file.stat.gr_name == "root"
+          - crontab_file.stat.mode == "0600"
+        fail_msg: "crontab is not properly secured"
+
     - name: Assert cron.allow exists and is secure
       ansible.builtin.assert:
         that:
@@ -68,7 +77,7 @@
     - name: Assert cron.deny is absent
       ansible.builtin.assert:
         that:
-          - not cron_deny.stat.exists or cron_deny.stat.size == 0
+          - not cron_deny.stat.exists
         fail_msg: "cron.deny should not exist or must be empty"
 
     - name: Gather cron directories
@@ -90,3 +99,28 @@
       when:
         - item.stat.exists
       loop: "{{ cron_dirs.results }}"
+
+    - name: Gather file stats for at.deny
+      ansible.builtin.stat:
+        path: /etc/at.deny
+      register: at_deny
+
+    - name: Assert at.deny is absent
+      ansible.builtin.assert:
+        that:
+          - not at_deny.stat.exists
+        fail_msg: "at.deny should not exist"
+
+    - name: Gather file stats for at.allow
+      ansible.builtin.stat:
+        path: /etc/at.allow
+      register: at_allow
+
+    - name: Assert at.allow exists and is secure
+      ansible.builtin.assert:
+        that:
+          - at_allow.stat.exists
+          - at_allow.stat.pw_name == "root"
+          - at_allow.stat.gr_name == "root"
+          - at_allow.stat.mode == "0600"
+        fail_msg: "at.allow is not properly secured"
