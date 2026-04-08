@@ -10,14 +10,22 @@
         - /etc/at.deny
         - /etc/cron.deny
 
-    - name: Clean cron and at
-      ansible.builtin.lineinfile:
+    - name: Check whether cron and at allow files exist
+      ansible.builtin.stat:
         path: "{{ item }}"
-        regexp: ^(?!root).*$
-        state: absent
       loop:
         - /etc/at.allow
         - /etc/cron.allow
+      register: cron_at_allow_files
+
+    - name: Clean cron and at
+      ansible.builtin.lineinfile:
+        path: "{{ item.item }}"
+        regexp: ^(?!root).*$
+        state: absent
+      loop: "{{ cron_at_allow_files.results }}"
+      when:
+        - item.stat.exists
 
     - name: Allow root cron and at
       ansible.builtin.lineinfile:
@@ -26,6 +34,8 @@
         mode: "0600"
         state: present
         create: true
+        owner: root
+        group: root
       loop:
         - /etc/at.allow
         - /etc/cron.allow
@@ -49,6 +59,7 @@
         mode: "0700"
         owner: root
         group: root
+        state: directory
       register: cron_perm
       failed_when:
         - cron_perm is not success
@@ -60,14 +71,16 @@
         - /etc/cron.weekly
         - /etc/cron.monthly
 
+    - name: Check whether /etc/crontab exists
+      ansible.builtin.stat:
+        path: /etc/crontab
+      register: crontab_stat
+
     - name: Set crontab permissions
       ansible.builtin.file:
         path: /etc/crontab
         mode: "0600"
         owner: root
         group: root
-        state: file
-      register: crontab_perm
-      failed_when:
-        - crontab_perm is not success
-        - not 'is absent, cannot continue' in crontab_perm.msg
+      when:
+        - crontab_stat.stat.exists

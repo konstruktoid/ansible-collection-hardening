@@ -29,12 +29,15 @@
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
 
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
     - name: Assert that the atd service is masked
       ansible.builtin.assert:
         that:
-          - "'atd' in ansible_facts.services"
           - ansible_facts.services['atd'].state == "masked"
       when:
+        - "'atd' in ansible_facts.services"
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
 
     - name: Gather file stats for cron.allow
