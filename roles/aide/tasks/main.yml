@@ -171,7 +171,7 @@
       ansible.builtin.command:
         cmd: aide --init -B 'database_out=file:/var/lib/aide/aide.db.gz'
       register: init_redhat_aide
-      changed_when: init_redhat_aide.rc != 0
+      changed_when: true
       failed_when: init_redhat_aide.rc != 0
       when:
         - ansible_facts.os_family == "RedHat"
