@@ -7,6 +7,7 @@
         name: aide-common
         state: present
         install_recommends: false
+        update_cache: true
       when:
         - ansible_facts.os_family == "Debian"
 
@@ -24,19 +25,22 @@
 
     - name: Install AIDE service
       ansible.builtin.template:
-        src: lib/systemd/system/aidecheck.service.j2
-        dest: /lib/systemd/system/aidecheck.service
+        src: etc/systemd/system/aidecheck.service.j2
+        dest: /etc/systemd/system/aidecheck.service
         backup: true
         mode: "0644"
         owner: root
         group: root
       when:
         - not aidecron.stat.exists
+      notify:
+        - Reload systemd
+        - Enable aidecheck
 
     - name: Install AIDE timer
       ansible.builtin.template:
-        src: lib/systemd/system/aidecheck.timer.j2
-        dest: /lib/systemd/system/aidecheck.timer
+        src: etc/systemd/system/aidecheck.timer.j2
+        dest: /etc/systemd/system/aidecheck.timer
         backup: true
         mode: "0644"
         owner: root
@@ -54,6 +58,8 @@
         regexp: ^Checksums =
         line: Checksums = {{ aide_checksums }}
         mode: "0640"
+        owner: root
+        group: root
         create: false
         validate: aide --config-check --config=%s
 
@@ -96,7 +102,7 @@
       when:
         - not aide_config_d.stat.exists
 
-    - name: Add AIDE dir exclusions
+    - name: Add AIDE dir exclusions in main config
       ansible.builtin.lineinfile:
         path: "{{ '/etc/aide/aide.conf' if ansible_facts.os_family == 'Debian' else '/etc/aide.conf' }}"
         line: "!{{ item }}"
@@ -106,8 +112,7 @@
         group: root
         create: false
         validate: aide --config-check --config=%s
-      with_items:
-        - "{{ aide_dir_exclusions }}"
+      loop: "{{ aide_dir_exclusions }}"
       when:
         - not aide_config_d.stat.exists
 
@@ -132,7 +137,7 @@
       when:
         - aide_config_d.stat.exists
 
-    - name: Add AIDE dir exclusions
+    - name: Add AIDE dir exclusions in include directory
       ansible.builtin.lineinfile:
         path: "{{ aide_include_d }}/99_aide_exclusions"
         line: "!{{ item }}"
@@ -142,8 +147,7 @@
         group: root
         create: true
         validate: aide --config-check --config=%s
-      with_items:
-        - "{{ aide_dir_exclusions }}"
+      loop: "{{ aide_dir_exclusions }}"
       when:
         - aide_config_d.stat.exists
 
