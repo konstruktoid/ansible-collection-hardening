@@ -38,7 +38,7 @@
           - ansible_facts.services['atd.service'].status == "masked"
           - ansible_facts.services['atd.service'].state == "stopped"
       when:
-        - "'atd' in ansible_facts.services"
+        - "'atd.service' in ansible_facts.services"
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
 
     - name: Gather file stats for cron.allow
