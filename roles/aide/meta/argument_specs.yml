@@ -1,0 +1,18 @@
+---
+argument_specs:
+  main:
+    short_description: AIDE installation and configuration
+    description:
+      - This role installs and configures AIDE.
+    author:
+      - 'Thomas Sjögren (@konstruktoid)'
+    options:
+      aide_checksums:
+        description: "Modifies the AIDE C(Checksums) variable."
+        type: "str"
+        default: "sha512"
+      aide_dir_exclusions:
+        description: "AIDE directories to exclude from checks."
+        type: "list"
+        elements: "str"
+        default: "['/var/lib/docker', '/var/lib/lxcfs', '/var/lib/private/systemd', '/var/log/audit', '/var/log/journal']"

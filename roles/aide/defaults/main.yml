@@ -1,0 +1,11 @@
+---
+# Modifies the AIDE C(Checksums) variable.
+aide_checksums: "sha512"
+
+# AIDE directories to exclude from checks.
+aide_dir_exclusions:
+  - "/var/lib/docker"
+  - "/var/lib/lxcfs"
+  - "/var/lib/private/systemd"
+  - "/var/log/audit"
+  - "/var/log/journal"

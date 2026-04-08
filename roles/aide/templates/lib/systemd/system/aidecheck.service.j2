@@ -1,0 +1,16 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+# Managed by Ansible role {{ ansible_role_name }}
+
+[Unit]
+Description=Aide Check
+
+[Service]
+Type=simple
+{% if ansible_facts.os_family == 'Debian' %}
+ExecStart=/usr/bin/aide --check --config /etc/aide/aide.conf
+{% else %}
+ExecStart=/usr/sbin/aide --check
+{% endif %}
+
+[Install]
+WantedBy=multi-user.target

@@ -15,6 +15,7 @@
 hosts
 roles/*
 !roles/adduser
+!roles/aide
 !roles/apparmor
 !roles/apport
 !roles/cron
