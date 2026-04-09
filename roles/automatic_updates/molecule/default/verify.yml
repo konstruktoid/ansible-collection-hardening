@@ -61,7 +61,7 @@
       failed_when: unattended_upgrades.rc != 0
       loop:
         - Unattended-Upgrade::Automatic-Reboot "true";
-        - Unattended-Upgrade::Automatic-Reboot-Time "02:00";
+        - 'Unattended-Upgrade::Automatic-Reboot-Time "{{ "%02d:%02d" | format(reboot_hour | int, reboot_minute | int) }}";'
       when:
         - ansible_facts.os_family == "Debian"
         - automatic_updates.reboot
