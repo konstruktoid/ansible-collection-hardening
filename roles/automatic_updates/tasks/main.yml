@@ -134,6 +134,16 @@
         - automatic_updates.custom_origins is defined
         - automatic_updates.custom_origins | length > 0
 
+    - name: Remove unattended-upgrades custom origins config when not in use
+      ansible.builtin.file:
+        path: /etc/apt/apt.conf.d/53unattended-upgrades-custom-origins
+        state: absent
+      notify:
+        - Restart unattended-upgrades
+      when: >-
+        automatic_updates.custom_origins is not defined or
+        automatic_updates.custom_origins | length == 0
+
     - name: Check if unattended-upgrades service exists
       ansible.builtin.systemd:
         name: unattended-upgrades
