@@ -80,7 +80,7 @@
       notify:
         - Restart unattended-upgrades
 
-    - name: Configure unattended-upgrades upgrade intervall
+    - name: Configure unattended-upgrades upgrade interval
       ansible.builtin.lineinfile:
         dest: /etc/apt/apt.conf.d/20auto-upgrades
         line: APT::Periodic::Unattended-Upgrade "1";
