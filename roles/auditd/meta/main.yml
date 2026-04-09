@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: auditd
   author: konstruktoid
-  description: AlmaLinux, Debian and Ubuntu hardening. systemd edition.
+  description: Install and configure auditd and manage audit rules on AlmaLinux, Debian, and Ubuntu.
   license: apache
   min_ansible_version: "2.18"
   platforms:
