@@ -47,14 +47,14 @@
 -a always,exit -F arch=b64 -S truncate -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
 
 # Various system calls by non-root users
--a always,exit -F arch=b32 -C euid!=uid -F euid=0 -Fauid>=1000 -F auid!=unset -S execve -F key=actions
+-a always,exit -F arch=b32 -C euid!=uid -F euid=0 -F auid>=1000 -F auid!=unset -S execve -F key=actions
 -a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b32 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b32 -S creat,open,openat,truncate,ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b32 -S creat,open,openat,truncate,ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b32 -S fremovexattr,lremovexattr,removexattr -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b32 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -F auid>=1000 -F auid!=unset -F key=actions
--a always,exit -F arch=b64 -C euid!=uid -F euid=0 -Fauid>=1000 -F auid!=unset -S execve -F key=actions
+-a always,exit -F arch=b64 -C euid!=uid -F euid=0 -F auid>=1000 -F auid!=unset -S execve -F key=actions
 -a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b64 -S creat,open,openat,truncate,ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=actions
