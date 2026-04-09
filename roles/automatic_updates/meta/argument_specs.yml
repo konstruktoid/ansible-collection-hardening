@@ -15,7 +15,7 @@ argument_specs:
           - reboot: false
           - reboot_from_time: "2:00"
           - reboot_time_margin_mins: 20
-          - custom_origins: ""
+          - custom_origins: []
         description: "Configure automatic updates."
         options:
           only_security:
