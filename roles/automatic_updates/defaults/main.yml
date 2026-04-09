@@ -1,7 +1,6 @@
 ---
 # Configure automatic updates.
 automatic_updates:
-  enabled: true # If True, install and configure C(dnf-automatic) or C(unattended-upgrades), depending on the distribution.
   only_security: true # If True, only security updates will be installed automatically.
   reboot: false # If True, it will reboot the system if needed.
   reboot_from_time: "2:00" # If system reboot is enabled, the variable sets the reboot time, with added random minutes from C(reboot_time_margin_mins).

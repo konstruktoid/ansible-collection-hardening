@@ -18,9 +18,6 @@ argument_specs:
           - custom_origins: ""
         description: "Configure automatic updates."
         options:
-          enabled:
-            description: "If True, install and configure C(dnf-automatic) or C(unattended-upgrades), depending on the distribution."
-            type: "bool"
           only_security:
             description: "If True, only security updates will be installed automatically."
             type: "bool"

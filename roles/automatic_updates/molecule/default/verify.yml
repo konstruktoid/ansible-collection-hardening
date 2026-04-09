@@ -64,7 +64,6 @@
         - Unattended-Upgrade::Automatic-Reboot-Time "02:00";
       when:
         - ansible_facts.os_family == "Debian"
-        - automatic_updates.enabled
         - automatic_updates.reboot
 
     - name: Verify unattended-upgrades settings
@@ -82,4 +81,3 @@
         - Unattended-Upgrade::.*-[s|S]ecurity";
       when:
         - ansible_facts.os_family == "Debian"
-        - automatic_updates.enabled
