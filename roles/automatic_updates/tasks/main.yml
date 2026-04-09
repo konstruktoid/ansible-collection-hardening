@@ -149,6 +149,8 @@
         name: unattended-upgrades
       register: unattended_upgrades_status
       failed_when: false
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
 
     - name: Enable and start unattended-upgrades service
       ansible.builtin.systemd_service:
