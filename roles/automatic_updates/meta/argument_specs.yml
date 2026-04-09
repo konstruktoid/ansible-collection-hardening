@@ -10,7 +10,6 @@ argument_specs:
       automatic_updates:
         type: "dict"
         default:
-          - enabled: true
           - only_security: true
           - reboot: false
           - reboot_from_time: "2:00"
