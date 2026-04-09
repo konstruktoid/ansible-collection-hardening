@@ -1,0 +1,85 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for the host and reconnect
+          ansible.builtin.wait_for:
+            port: 22
+            host: "{{ (ansible_facts.ssh_host | default(ansible_facts.host)) | default(inventory_hostname) }}"
+            delay: 10
+            timeout: 120
+
+    - name: Include default vars
+      ansible.builtin.include_vars:
+        dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/"
+        extensions:
+          - yml
+
+    - name: Include host vars
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Reboot time testing
+      when:
+        - ansible_facts.os_family == "Debian"
+      block:
+        - name: Set base time and margin for reboot calculation
+          ansible.builtin.set_fact:
+            reboot_base_time: "{{ automatic_updates.reboot_from_time.split(':') }}"
+            reboot_time_margin_mins: "{{ automatic_updates.reboot_time_margin_mins | int }}"
+
+        - name: Calculate random margin
+          ansible.builtin.set_fact:
+            random_margin: "{{ range(0, (reboot_time_margin_mins | int)) | random }}"
+
+        - name: Calculate total minutes for reboot
+          ansible.builtin.set_fact:
+            total_minutes: "{{ (reboot_base_time[0] | int) * 60 + (reboot_base_time[1] | int) + (random_margin | int) }}"
+
+        - name: Translates to hours, and minutes
+          ansible.builtin.set_fact:
+            reboot_hour: "{{ ((total_minutes | int) // 60) % 24 }}"
+            reboot_minute: "{{ (total_minutes | int) % 60 }}"
+
+    - name: Verify unattended-upgrades reboot settings
+      ansible.builtin.shell: |
+        set -o pipefail
+        apt-config dump | grep -Eo '^{{ item }}$'
+      args:
+        executable: /bin/bash
+      register: unattended_upgrades
+      changed_when: false
+      failed_when: unattended_upgrades.rc != 0
+      loop:
+        - Unattended-Upgrade::Automatic-Reboot "true";
+        - Unattended-Upgrade::Automatic-Reboot-Time "02:00";
+      when:
+        - ansible_facts.os_family == "Debian"
+        - automatic_updates.enabled
+        - automatic_updates.reboot
+
+    - name: Verify unattended-upgrades settings
+      ansible.builtin.shell: |
+        set -o pipefail
+        apt-config dump | grep -Eo '^{{ item }}$'
+      args:
+        executable: /bin/bash
+      register: unattended_upgrades
+      changed_when: false
+      failed_when: unattended_upgrades.rc != 0
+      loop:
+        - APT::Periodic::Unattended-Upgrade "1";
+        - APT::Periodic::Update-Package-Lists "1";
+        - Unattended-Upgrade::.*-[s|S]ecurity";
+      when:
+        - ansible_facts.os_family == "Debian"
+        - automatic_updates.enabled

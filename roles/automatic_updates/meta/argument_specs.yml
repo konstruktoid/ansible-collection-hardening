@@ -1,0 +1,47 @@
+---
+argument_specs:
+  main:
+    short_description: Configuration of unattended-upgrades
+    description:
+      - Configure unattended-upgrades to automatically install security updates and updates from custom origins.
+    author:
+      - konstruktoid
+    options:
+      automatic_updates:
+        type: "dict"
+        default:
+          - enabled: true
+          - only_security: true
+          - reboot: false
+          - reboot_from_time: "2:00"
+          - reboot_time_margin_mins: 20
+          - custom_origins: ""
+        description: "Configure automatic updates."
+        options:
+          enabled:
+            description: "If True, install and configure C(dnf-automatic) or C(unattended-upgrades), depending on the distribution."
+            type: "bool"
+          only_security:
+            description: "If True, only security updates will be installed automatically."
+            type: "bool"
+          reboot:
+            description: "If True, it will reboot the system if needed."
+            type: "bool"
+          reboot_from_time:
+            description: "If system reboot is enabled, the variable sets the reboot time, with added random minutes from C(reboot_time_margin_mins)."
+            type: "str"
+          reboot_time_margin_mins:
+            description: "Add minutes to the reboot time, set using C(reboot_from_time)."
+            type: "int"
+          custom_origins:
+            description: "Add custom origins to unattended upgrades through a list. For Debian it's \"origin=<ORIGIN>,archive=<ARCHIVE>\". For Ubuntu it is \"<ORIGIN>:<ARCHIVE>\"." # noqa: yaml[line-length]
+            type: "list"
+            elements: "str"
+      unattended_upgrades_template:
+        description: "APT unattended-upgrades template location."
+        type: "path"
+        default: "etc/apt/apt.conf.d/52unattended-upgrades-local.j2"
+      unattended_upgrades_custom_origins_template:
+        description: "APT unattended-upgrades for custom origins template location."
+        type: "path"
+        default: "etc/apt/apt.conf.d/53unattended-upgrades-custom-origins.j2"

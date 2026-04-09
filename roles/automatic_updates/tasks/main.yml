@@ -1,0 +1,151 @@
+---
+- name: Install and configure dnf-automatic
+  become: true
+  when:
+    - ansible_facts.os_family == "RedHat"
+  block:
+    - name: Install dnf-automatic
+      ansible.builtin.dnf:
+        name: dnf-automatic
+        state: present
+        update_cache: true
+      notify:
+        - Run dnf autoremove
+
+    - name: Install updates automatically
+      community.general.ini_file:
+        dest: /etc/dnf/automatic.conf
+        section: commands
+        option: apply_updates
+        value: "yes"
+        owner: root
+        group: root
+        mode: "0644"
+        create: true
+
+    - name: Install only security updates
+      community.general.ini_file:
+        dest: /etc/dnf/automatic.conf
+        section: commands
+        option: upgrade_type
+        value: security
+        owner: root
+        group: root
+        mode: "0644"
+        create: true
+
+    - name: Configure reboot after updates
+      community.general.ini_file:
+        dest: /etc/dnf/automatic.conf
+        section: commands
+        option: reboot
+        value: "{{ 'when-needed' if automatic_updates.reboot else 'never' }}"
+        owner: root
+        group: root
+        mode: "0644"
+        create: true
+
+    - name: Enable dnf-automatic timer
+      ansible.builtin.systemd_service:
+        name: dnf-automatic.timer
+        enabled: true
+        state: started
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+- name: Install and configure unattended-upgrades
+  become: true
+  when:
+    - ansible_facts.os_family == "Debian"
+  block:
+    - name: Install unattended-upgrades
+      ansible.builtin.apt:
+        name: unattended-upgrades
+        state: present
+        update_cache: true
+      notify:
+        - Run apt-get clean
+        - Run apt-get autoremove
+
+    - name: Configure unattended-upgrades package lists updates
+      ansible.builtin.lineinfile:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        line: APT::Periodic::Update-Package-Lists "1";
+        regexp: ^APT::Periodic::Update-Package-Lists
+        state: present
+        owner: root
+        group: root
+        mode: "0644"
+        create: true
+      notify:
+        - Restart unattended-upgrades
+
+    - name: Configure unattended-upgrades upgrade intervall
+      ansible.builtin.lineinfile:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        line: APT::Periodic::Unattended-Upgrade "1";
+        regexp: ^APT::Periodic::Unattended-Upgrade
+        state: present
+        owner: root
+        group: root
+        mode: "0644"
+        create: true
+      notify:
+        - Restart unattended-upgrades
+
+    - name: Set base time and margin for reboot calculation
+      ansible.builtin.set_fact:
+        reboot_base_time: "{{ automatic_updates.reboot_from_time.split(':') }}"
+        reboot_time_margin_mins: "{{ automatic_updates.reboot_time_margin_mins | int }}"
+
+    - name: Calculate random margin
+      ansible.builtin.set_fact:
+        random_margin: "{{ range(0, (reboot_time_margin_mins | int)) | random }}"
+
+    - name: Calculate total minutes for reboot
+      ansible.builtin.set_fact:
+        total_minutes: "{{ (reboot_base_time[0] | int) * 60 + (reboot_base_time[1] | int) + (random_margin | int) }}"
+
+    - name: Translates to hours, and minutes
+      ansible.builtin.set_fact:
+        reboot_hour: "{{ ((total_minutes | int) // 60) % 24 }}"
+        reboot_minute: "{{ (total_minutes | int) % 60 }}"
+
+    - name: Configure unattended-upgrades
+      ansible.builtin.template:
+        src: "{{ unattended_upgrades_template }}"
+        dest: /etc/apt/apt.conf.d/52unattended-upgrades-local
+        mode: "0644"
+        owner: root
+        group: root
+      notify:
+        - Restart unattended-upgrades
+
+    - name: Configure unattended-upgrades for custom_origins
+      ansible.builtin.template:
+        src: "{{ unattended_upgrades_custom_origins_template }}"
+        dest: /etc/apt/apt.conf.d/53unattended-upgrades-custom-origins
+        mode: "0644"
+        owner: root
+        group: root
+      notify:
+        - Restart unattended-upgrades
+      when:
+        - automatic_updates.custom_origins is defined
+        - automatic_updates.custom_origins | length > 0
+
+    - name: Check if unattended-upgrades service exists
+      ansible.builtin.systemd:
+        name: unattended-upgrades
+      register: unattended_upgrades_status
+      failed_when: false
+
+    - name: Enable and start unattended-upgrades service
+      ansible.builtin.systemd_service:
+        name: unattended-upgrades
+        state: started
+        enabled: true
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+        - unattended_upgrades_status.status is defined
+        - unattended_upgrades_status.status.LoadState == "loaded"
