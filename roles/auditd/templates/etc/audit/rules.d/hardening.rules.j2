@@ -1,0 +1,511 @@
+# Managed by Ansible role {{ ansible_role_name }}
+
+# Remove any existing rules
+-D
+
+# Buffer Size
+-b 8192
+
+# {{ 'Ignore errors' if auditd_ignore_errors else 'Report errors' }}
+{{ '-i' if auditd_ignore_errors else '-c' }}
+
+# Failure Mode
+-f {{ auditd_mode | int }}
+
+# File-related system calls and directory access
+-a always,exit -F arch=b32 -S creat,ftruncate,open,openat,truncate,open_by_handle_at -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
+-a always,exit -F arch=b32 -S creat,ftruncate,open,openat,truncate,open_by_handle_at -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
+-a always,exit -F arch=b32 -S open -F dir=/bin -F success=0 -F key=access
+-a always,exit -F arch=b32 -S open -F dir=/etc -F success=0 -F key=access
+-a always,exit -F arch=b32 -S open -F dir=/home -F success=0 -F key=access
+-a always,exit -F arch=b32 -S open -F dir=/root -F success=0 -F key=access
+-a always,exit -F arch=b32 -S open -F dir=/sbin -F success=0 -F key=access
+-a always,exit -F arch=b32 -S open -F dir=/srv -F success=0 -F key=access
+-a always,exit -F arch=b32 -S open -F dir=/tmp -F success=0 -F key=access
+-a always,exit -F arch=b32 -S open -F dir=/usr/bin -F success=0 -F key=access
+-a always,exit -F arch=b32 -S open -F dir=/usr/sbin -F success=0 -F key=access
+-a always,exit -F arch=b32 -S open -F dir=/var -F success=0 -F key=access
+-a always,exit -F arch=b32 -S open -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
+-a always,exit -F arch=b32 -S open -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
+-a always,exit -F arch=b32 -S truncate -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
+-a always,exit -F arch=b32 -S truncate -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
+-a always,exit -F arch=b64 -S creat,ftruncate,open,openat,truncate,open_by_handle_at -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
+-a always,exit -F arch=b64 -S creat,ftruncate,open,openat,truncate,open_by_handle_at -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
+-a always,exit -F arch=b64 -S open -F dir=/bin -F success=0 -F key=access
+-a always,exit -F arch=b64 -S open -F dir=/etc -F success=0 -F key=access
+-a always,exit -F arch=b64 -S open -F dir=/home -F success=0 -F key=access
+-a always,exit -F arch=b64 -S open -F dir=/root -F success=0 -F key=access
+-a always,exit -F arch=b64 -S open -F dir=/sbin -F success=0 -F key=access
+-a always,exit -F arch=b64 -S open -F dir=/srv -F success=0 -F key=access
+-a always,exit -F arch=b64 -S open -F dir=/tmp -F success=0 -F key=access
+-a always,exit -F arch=b64 -S open -F dir=/usr/bin -F success=0 -F key=access
+-a always,exit -F arch=b64 -S open -F dir=/usr/sbin -F success=0 -F key=access
+-a always,exit -F arch=b64 -S open -F dir=/var -F success=0 -F key=access
+-a always,exit -F arch=b64 -S open -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
+-a always,exit -F arch=b64 -S open -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
+-a always,exit -F arch=b64 -S truncate -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=access
+-a always,exit -F arch=b64 -S truncate -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=access
+
+# Various system calls by non-root users
+-a always,exit -F arch=b32 -C euid!=uid -F euid=0 -F auid>=1000 -F auid!=unset -S execve -F key=actions
+-a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -F key=actions
+-a always,exit -F arch=b32 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -F key=actions
+-a always,exit -F arch=b32 -S creat,open,openat,truncate,ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=actions
+-a always,exit -F arch=b32 -S creat,open,openat,truncate,ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=actions
+-a always,exit -F arch=b32 -S fremovexattr,lremovexattr,removexattr -F auid>=1000 -F auid!=unset -F key=actions
+-a always,exit -F arch=b32 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -F auid>=1000 -F auid!=unset -F key=actions
+-a always,exit -F arch=b64 -C euid!=uid -F euid=0 -F auid>=1000 -F auid!=unset -S execve -F key=actions
+-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -F key=actions
+-a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -F key=actions
+-a always,exit -F arch=b64 -S creat,open,openat,truncate,ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=actions
+-a always,exit -F arch=b64 -S creat,open,openat,truncate,ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=actions
+-a always,exit -F arch=b64 -S fremovexattr,lremovexattr,removexattr -F auid>=1000 -F auid!=unset -F key=actions
+-a always,exit -F arch=b64 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -F auid>=1000 -F auid!=unset -F key=actions
+
+# Access to su, sudo, and sudoers files
+-a always,exit -F path=/bin/su -F arch=b32 -F perm=x -F key=actions
+-a always,exit -F dir=/etc/sudoers.d/ -F arch=b32 -F perm=wa -F key=actions
+-a always,exit -F path=/etc/sudoers -F arch=b32 -F perm=wa -F key=actions
+-a always,exit -F path=/usr/bin/sudo -F arch=b32 -F perm=x -F key=actions
+-a always,exit -F path=/bin/su -F arch=b64 -F perm=x -F key=actions
+-a always,exit -F dir=/etc/sudoers.d/ -F arch=b64 -F perm=wa -F key=actions
+-a always,exit -F path=/etc/sudoers -F arch=b64 -F perm=wa -F key=actions
+-a always,exit -F path=/usr/bin/sudo -F arch=b64 -F perm=x -F key=actions
+
+# Actions by root in /home/ not owned by root
+-a always,exit -S all -F dir=/home/ -F uid=0 -C auid!=obj_uid -F key=admin-user-home
+
+# Access to AppArmor tools and configuration
+-a always,exit -F path=/sbin/apparmor_parser -F arch=b32 -F perm=x -F key=apparmor-tools
+-a always,exit -F path=/usr/sbin/aa-complain -F arch=b32 -F perm=x -F key=apparmor-tools
+-a always,exit -F path=/usr/sbin/aa-disable -F arch=b32 -F perm=x -F key=apparmor-tools
+-a always,exit -F path=/usr/sbin/aa-enforce -F arch=b32 -F perm=x -F key=apparmor-tools
+-a always,exit -F dir=/etc/apparmor.d -F arch=b32 -F perm=wa -F key=apparmor
+-a always,exit -F dir=/etc/apparmor -F arch=b32 -F perm=wa -F key=apparmor
+-a always,exit -F path=/sbin/apparmor_parser -F arch=b64 -F perm=x -F key=apparmor-tools
+-a always,exit -F path=/usr/sbin/aa-complain -F arch=b64 -F perm=x -F key=apparmor-tools
+-a always,exit -F path=/usr/sbin/aa-disable -F arch=b64 -F perm=x -F key=apparmor-tools
+-a always,exit -F path=/usr/sbin/aa-enforce -F arch=b64 -F perm=x -F key=apparmor-tools
+-a always,exit -F dir=/etc/apparmor.d -F arch=b64 -F perm=wa -F key=apparmor
+-a always,exit -F dir=/etc/apparmor -F arch=b64 -F perm=wa -F key=apparmor
+
+# Changes to audit configuration and tools
+-a always,exit -F path=/etc/audisp -F arch=b32 -F perm=wa -F key=audispconfig
+-a always,exit -F path=/etc/audit -F arch=b32 -F perm=wa -F key=auditconfig
+-a always,exit -F path=/etc/libaudit.conf -F arch=b32 -F perm=wa -F key=auditconfig
+-a always,exit -F path=/var/log/audit -F arch=b32 -F perm=rwxa -F key=auditlog
+-a always,exit -F path=/sbin/auditctl -F arch=b32 -F perm=x -F key=audittools
+-a always,exit -F path=/sbin/auditd -F arch=b32 -F perm=x -F key=audittools
+-a always,exit -F path=/etc/audisp -F arch=b64 -F perm=wa -F key=audispconfig
+-a always,exit -F path=/etc/audit -F arch=b64 -F perm=wa -F key=auditconfig
+-a always,exit -F path=/etc/libaudit.conf -F arch=b64 -F perm=wa -F key=auditconfig
+-a always,exit -F path=/var/log/audit -F arch=b64 -F perm=rwxa -F key=auditlog
+-a always,exit -F path=/sbin/auditctl -F arch=b64 -F perm=x -F key=audittools
+-a always,exit -F path=/sbin/auditd -F arch=b64 -F perm=x -F key=audittools
+
+# Network configuration changes
+-a always,exit -F arch=b32 -S sethostname,setdomainname -F key=audit_rules_networkconfig_modification
+-a always,exit -F arch=b64 -S sethostname,setdomainname -F key=audit_rules_networkconfig_modification
+-a always,exit -F path=/etc/hosts -F arch=b32 -F perm=wa -F key=audit_rules_networkconfig_modification
+-a always,exit -F path=/etc/issue.net -F arch=b32 -F perm=wa -F key=audit_rules_networkconfig_modification
+-a always,exit -F path=/etc/issue -F arch=b32 -F perm=wa -F key=audit_rules_networkconfig_modification
+-a always,exit -F path=/etc/sysconfig/network -F arch=b32 -F perm=wa -F key=audit_rules_networkconfig_modification
+-a always,exit -F path=/etc/hosts -F arch=b64 -F perm=wa -F key=audit_rules_networkconfig_modification
+-a always,exit -F path=/etc/issue.net -F arch=b64 -F perm=wa -F key=audit_rules_networkconfig_modification
+-a always,exit -F path=/etc/issue -F arch=b64 -F perm=wa -F key=audit_rules_networkconfig_modification
+-a always,exit -F path=/etc/sysconfig/network -F arch=b64 -F perm=wa -F key=audit_rules_networkconfig_modification
+
+# User/group file modifications
+-a always,exit -F path=/etc/group -F arch=b32 -F perm=wa -F key=audit_rules_usergroup_modification
+-a always,exit -F path=/etc/gshadow -F arch=b32 -F perm=wa -F key=audit_rules_usergroup_modification
+-a always,exit -F path=/etc/passwd -F arch=b32 -F perm=wa -F key=audit_rules_usergroup_modification
+-a always,exit -F path=/etc/security/opasswd -F arch=b32 -F perm=wa -F key=audit_rules_usergroup_modification
+-a always,exit -F path=/etc/shadow -F arch=b32 -F perm=wa -F key=audit_rules_usergroup_modification
+-a always,exit -F path=/etc/group -F arch=b64 -F perm=wa -F key=audit_rules_usergroup_modification
+-a always,exit -F path=/etc/gshadow -F arch=b64 -F perm=wa -F key=audit_rules_usergroup_modification
+-a always,exit -F path=/etc/passwd -F arch=b64 -F perm=wa -F key=audit_rules_usergroup_modification
+-a always,exit -F path=/etc/security/opasswd -F arch=b64 -F perm=wa -F key=audit_rules_usergroup_modification
+-a always,exit -F path=/etc/shadow -F arch=b64 -F perm=wa -F key=audit_rules_usergroup_modification
+
+# System time modifications
+-a always,exit -F arch=b32 -S adjtimex,settimeofday,stime -F key=audit_time_rules
+-a always,exit -F arch=b64 -S adjtimex,settimeofday -F key=audit_time_rules
+-a always,exit -F path=/etc/localtime -F arch=b32 -F perm=wa -F key=audit_time_rules
+-a always,exit -F path=/etc/localtime -F arch=b64 -F perm=wa -F key=audit_time_rules
+
+# Cron configuration modifications
+-a always,exit -F path=/etc/cron.allow -F arch=b32 -F perm=wa -F key=cron
+-a always,exit -F path=/etc/cron.daily -F arch=b32 -F perm=wa -F key=cron
+-a always,exit -F path=/etc/cron.deny -F arch=b32 -F perm=wa -F key=cron
+-a always,exit -F path=/etc/cron.d -F arch=b32 -F perm=wa -F key=cron
+-a always,exit -F path=/etc/cron.hourly -F arch=b32 -F perm=wa -F key=cron
+-a always,exit -F path=/etc/cron.monthly -F arch=b32 -F perm=wa -F key=cron
+-a always,exit -F path=/etc/crontab -F arch=b32 -F perm=wa -F key=cron
+-a always,exit -F path=/etc/cron.weekly -F arch=b32 -F perm=wa -F key=cron
+-a always,exit -F path=/var/spool/cron/crontabs -F arch=b32 -F perm=rwxa -F key=cron
+-a always,exit -F path=/etc/cron.allow -F arch=b64 -F perm=wa -F key=cron
+-a always,exit -F path=/etc/cron.daily -F arch=b64 -F perm=wa -F key=cron
+-a always,exit -F path=/etc/cron.deny -F arch=b64 -F perm=wa -F key=cron
+-a always,exit -F path=/etc/cron.d -F arch=b64 -F perm=wa -F key=cron
+-a always,exit -F path=/etc/cron.hourly -F arch=b64 -F perm=wa -F key=cron
+-a always,exit -F path=/etc/cron.monthly -F arch=b64 -F perm=wa -F key=cron
+-a always,exit -F path=/etc/crontab -F arch=b64 -F perm=wa -F key=cron
+-a always,exit -F path=/etc/cron.weekly -F arch=b64 -F perm=wa -F key=cron
+-a always,exit -F path=/var/spool/cron/crontabs -F arch=b64 -F perm=rwxa -F key=cron
+
+# File deletion and renaming by users
+-a always,exit -F arch=b32 -S rename,renameat,unlink,unlinkat -F auid>=1000 -F auid!=unset -F key=delete
+-a always,exit -F arch=b64 -S rename,renameat,unlink,unlinkat -F auid>=1000 -F auid!=unset -F key=delete
+
+# Group file modifications and group commands
+-a always,exit -F path=/etc/group -F arch=b32 -F perm=wa -F key=group-modification
+-a always,exit -F path=/etc/gshadow -F arch=b32 -F perm=wa -F key=group-modification
+-a always,exit -F path=/etc/passwd -F arch=b32 -F perm=wa -F key=group-modification
+-a always,exit -F path=/etc/security/opasswd -F arch=b32 -F perm=wa -F key=group-modification
+-a always,exit -F path=/etc/shadow -F arch=b32 -F perm=wa -F key=group-modification
+-a always,exit -F path=/usr/sbin/addgroup -F arch=b32 -F perm=x -F key=group-modification
+-a always,exit -F path=/usr/sbin/groupadd -F arch=b32 -F perm=x -F key=group-modification
+-a always,exit -F path=/usr/sbin/groupmod -F arch=b32 -F perm=x -F key=group-modification
+-a always,exit -F path=/etc/group -F arch=b64 -F perm=wa -F key=group-modification
+-a always,exit -F path=/etc/gshadow -F arch=b64 -F perm=wa -F key=group-modification
+-a always,exit -F path=/etc/passwd -F arch=b64 -F perm=wa -F key=group-modification
+-a always,exit -F path=/etc/security/opasswd -F arch=b64 -F perm=wa -F key=group-modification
+-a always,exit -F path=/etc/shadow -F arch=b64 -F perm=wa -F key=group-modification
+-a always,exit -F path=/usr/sbin/addgroup -F arch=b64 -F perm=x -F key=group-modification
+-a always,exit -F path=/usr/sbin/groupadd -F arch=b64 -F perm=x -F key=group-modification
+-a always,exit -F path=/usr/sbin/groupmod -F arch=b64 -F perm=x -F key=group-modification
+
+# Startup scripts
+-a always,exit -F dir=/etc/init.d -F arch=b32 -F perm=wa -F key=init
+-a always,exit -F path=/etc/init -F arch=b32 -F perm=wa -F key=init
+-a always,exit -F path=/etc/inittab -F arch=b32 -F perm=wa -F key=init
+-a always,exit -F dir=/etc/init.d -F arch=b64 -F perm=wa -F key=init
+-a always,exit -F path=/etc/init -F arch=b64 -F perm=wa -F key=init
+-a always,exit -F path=/etc/inittab -F arch=b64 -F perm=wa -F key=init
+
+# Library lookup paths
+-a always,exit -F dir=/etc/ld.so.conf.d/ -F arch=b32 -F perm=wa -F key=libpath
+-a always,exit -F path=/etc/ld.so.conf -F arch=b32 -F perm=wa -F key=libpath
+-a always,exit -F dir=/etc/ld.so.conf.d/ -F arch=b64 -F perm=wa -F key=libpath
+-a always,exit -F path=/etc/ld.so.conf -F arch=b64 -F perm=wa -F key=libpath
+
+# Local time
+-a always,exit -F path=/etc/localtime -F arch=b32 -F perm=wa -F key=localtime
+-a always,exit -F path=/etc/localtime -F arch=b64 -F perm=wa -F key=localtime
+
+# Login monitoring
+-a always,exit -F path=/etc/login.defs -F arch=b32 -F perm=wa -F key=login
+-a always,exit -F path=/etc/securetty -F arch=b32 -F perm=wa -F key=login
+-a always,exit -F path=/var/run/faillock -F arch=b32 -F perm=wa -F key=login
+-a always,exit -F path=/var/log/faillog -F arch=b32 -F perm=wa -F key=login
+-a always,exit -F path=/var/log/lastlog -F arch=b32 -F perm=wa -F key=login
+-a always,exit -F path=/var/log/tallylog -F arch=b32 -F perm=wa -F key=login
+-a always,exit -F path=/var/log/faillock -F arch=b32 -F perm=wa -F key=login
+-a always,exit -F path=/var/log/sudo.log -F arch=b32 -F perm=wa -F key=login
+-a always,exit -F path=/etc/login.defs -F arch=b64 -F perm=wa -F key=login
+-a always,exit -F path=/etc/securetty -F arch=b64 -F perm=wa -F key=login
+-a always,exit -F path=/var/run/faillock -F arch=b64 -F perm=wa -F key=login
+-a always,exit -F path=/var/log/faillog -F arch=b64 -F perm=wa -F key=login
+-a always,exit -F path=/var/log/lastlog -F arch=b64 -F perm=wa -F key=login
+-a always,exit -F path=/var/log/tallylog -F arch=b64 -F perm=wa -F key=login
+-a always,exit -F path=/var/log/faillock -F arch=b64 -F perm=wa -F key=login
+-a always,exit -F path=/var/log/sudo.log -F arch=b64 -F perm=wa -F key=login
+
+# SELinux configuration
+-a always,exit -F dir=/etc/selinux/ -F arch=b32 -F perm=wa -F key=MAC-policy
+-a always,exit -F dir=/usr/share/selinux/ -F arch=b32 -F perm=wa -F key=MAC-policy
+-a always,exit -F dir=/etc/selinux/ -F arch=b64 -F perm=wa -F key=MAC-policy
+-a always,exit -F dir=/usr/share/selinux/ -F arch=b64 -F perm=wa -F key=MAC-policy
+
+# Mail and Postfix
+-a always,exit -F path=/etc/aliases -F arch=b32 -F perm=wa -F key=mail
+-a always,exit -F path=/etc/postfix -F arch=b32 -F perm=wa -F key=mail
+-a always,exit -F path=/etc/aliases -F arch=b64 -F perm=wa -F key=mail
+-a always,exit -F path=/etc/postfix -F arch=b64 -F perm=wa -F key=mail
+
+# Kernel module configuration and tools
+-a always,exit -F path=/etc/modprobe.conf -F arch=b32 -F perm=wa -F key=modprobe
+-a always,exit -F dir=/etc/modprobe.d -F arch=b32 -F perm=wa -F key=modprobe
+-a always,exit -F path=/etc/modules -F arch=b32 -F perm=wa -F key=modprobe
+-a always,exit -F path=/etc/modprobe.conf -F arch=b64 -F perm=wa -F key=modprobe
+-a always,exit -F dir=/etc/modprobe.d -F arch=b64 -F perm=wa -F key=modprobe
+-a always,exit -F path=/etc/modules -F arch=b64 -F perm=wa -F key=modprobe
+-a always,exit -F arch=b32 -S create_module -F key=module-change
+-a always,exit -F arch=b64 -S create_module -F key=module-change
+-a always,exit -F arch=b32 -S delete_module,finit_module,init_module -F key=modules
+-a always,exit -F arch=b32 -S query_module -F auid>=1000 -F auid!=unset -F key=modules
+-a always,exit -F arch=b64 -S delete_module,finit_module,init_module -F key=modules
+-a always,exit -F arch=b64 -S query_module -F auid>=1000 -F auid!=unset -F key=modules
+-a always,exit -F path=/bin/kmod -F arch=b32 -F perm=x -F key=modules
+-a always,exit -F path=/sbin/insmod -F arch=b32 -F perm=x -F key=modules
+-a always,exit -F path=/sbin/modprobe -F arch=b32 -F perm=x -F key=modules
+-a always,exit -F path=/sbin/rmmod -F arch=b32 -F perm=x -F key=modules
+-a always,exit -F path=/usr/bin/kmod -F arch=b32 -F perm=x -F key=modules
+-a always,exit -F path=/usr/sbin/insmod -F arch=b32 -F perm=x -F key=modules
+-a always,exit -F path=/usr/sbin/modprobe -F arch=b32 -F perm=x -F key=modules
+-a always,exit -F path=/usr/sbin/rmmod -F arch=b32 -F perm=x -F key=modules
+-a always,exit -F path=/bin/kmod -F arch=b64 -F perm=x -F key=modules
+-a always,exit -F path=/sbin/insmod -F arch=b64 -F perm=x -F key=modules
+-a always,exit -F path=/sbin/modprobe -F arch=b64 -F perm=x -F key=modules
+-a always,exit -F path=/sbin/rmmod -F arch=b64 -F perm=x -F key=modules
+-a always,exit -F path=/usr/bin/kmod -F arch=b64 -F perm=x -F key=modules
+-a always,exit -F path=/usr/sbin/insmod -F arch=b64 -F perm=x -F key=modules
+-a always,exit -F path=/usr/sbin/modprobe -F arch=b64 -F perm=x -F key=modules
+-a always,exit -F path=/usr/sbin/rmmod -F arch=b64 -F perm=x -F key=modules
+
+# Mount events for accounts with UID => 1000
+-a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=unset -F key=mounts
+-a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=unset -F key=mounts
+
+# PAM configuration files
+-a always,exit -F dir=/etc/pam.d -F arch=b32 -F perm=wa -F key=pam
+-a always,exit -F path=/etc/security/limits.conf -F arch=b32 -F perm=wa -F key=pam
+-a always,exit -F path=/etc/security/namespace.conf -F arch=b32 -F perm=wa -F key=pam
+-a always,exit -F path=/etc/security/namespace.init -F arch=b32 -F perm=wa -F key=pam
+-a always,exit -F path=/etc/security/pam_env.conf -F arch=b32 -F perm=wa -F key=pam
+-a always,exit -F dir=/etc/pam.d -F arch=b64 -F perm=wa -F key=pam
+-a always,exit -F path=/etc/security/limits.conf -F arch=b64 -F perm=wa -F key=pam
+-a always,exit -F path=/etc/security/namespace.conf -F arch=b64 -F perm=wa -F key=pam
+-a always,exit -F path=/etc/security/namespace.init -F arch=b64 -F perm=wa -F key=pam
+-a always,exit -F path=/etc/security/pam_env.conf -F arch=b64 -F perm=wa -F key=pam
+
+# Password modification
+-a always,exit -F path=/usr/bin/passwd -F arch=b32 -F perm=x -F key=passwd-modification
+-a always,exit -F path=/usr/bin/passwd -F arch=b64 -F perm=x -F key=passwd-modification
+
+#  Permission modifications by non-root users
+-a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -F key=perm_mod
+-a always,exit -F arch=b32 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -F key=perm_mod
+-a always,exit -F arch=b32 -S fremovexattr,fsetxattr,lremovexattr -F auid>=1000 -F auid!=unset -F key=perm_mod
+-a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=unset -F key=perm_mod
+-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -F key=perm_mod
+-a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -F key=perm_mod
+-a always,exit -F arch=b64 -S fremovexattr,lremovexattr,fsetxattr -F auid>=1000 -F auid!=unset -F key=perm_mod
+-a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=unset -F key=perm_mod
+
+# Power management commands
+-a always,exit -F path=/sbin/halt -F arch=b32 -F perm=x -F key=power
+-a always,exit -F path=/sbin/poweroff -F arch=b32 -F perm=x -F key=power
+-a always,exit -F path=/sbin/reboot -F arch=b32 -F perm=x -F key=power
+-a always,exit -F path=/sbin/shutdown -F arch=b32 -F perm=x -F key=power
+-a always,exit -F path=/sbin/halt -F arch=b64 -F perm=x -F key=power
+-a always,exit -F path=/sbin/poweroff -F arch=b64 -F perm=x -F key=power
+-a always,exit -F path=/sbin/reboot -F arch=b64 -F perm=x -F key=power
+-a always,exit -F path=/sbin/shutdown -F arch=b64 -F perm=x -F key=power
+
+# Privileged command usage by non-root users
+-a always,exit -F path=/bin/fusermount -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/bin/mount -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/bin/ntfs-3g -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/bin/ping6 -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/bin/ping -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/bin/su -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/bin/umount -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/sbin/pam_extrausers_chkpwd -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/sbin/pam_timestamp_check -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/sbin/unix_chkpwd -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/at -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/bsd-write -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/cgclassify -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/cgexec -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/chacl -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/chage -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/chcon -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/chfn -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/chsh -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/crontab -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/dotlockfile -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/expiry -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/gpasswd -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/kmod -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/locate -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/mlocate -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/mount -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/newgidmap -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/newgrp -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/newuidmap -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/passwd -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/pkexec -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/screen -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/setfacl -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/ssh-agent -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/staprun -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/sudoedit -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/sudo -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/su -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/traceroute6.iputils -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/umount -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/userhelper -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/wall -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/write -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/lib/dbus-1.0/dbus-daemon-launch-helper -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/lib/eject/dmcrypt-get-device -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/libexec/abrt-action-install-debuginfo-to-abrt-cache -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/libexec/dbus-1/dbus-daemon-launch-helper -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/libexec/pt_chown -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/libexec/utempter/utempter -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/lib/openssh/ssh-keysign -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/lib/policykit-1/polkit-agent-helper-1 -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/lib/polkit-1/polkit-agent-helper-1 -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/lib/snapd/snap-confine -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/lib/x86_64-linux-gnu/utempter/utempter -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/fping6 -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/fping -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/grub2-set-bootflag -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/mount.cifs -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/mount.nfs -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/netreport -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/pam_extrausers_chkpwd -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/pam_timestamp_check -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/pam-tmpdir-helper -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/postdrop -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/postqueue -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/restorecon -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/semanage -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/setsebool -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/unix_chkpwd -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/userhelper -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/usermod -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/usernetctl -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/vlock-main -F arch=b32 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/bin/fusermount -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/bin/mount -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/bin/ntfs-3g -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/bin/ping6 -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/bin/ping -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/bin/su -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/bin/umount -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/sbin/pam_extrausers_chkpwd -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/sbin/pam_timestamp_check -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/sbin/unix_chkpwd -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/at -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/bsd-write -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/cgclassify -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/cgexec -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/chacl -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/chage -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/chcon -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/chfn -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/chsh -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/crontab -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/dotlockfile -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/expiry -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/gpasswd -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/kmod -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/locate -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/mlocate -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/mount -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/newgidmap -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/newgrp -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/newuidmap -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/passwd -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/pkexec -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/screen -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/setfacl -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/ssh-agent -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/staprun -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/sudoedit -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/sudo -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/su -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/traceroute6.iputils -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/umount -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/userhelper -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/wall -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/bin/write -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/lib/dbus-1.0/dbus-daemon-launch-helper -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/lib/eject/dmcrypt-get-device -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/libexec/abrt-action-install-debuginfo-to-abrt-cache -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/libexec/dbus-1/dbus-daemon-launch-helper -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/libexec/openssh/ssh-keysign -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/libexec/pt_chown -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/libexec/utempter/utempter -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/lib/openssh/ssh-keysign -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/lib/policykit-1/polkit-agent-helper-1 -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/lib/polkit-1/polkit-agent-helper-1 -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/lib/snapd/snap-confine -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/lib/x86_64-linux-gnu/utempter/utempter -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/fping6 -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/fping -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/grub2-set-bootflag -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/mount.cifs -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/mount.nfs -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/netreport -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/pam_extrausers_chkpwd -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/pam_timestamp_check -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/pam-tmpdir-helper -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/postdrop -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/postqueue -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/restorecon -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/semanage -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/setsebool -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/unix_chkpwd -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/userhelper -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/usermod -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/usernetctl -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+-a always,exit -F path=/usr/sbin/vlock-main -F arch=b64 -F perm=x -F auid>=1000 -F auid!=unset -F key=privileged
+
+# Process and session initiation
+-a always,exit -F path=/var/log/btmp -F arch=b32 -F perm=wa -F key=session
+-a always,exit -F path=/var/log/wtmp -F arch=b32 -F perm=wa -F key=session
+-a always,exit -F path=/var/run/utmp -F arch=b32 -F perm=wa -F key=session
+-a always,exit -F path=/var/log/btmp -F arch=b64 -F perm=wa -F key=session
+-a always,exit -F path=/var/log/wtmp -F arch=b64 -F perm=wa -F key=session
+-a always,exit -F path=/var/run/utmp -F arch=b64 -F perm=wa -F key=session
+
+# Creation of special files
+-a always,exit -F arch=b32 -S mknod,mknodat -F key=specialfiles
+-a always,exit -F arch=b64 -S mknod,mknodat -F key=specialfiles
+
+# SSH configuration and tools
+-a always,exit -F dir=/etc/ssh/sshd_config.d/ -F arch=b32 -F perm=rwxa -F key=sshd
+-a always,exit -F path=/etc/ssh/sshd_config -F arch=b32 -F perm=rwxa -F key=sshd
+-a always,exit -F dir=/etc/ssh/sshd_config.d/ -F arch=b64 -F perm=rwxa -F key=sshd
+-a always,exit -F path=/etc/ssh/sshd_config -F arch=b64 -F perm=rwxa -F key=sshd
+
+# Sysctl configuration
+-a always,exit -F path=/etc/sysctl.conf -F arch=b32 -F perm=wa -F key=sysctl
+-a always,exit -F path=/etc/sysctl.conf -F arch=b64 -F perm=wa -F key=sysctl
+
+# Systemd configuration and tools
+-a always,exit -F path=/bin/journalctl -F arch=b32 -F perm=x -F key=systemd-tools
+-a always,exit -F path=/bin/systemctl -F arch=b32 -F perm=x -F key=systemd-tools
+-a always,exit -F dir=/etc/systemd -F arch=b32 -F perm=wa -F key=systemd
+-a always,exit -F dir=/lib/systemd -F arch=b32 -F perm=wa -F key=systemd
+-a always,exit -F path=/var/lib/systemd/credential.secret -F arch=b32 -F perm=wa -F key=systemd
+-a always,exit -F path=/bin/journalctl -F arch=b64 -F perm=x -F key=systemd-tools
+-a always,exit -F path=/bin/systemctl -F arch=b64 -F perm=x -F key=systemd-tools
+-a always,exit -F dir=/etc/systemd -F arch=b64 -F perm=wa -F key=systemd
+-a always,exit -F dir=/lib/systemd -F arch=b64 -F perm=wa -F key=systemd
+-a always,exit -F path=/var/lib/systemd/credential.secret -F arch=b64 -F perm=wa -F key=systemd
+
+# Time changes
+-a always,exit -F arch=b32 -S adjtimex,settimeofday,stime,clock_settime -F key=time-change
+-a always,exit -F arch=b64 -S adjtimex,settimeofday,clock_settime -F key=time-change
+-a always,exit -F path=/etc/localtime -F arch=b32 -F perm=wa -F key=time-change
+-a always,exit -F path=/etc/timezone -F arch=b32 -F perm=wa -F key=time-changezone
+-a always,exit -F path=/etc/localtime -F arch=b64 -F perm=wa -F key=time-change
+-a always,exit -F path=/etc/timezone -F arch=b64 -F perm=wa -F key=time-changezone
+
+# /tmp directories
+-a always,exit -F dir=/tmp -F arch=b32 -F perm=wxa -F key=tmp
+-a always,exit -F dir=/var/tmp -F arch=b32 -F perm=wxa -F key=tmp
+-a always,exit -F dir=/tmp -F arch=b64 -F perm=wxa -F key=tmp
+-a always,exit -F dir=/var/tmp -F arch=b64 -F perm=wxa -F key=tmp
+
+# User modifications
+-a always,exit -F arch=b32 -S execve -C euid!=uid -F auid!=unset -F key=user_emulation
+-a always,exit -F arch=b64 -S execve -C euid!=uid -F auid!=unset -F key=user_emulation
+-a always,exit -F arch=b32 -S execve -C uid!=euid -F euid=0 -k setuid
+-a always,exit -F arch=b64 -S execve -C uid!=euid -F euid=0 -k setuid
+-a always,exit -F arch=b32 -S execve -C gid!=egid -F egid=0 -k setgid
+-a always,exit -F arch=b64 -S execve -C gid!=egid -F egid=0 -k setgid
+-a always,exit -F path=/usr/sbin/adduser -F arch=b32 -F perm=x -F key=user-modification
+-a always,exit -F path=/usr/sbin/useradd -F arch=b32 -F perm=x -F key=user-modification
+-a always,exit -F path=/usr/sbin/usermod -F arch=b32 -F perm=x -F key=user-modification
+-a always,exit -F path=/usr/sbin/adduser -F arch=b64 -F perm=x -F key=user-modification
+-a always,exit -F path=/usr/sbin/useradd -F arch=b64 -F perm=x -F key=user-modification
+-a always,exit -F path=/usr/sbin/usermod -F arch=b64 -F perm=x -F key=user-modification
+
+# Set the auditd flag
+-e {{ auditd_enable_flag }}
