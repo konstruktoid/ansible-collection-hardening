@@ -1,0 +1,30 @@
+---
+galaxy_info:
+  role_name: automatic_updates
+  author: konstruktoid
+  description: Configure unattended-upgrades to automatically install security updates.
+  license: apache
+  min_ansible_version: "2.18"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+    - name: EL
+      versions:
+        - "9"
+        - "10"
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+  galaxy_tags:
+    - almalinux
+    - centos
+    - cis
+    - debian
+    - disa
+    - hardening
+    - security
+    - system
+    - systemd
+    - ubuntu
