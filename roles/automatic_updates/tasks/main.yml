@@ -28,7 +28,7 @@
         dest: /etc/dnf/automatic.conf
         section: commands
         option: upgrade_type
-        value: security
+        value: "{{ 'security' if automatic_updates.security_only else 'default' }}"
         owner: root
         group: root
         mode: "0644"
