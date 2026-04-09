@@ -7,5 +7,5 @@ Unattended-Upgrade::Origins-Pattern {
   {% for origin in automatic_updates.custom_origins -%}
   "{{ origin }}";
   {% endfor -%}
-}
+};
 {% endif %}
