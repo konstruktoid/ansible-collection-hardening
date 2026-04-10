@@ -58,4 +58,3 @@
             - "{{ file_stat.results }}"
           when:
             - not item.stat.islnk
-            - not item.stat.mimetype == "inode/symlink"
