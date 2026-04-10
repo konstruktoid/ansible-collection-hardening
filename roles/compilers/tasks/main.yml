@@ -1,0 +1,39 @@
+---
+- name: Stat available compilers
+  become: true
+  ansible.builtin.find:
+    paths: [/usr/local/sbin, /usr/local/bin, /usr/sbin, /usr/bin, /sbin, /bin, /snap/bin]
+    patterns: "{{ compilers }}"
+    file_type: any
+    follow: true
+    recurse: true
+    depth: 5
+  register: compiler
+
+- name: Restrict compilers access
+  become: true
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    owner: root
+    group: root
+    mode: "0750"
+    state: file
+    follow: true
+  loop: "{{ compiler.files }}"
+
+- name: Ensure restrict compilers access via dpkg-statoverride
+  become: true
+  ansible.builtin.command:
+    cmd: dpkg-statoverride --update --force-all --add root root 0750 "{{ item.path }}"
+  register: dpkg_statoverride
+  changed_when: dpkg_statoverride.rc != 0
+  loop: "{{ compiler.files }}"
+  when:
+    - ansible_facts.os_family == 'Debian'
+
+- name: Ensure restrict compilers access via DNF post-transaction-actions Plugin
+  ansible.builtin.include_tasks:
+    file: compilers_dnf_post_transaction_actions_plugin.yml
+  loop: "{{ compiler.files | map(attribute='path') | unique }}"
+  when:
+    - ansible_facts.os_family == 'RedHat'

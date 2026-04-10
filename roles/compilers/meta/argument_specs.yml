@@ -1,0 +1,14 @@
+---
+argument_specs:
+  main:
+    short_description: "Restrict compilers to the root user."
+    description:
+      - "Restrict the use of certain compilers to the root user."
+    author:
+      - konstruktoid
+    options:
+      compilers:
+        description: "Compilers to restrict to the root user."
+        type: "list"
+        elements: "str"
+        default: "['as', 'cargo', 'cc', 'cc-[0-9]*', 'clang-[0-9]*', 'gcc', 'gcc-[0-9]*', 'go', 'make', 'rustc']"
