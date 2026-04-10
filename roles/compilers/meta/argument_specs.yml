@@ -5,7 +5,7 @@ argument_specs:
     description:
       - "Restrict the use of certain compilers to the root user."
     author:
-      - konstruktoid
+      - "Thomas Sjögren (@konstruktoid)"
     options:
       compilers:
         description: "Compilers to restrict to the root user."
