@@ -34,7 +34,7 @@
           ansible.builtin.find:
             paths: [/usr/local/sbin, /usr/local/bin, /usr/sbin, /usr/bin, /sbin, /bin, /snap/bin]
             patterns: "{{ compilers }}"
-            file_type: any
+            file_type: file
             follow: true
           register: compiler
 
