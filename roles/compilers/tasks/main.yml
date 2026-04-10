@@ -26,7 +26,7 @@
   ansible.builtin.command:
     cmd: dpkg-statoverride --update --force-all --add root root 0750 "{{ item.path }}"
   register: dpkg_statoverride
-  changed_when: dpkg_statoverride.rc != 0
+  changed_when: false
   loop: "{{ compiler.files }}"
   when:
     - ansible_facts.os_family == 'Debian'
