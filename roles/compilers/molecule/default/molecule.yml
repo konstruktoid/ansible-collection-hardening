@@ -34,7 +34,7 @@ platforms:
       - vbguest.auto_update = false
     memory: 1024
   - name: resolute
-    box: konstruktoid/26.04
+    box: konstruktoid/ubuntu-26.04
     config_options:
       vm.boot_timeout: 600
       ssh.key_type: ed25519
