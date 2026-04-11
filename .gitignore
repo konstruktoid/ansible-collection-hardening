@@ -20,6 +20,7 @@ roles/*
 !roles/apport
 !roles/auditd
 !roles/automatic_updates
+!roles/compilers
 !roles/cron
 !roles/ssh
 !roles/sudo

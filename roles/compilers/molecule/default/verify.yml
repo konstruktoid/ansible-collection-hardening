@@ -1,0 +1,62 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for the host and reconnect
+          ansible.builtin.wait_for:
+            port: 22
+            host: "{{ (ansible_facts.ssh_host | default(ansible_facts.host)) | default(inventory_hostname) }}"
+            delay: 10
+            timeout: 120
+
+    - name: Include default vars
+      ansible.builtin.include_vars:
+        dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/"
+        extensions:
+          - yml
+
+    - name: Include host vars
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Assert compiler permissions
+      block:
+        - name: Stat available compilers
+          ansible.builtin.find:
+            paths: [/usr/local/sbin, /usr/local/bin, /usr/sbin, /usr/bin, /sbin, /bin, /snap/bin]
+            patterns: "{{ compilers }}"
+            file_type: file
+            recurse: true
+            depth: 5
+            follow: true
+          register: compiler
+
+        - name: Check file ownership
+          ansible.builtin.stat:
+            path: "{{ item.path }}"
+            follow: true
+          register: file_stat
+          with_items:
+            - "{{ compiler.files }}"
+
+        - name: Assert compiler ownership, group, mode, and state
+          ansible.builtin.assert:
+            that:
+              - item.stat.exists
+              - item.stat.mode == '0750'
+              - item.stat.uid == 0
+              - item.stat.gid == 0
+            fail_msg: File {{ item.stat.path }} does not have the expected permissions.
+          with_items:
+            - "{{ file_stat.results }}"
+          when:
+            - not item.stat.islnk
