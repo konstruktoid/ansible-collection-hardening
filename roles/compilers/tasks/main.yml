@@ -21,15 +21,27 @@
     follow: true
   loop: "{{ compiler.files }}"
 
+- name: Check dpkg-statoverride for restricted compilers access
+  become: true
+  ansible.builtin.command:
+    cmd: dpkg-statoverride --list "{{ item.path }}"
+  register: dpkg_statoverride_current
+  changed_when: false
+  failed_when: false
+  loop: "{{ compiler.files }}"
+  when:
+    - ansible_facts.os_family == 'Debian'
+
 - name: Ensure restrict compilers access via dpkg-statoverride
   become: true
   ansible.builtin.command:
     cmd: dpkg-statoverride --update --force-all --add root root 0750 "{{ item.path }}"
-  register: dpkg_statoverride
-  changed_when: false
   loop: "{{ compiler.files }}"
+  loop_control:
+    index_var: compiler_file_index
   when:
     - ansible_facts.os_family == 'Debian'
+    - dpkg_statoverride_current.results[compiler_file_index].rc != 0 or dpkg_statoverride_current.results[compiler_file_index].stdout != 'root root 750 ' ~ item.path
 
 - name: Ensure DNF post-transaction-actions plugin is installed
   become: true
