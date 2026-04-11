@@ -31,6 +31,25 @@
   when:
     - ansible_facts.os_family == 'Debian'
 
+- name: Ensure DNF post-transaction-actions plugin is installed
+  become: true
+  ansible.builtin.package:
+    name: python3-dnf-plugin-post-transaction-actions
+    state: present
+  when:
+    - ansible_facts.os_family == 'RedHat'
+
+- name: Ensure DNF post-transaction-actions plugin directory exists
+  become: true
+  ansible.builtin.file:
+    path: /etc/dnf/plugins/post-transaction-actions.d
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+  when:
+    - ansible_facts.os_family == 'RedHat'
+
 - name: Ensure restrict compilers access via DNF post-transaction-actions Plugin
   ansible.builtin.include_tasks:
     file: compilers_dnf_post_transaction_actions_plugin.yml
