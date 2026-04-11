@@ -35,6 +35,8 @@
             paths: [/usr/local/sbin, /usr/local/bin, /usr/sbin, /usr/bin, /sbin, /bin, /snap/bin]
             patterns: "{{ compilers }}"
             file_type: file
+            recurse: true
+            depth: 5
             follow: true
           register: compiler
 
