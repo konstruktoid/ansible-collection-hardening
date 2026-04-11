@@ -13,7 +13,7 @@
     - name: Ensure restrict compilers access via DNF post-transaction-actions Plugin for {{ item }}
       ansible.builtin.lineinfile:
         dest: /etc/dnf/plugins/post-transaction-actions.d/compilers.action
-        regexp: '{{ compiler_package.stdout }}:in:chown root:root "{{ item }}" && chmod 0750 "{{ item }}"'
+        regexp: '^{{ compiler_package.stdout | regex_escape }}:in:chown root:root "{{ item | regex_escape }}" && chmod 0750 "{{ item | regex_escape }}"$'
         line: '{{ compiler_package.stdout }}:in:chown root:root "{{ item }}" && chmod 0750 "{{ item }}"'
         create: true
         owner: root
