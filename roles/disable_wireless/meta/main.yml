@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: disable_wireless
   author: konstruktoid
-  description: AlmaLinux, Debian and Ubuntu hardening. systemd edition.
+  description: Disable wireless interfaces and wireless kernel modules on AlmaLinux, Debian, and Ubuntu systems.
   license: apache
   min_ansible_version: "2.18"
   platforms:
