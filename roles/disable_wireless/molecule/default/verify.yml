@@ -35,18 +35,26 @@
       changed_when: false
       failed_when: false
 
-    - name: Verify wireless state
+    - name: Verify Wi-Fi radio is disabled
       environment:
         PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       ansible.builtin.command:
-        cmd: nmcli -t radio
-      register: wireless_state
-      changed_when: >-
-        ('WIFI:disabled' not in wireless_state.stdout_lines) and
-        ('WIFI-HW:disabled' not in wireless_state.stdout_lines)
-      failed_when: >-
-        ('WIFI:disabled' not in wireless_state.stdout_lines) and
-        ('WIFI-HW:disabled' not in wireless_state.stdout_lines)
+        cmd: nmcli -t radio wifi
+      register: wifi_radio_state
+      changed_when: false
+      failed_when: wifi_radio_state.stdout | trim != 'disabled'
+      when:
+        - nmcli_check.rc == 0
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Verify WWAN radio is disabled
+      environment:
+        PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      ansible.builtin.command:
+        cmd: nmcli -t radio wwan
+      register: wwan_radio_state
+      changed_when: false
+      failed_when: wwan_radio_state.stdout | trim != 'disabled'
       when:
         - nmcli_check.rc == 0
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
