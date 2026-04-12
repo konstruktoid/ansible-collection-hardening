@@ -27,3 +27,22 @@
     - name: Include host vars
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Ensure nmcli is available
+      ansible.builtin.command:
+        cmd: which nmcli
+      register: nmcli_check
+      changed_when: false
+      failed_when: false
+
+    - name: Verify wireless state
+      environment:
+        PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      ansible.builtin.command:
+        cmd: nmcli -t radio
+      register: wireless_state
+      changed_when: not 'disabled' in wireless_state.stdout
+      failed_when: not 'disabled' in wireless_state.stdout
+      when:
+        - nmcli_check.rc == 0
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
