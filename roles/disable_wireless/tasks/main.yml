@@ -15,12 +15,28 @@
         - nmcli_check.rc == 0
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
       block:
+        - name: Check Wi-Fi radio state
+          ansible.builtin.command:
+            cmd: nmcli radio wifi
+          register: nmcli_radio_wifi
+          changed_when: false
+          failed_when: false
+
+        - name: Check WWAN radio state
+          ansible.builtin.command:
+            cmd: nmcli radio wwan
+          register: nmcli_radio_wwan
+          changed_when: false
+          failed_when: false
+
         - name: Turn off wireless interfaces
           become: true
           ansible.builtin.command:
             cmd: nmcli radio all off
           register: nmcli_radio_off
-          changed_when: nmcli_radio_off.rc == 0
+          when:
+            - (nmcli_radio_wifi.stdout | default('') | trim | lower) == 'enabled'
+              or (nmcli_radio_wwan.stdout | default('') | trim | lower) == 'enabled'
 
         - name: Get kernel modules
           ansible.builtin.shell:
