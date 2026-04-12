@@ -41,8 +41,12 @@
       ansible.builtin.command:
         cmd: nmcli -t radio
       register: wireless_state
-      changed_when: not 'disabled' in wireless_state.stdout
-      failed_when: not 'disabled' in wireless_state.stdout
+      changed_when: >-
+        ('WIFI:disabled' not in wireless_state.stdout_lines) and
+        ('WIFI-HW:disabled' not in wireless_state.stdout_lines)
+      failed_when: >-
+        ('WIFI:disabled' not in wireless_state.stdout_lines) and
+        ('WIFI-HW:disabled' not in wireless_state.stdout_lines)
       when:
         - nmcli_check.rc == 0
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
