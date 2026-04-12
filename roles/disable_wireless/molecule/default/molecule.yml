@@ -16,7 +16,7 @@ provisioner:
     host_vars:
       almalinux10:
       trixie:
-      noble:
+      resolute:
 platforms:
   - name: almalinux10
     box: almalinux/10-kitten-x86_64_v2
