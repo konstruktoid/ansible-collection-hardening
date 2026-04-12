@@ -1,0 +1,45 @@
+---
+- name: Disable wireless interfaces
+  environment:
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  block:
+    - name: Ensure nmcli is available
+      ansible.builtin.command:
+        cmd: which nmcli
+      register: nmcli_check
+      changed_when: false
+      failed_when: false
+
+    - name: Turn off and disable wireless interfaces
+      when:
+        - nmcli_check.rc == 0
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Turn off wireless interfaces
+          become: true
+          ansible.builtin.command:
+            cmd: nmcli radio all off
+          register: nmcli_radio_off
+          changed_when: nmcli_radio_off.rc == 0
+
+        - name: Get kernel modules
+          ansible.builtin.shell:
+            cmd: |
+              set -o pipefail
+              nmcli | grep wifi | grep -o '(.*)' | tr -d '()'
+          args:
+            executable: /bin/bash
+          register: nmcli_output
+          changed_when: false
+          failed_when: false
+
+        - name: Disable wireless kernel modules
+          become: true
+          community.general.modprobe:
+            name: "{{ item }}"
+            state: absent
+            persistent: absent
+          loop: "{{ nmcli_output.stdout_lines }}"
+          when:
+            - nmcli_output.stdout_lines is defined
+            - nmcli_output.stdout_lines | length > 0
