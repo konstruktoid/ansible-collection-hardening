@@ -1,0 +1,25 @@
+---
+- name: Mask ctrl-alt-del
+  become: true
+  block:
+    - name: Mask ctrl-alt-del via symlink
+      ansible.builtin.file:
+        path: /etc/systemd/system/ctrl-alt-del.target
+        src: /dev/null
+        state: link
+        force: true
+
+    - name: Reload systemd
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Mask ctrl-alt-del via systemd
+      ansible.builtin.systemd_service:
+        name: ctrl-alt-del.target
+        masked: true
+        enabled: false
+        state: stopped
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
