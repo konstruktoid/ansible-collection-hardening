@@ -1,17 +1,25 @@
 ---
-- name: Remove existing ctrl-alt-del.target override before masking
+- name: Mask ctrl-alt-del
   become: true
-  ansible.builtin.file:
-    path: /etc/systemd/system/ctrl-alt-del.target
-    state: absent
-- name: Disable systemd ctrl-alt-del
-  become: true
-  ansible.builtin.systemd_service:
-    name: ctrl-alt-del.target
-    masked: true
-    enabled: false
-    state: stopped
-  register: ctrl_alt_del_target_state
-  failed_when:
-    - ctrl_alt_del_target_state.failed
-    - not "already exists and is a symlink" in ctrl_alt_del_target_state.msg
+  block:
+    - name: Mask ctrl-alt-del via symlink
+      ansible.builtin.file:
+        path: /etc/systemd/system/ctrl-alt-del.target
+        src: /dev/null
+        state: link
+        force: true
+
+    - name: Reload systemd
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Mask ctrl-alt-del via systemd
+      ansible.builtin.systemd_service:
+        name: ctrl-alt-del.target
+        masked: true
+        enabled: false
+        state: stopped
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
