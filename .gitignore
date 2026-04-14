@@ -21,8 +21,9 @@ roles/*
 !roles/auditd
 !roles/automatic_updates
 !roles/compilers
-!roles/ctrlaltdel
 !roles/cron
+!roles/ctrlaltdel
 !roles/disable_wireless
+!roles/hosts
 !roles/ssh
 !roles/sudo
