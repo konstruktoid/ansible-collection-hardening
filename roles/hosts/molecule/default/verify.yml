@@ -37,7 +37,7 @@
     - name: Assert hosts.allow entries
       ansible.builtin.assert:
         that:
-          - "'sshd : ALL : ALLOW' in hosts_allow.stdout"
+          - "'sshd: ALL' in hosts_allow.stdout"
           - "'ALL: LOCAL, 127.0.0.1, [::1]' in hosts_allow.stdout"
 
     - name: Read /etc/hosts.deny
