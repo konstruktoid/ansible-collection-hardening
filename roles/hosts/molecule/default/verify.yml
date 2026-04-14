@@ -30,7 +30,7 @@
 
     - name: Read /etc/hosts.allow
       ansible.builtin.command:
-        cmd: grep -vE '#|^$' /etc/hosts.allow
+        cmd: grep -vE '^#|^$' /etc/hosts.allow
       register: hosts_allow
       changed_when: false
 
@@ -42,7 +42,7 @@
 
     - name: Read /etc/hosts.deny
       ansible.builtin.command:
-        cmd: grep -vE '#|^$' /etc/hosts.deny
+        cmd: grep -vE '^#|^$' /etc/hosts.deny
       register: hosts_deny
       changed_when: false
 
