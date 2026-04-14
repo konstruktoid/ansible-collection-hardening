@@ -1,0 +1,6 @@
+---
+# /etc/hosts.allow template location.
+hosts_allow_template: "etc/hosts.allow.j2"
+
+# /etc/hosts.deny template location.
+hosts_deny_template: "etc/hosts.deny.j2"

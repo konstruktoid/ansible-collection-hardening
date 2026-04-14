@@ -1,0 +1,20 @@
+---
+- name: Configure hosts.allow
+  become: true
+  ansible.builtin.template:
+    src: "{{ hosts_allow_template }}"
+    dest: /etc/hosts.allow
+    backup: true
+    mode: "0644"
+    owner: root
+    group: root
+
+- name: Configure hosts.deny
+  become: true
+  ansible.builtin.template:
+    src: "{{ hosts_deny_template }}"
+    dest: /etc/hosts.deny
+    backup: true
+    mode: "0644"
+    owner: root
+    group: root
