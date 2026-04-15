@@ -24,6 +24,6 @@ roles/*
 !roles/cron
 !roles/ctrlaltdel
 !roles/disable_wireless
-!roles/hosts
 !roles/ssh
 !roles/sudo
+!roles/tcpwrappers
