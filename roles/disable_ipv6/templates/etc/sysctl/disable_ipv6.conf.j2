@@ -1,0 +1,6 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+# Managed by Ansible role {{ ansible_role_name }}
+
+{% for key, value in ipv6_disable_sysctl_settings.items() %}
+{{ key }} = {{ value }}
+{% endfor %}

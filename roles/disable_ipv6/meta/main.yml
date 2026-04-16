@@ -1,0 +1,30 @@
+---
+galaxy_info:
+  role_name: disable_ipv6
+  author: konstruktoid
+  description: Disable IPv6 by setting the C(disable_ipv6) variable to C(1) in the sysctl configuration.
+  license: apache
+  min_ansible_version: "2.18"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+    - name: EL
+      versions:
+        - "9"
+        - "10"
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+  galaxy_tags:
+    - almalinux
+    - centos
+    - cis
+    - debian
+    - disa
+    - hardening
+    - security
+    - system
+    - systemd
+    - ubuntu

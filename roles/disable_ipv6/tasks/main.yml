@@ -1,0 +1,62 @@
+---
+- name: Set sysctl configuration directory as fact
+  block:
+    - name: Stat /usr/lib/sysctl.d/
+      ansible.builtin.stat:
+        path: /usr/lib/sysctl.d/
+      register: usr_lib_sysctl_d
+
+    - name: Set /usr/lib/sysctl.d/ existence fact
+      ansible.builtin.set_fact:
+        usr_lib_sysctl_d_dir: "{{ true if usr_lib_sysctl_d.stat.exists else false }}"
+
+    - name: Set sysctl_conf_dir fact based on /usr/lib/sysctl.d/ existence
+      ansible.builtin.set_fact:
+        sysctl_conf_dir: "{{ '/usr/lib/sysctl.d' if usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"
+
+- name: Ensure sysctl configuration dir has the correct permissions
+  become: true
+  ansible.builtin.file:
+    path: "{{ sysctl_conf_dir }}"
+    mode: "0755"
+    owner: root
+    group: root
+    state: directory
+
+- name: Sysctl settings for disabling IPv6
+  become: true
+  ansible.builtin.template:
+    src: "{{ sysctl_disable_ipv6_template }}"
+    dest: "{{ sysctl_conf_dir }}/zz-disable-ipv6.conf"
+    mode: "0644"
+    owner: root
+    group: root
+    backup: false
+  notify:
+    - Restart sysctl
+
+- name: Set Debian ipv6.disable GRUB cmdline
+  become: true
+  ansible.builtin.lineinfile:
+    line: GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX ipv6.disable=1"
+    regexp: "^GRUB_CMDLINE_LINUX="
+    dest: /etc/default/grub.d/99-hardening-ipv6.cfg
+    state: present
+    create: true
+    mode: "0640"
+    owner: root
+    group: root
+  when:
+    - ansible_facts.os_family == "Debian"
+  notify:
+    - Update GRUB
+
+- name: Set RedHat ipv6.disable GRUB cmdline
+  become: true
+  ansible.builtin.command:
+    cmd: grubby --update-kernel=ALL --args="ipv6.disable=1"
+  register: grubby_update_kernel
+  changed_when: false
+  when:
+    - ansible_facts.os_family == "RedHat"
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]

@@ -23,6 +23,7 @@ roles/*
 !roles/compilers
 !roles/cron
 !roles/ctrlaltdel
+!roles/disable_ipv6
 !roles/disable_wireless
 !roles/ssh
 !roles/sudo
