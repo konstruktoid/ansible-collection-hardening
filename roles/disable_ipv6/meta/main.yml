@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: disable_ipv6
   author: konstruktoid
-  description: Disable IPv6 by setting the C(disable_ipv6) variable to C(1) in the sysctl configuration.
+  description: Disable IPv6 by configuring the C(net.ipv6.conf.*.disable_ipv6) sysctl keys and the GRUB kernel command line.
   license: apache
   min_ansible_version: "2.18"
   platforms:
