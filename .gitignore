@@ -25,6 +25,7 @@ roles/*
 !roles/ctrlaltdel
 !roles/disable_ipv6
 !roles/disable_wireless
+!roles/root_access
 !roles/ssh
 !roles/sudo
 !roles/tcpwrappers
