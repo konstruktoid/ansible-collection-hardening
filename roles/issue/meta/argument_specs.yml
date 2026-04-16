@@ -1,0 +1,17 @@
+---
+argument_specs:
+  main:
+    short_description: Update /etc/issue and /etc/motd files.
+    description:
+      - This module updates the /etc/issue and /etc/motd files on a system using Jinja2 templates.
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      issue_template:
+        description: "/etc/issue template location."
+        type: "path"
+        default: "etc/issue.j2"
+      motd_template:
+        description: "/etc/motd template location."
+        type: "path"
+        default: "etc/motd.j2"
