@@ -55,7 +55,6 @@
   become: true
   ansible.builtin.command:
     cmd: grubby --update-kernel=ALL --args="ipv6.disable=1"
-  register: grubby_update_kernel
   changed_when: false
   when:
     - ansible_facts.os_family == "RedHat"
