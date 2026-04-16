@@ -1,0 +1,26 @@
+---
+argument_specs:
+  main:
+    short_description: Disable IPv6
+    description:
+      - Disable IPv6 by setting sysctl and grub parameters.
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      ipv6_disable_sysctl_settings:
+        type: "dict"
+        default:
+          - net.ipv6.conf.all.disable_ipv6: 1
+          - net.ipv6.conf.default.disable_ipv6: 1
+        description: "IPv6 sysctl settings to disable IPv6."
+        options:
+          net.ipv6.conf.all.disable_ipv6:
+            description: "If 1, the system disables IPv6 on all interfaces."
+            type: "int"
+          net.ipv6.conf.default.disable_ipv6:
+            description: "If 1, the system disables IPv6 on the default interface."
+            type: "int"
+      sysctl_disable_ipv6_template:
+        description: "Path for the sysctl configuration to disable IPv6."
+        type: "path"
+        default: "etc/sysctl/disable_ipv6.conf.j2"
