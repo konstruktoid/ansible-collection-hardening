@@ -26,7 +26,7 @@
       when:
         - security_access_conf.stat.exists
 
-- name: Stat and clean /etc/securetty
+- name: Disable root TTY logins via /etc/securetty
   become: true
   block:
     - name: Ensure /etc/securetty is empty
