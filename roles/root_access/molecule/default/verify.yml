@@ -27,3 +27,63 @@
     - name: Include host vars
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Stat access.conf
+      ansible.builtin.stat:
+        path: /etc/security/access.conf
+      register: security_access_conf
+
+    - name: Verify access.conf root entries
+      when:
+        - security_access_conf.stat.exists
+      block:
+        - name: Get access.conf root entries
+          ansible.builtin.command:
+            cmd: grep ':root:' /etc/security/access.conf
+          register: access_conf_root
+          changed_when: false
+          failed_when: access_conf_root.rc not in [0, 1]
+
+        - name: Assert access.conf root entries are correct
+          ansible.builtin.assert:
+            that:
+              - "'+:root:127.0.0.1 ::1' in access_conf_root.stdout"
+              - "'-:root:ALL' in access_conf_root.stdout"
+            fail_msg: "access.conf does not contain expected root entries. Got: {{ access_conf_root.stdout }}"
+
+    - name: Stat securetty
+      ansible.builtin.stat:
+        path: /etc/securetty
+      register: etc_securetty
+
+    - name: Verify securetty contains only console
+      when:
+        - etc_securetty.stat.exists
+      block:
+        - name: Get securetty non-comment entries
+          ansible.builtin.command:
+            cmd: grep -Ev '^#|^$' /etc/securetty
+          register: securetty_entries
+          changed_when: false
+          failed_when: securetty_entries.rc not in [0, 1]
+
+        - name: Assert securetty contains only console
+          ansible.builtin.assert:
+            that:
+              - securetty_entries.stdout_lines | reject('match', '^(console|tty[0-9]+|ttyS[0-9]+)$') | list | length == 0
+            fail_msg: "securetty contains unexpected entries: {{ securetty_entries.stdout_lines }}"
+
+    - name: Verify debug-shell.service is masked
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Get debug-shell.service status
+          ansible.builtin.systemd_service:
+            name: debug-shell.service
+          register: debug_shell_service
+
+        - name: Assert debug-shell.service is masked
+          ansible.builtin.assert:
+            that:
+              - debug_shell_service.status.LoadState == "masked"
+            fail_msg: "debug-shell.service is not masked. LoadState: {{ debug_shell_service.status.LoadState }}"

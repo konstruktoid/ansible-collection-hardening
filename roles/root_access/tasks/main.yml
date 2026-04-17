@@ -1,5 +1,5 @@
 ---
-- name: Stat and clean /etc/security/access.conf
+- name: Stat and manage /etc/security/access.conf
   become: true
   block:
     - name: Stat access.conf
@@ -7,19 +7,30 @@
         path: /etc/security/access.conf
       register: security_access_conf
 
-    - name: Clean access.conf
+    - name: Remove existing root entries from access.conf
       ansible.builtin.lineinfile:
         path: /etc/security/access.conf
-        regexp: ^(?!\+:root:127.0.0.1)$
+        regexp: '^[+-]:root:'
         mode: "0644"
         state: absent
       when:
         - security_access_conf.stat.exists
 
-    - name: Allow localhost root in access.conf
+    - name: Allow localhost root access in access.conf
       ansible.builtin.lineinfile:
         path: /etc/security/access.conf
-        line: +:root:127.0.0.1
+        line: "+:root:127.0.0.1 ::1"
+        regexp: '^\+:root:127\.0\.0\.1 ::1$'
+        mode: "0644"
+        state: present
+      when:
+        - security_access_conf.stat.exists
+
+    - name: Deny root access from all other sources in access.conf
+      ansible.builtin.lineinfile:
+        path: /etc/security/access.conf
+        line: "-:root:ALL"
+        regexp: '^-:root:ALL$'
         mode: "0644"
         state: present
       when:
@@ -36,7 +47,7 @@
     - name: Clean securetty
       ansible.builtin.lineinfile:
         path: /etc/securetty
-        regexp: ^(?!console).*$
+        regexp: '^(?!#|$|console$|tty[0-9]+$|ttyS[0-9]+$).+'
         state: absent
       when:
         - etc_securetty.stat.exists
@@ -45,6 +56,7 @@
       ansible.builtin.lineinfile:
         path: /etc/securetty
         line: console
+        regexp: '(?i)^\s*console\s*$'
         mode: "0644"
         state: present
       when:
@@ -55,5 +67,7 @@
   ansible.builtin.systemd_service:
     name: debug-shell.service
     masked: true
+    enabled: false
+    state: stopped
   when:
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
