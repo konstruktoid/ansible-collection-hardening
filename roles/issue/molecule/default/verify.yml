@@ -27,3 +27,22 @@
     - name: Include host vars
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Loop over motd, issue and issue.net to stat
+      ansible.builtin.stat:
+        path: "/etc/{{ item }}"
+      loop:
+        - motd
+        - issue
+        - issue.net
+      register: stat_results
+
+    - name: Assert the motd, issue and issue.net file owner and permissions
+      ansible.builtin.assert:
+        that:
+          - item.stat.exists
+          - item.stat.pw_name == 'root'
+          - item.stat.mode == '0644'
+      loop: "{{ stat_results.results }}"
+      loop_control:
+        label: "{{ item.stat.path }}"
