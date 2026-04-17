@@ -37,14 +37,11 @@
         group: root
         mode: "0000"
 
-- name: Gather all systemd unit info
-  community.general.systemd_info:
-    unitname:
-      - debug-shell.service
+- name: Gather debug-shell.service systemd unit status
+  ansible.builtin.systemd:
+    name: debug-shell.service
   register: debug_shell_service
-  failed_when:
-    - debug_shell_service is failed
-    - "'No units match' not in debug_shell_service.msg"
+  failed_when: false
   when:
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
 
@@ -57,4 +54,5 @@
     state: stopped
   when:
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
-    - debug_shell_service is success
+    - debug_shell_service.status is defined
+    - debug_shell_service.status.LoadState == "loaded"

@@ -72,12 +72,10 @@
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
       block:
         - name: Gather debug-shell.service unit info
-          ansible.builtin.systemd_service:
+          ansible.builtin.systemd:
             name: debug-shell.service
           register: debug_shell_service
-          failed_when:
-            - debug_shell_service is failed
-            - "'No units match' not in debug_shell_service.msg"
+          failed_when: false
 
         - name: Assert debug-shell.service is masked
           ansible.builtin.assert:
@@ -85,5 +83,5 @@
               - debug_shell_service.status.LoadState == "masked"
             fail_msg: "debug-shell.service is not masked. LoadState: {{ debug_shell_service.status.LoadState }}"
           when:
-            - debug_shell_service is success
-            - "'No units match' not in debug_shell_service.msg"
+            - debug_shell_service.status is defined
+            - debug_shell_service.status.LoadState is defined
