@@ -71,10 +71,9 @@
       when:
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
       block:
-        - name: Gather all systemd unit info
-          community.general.systemd_info:
-            unitname:
-              - debug-shell.service
+        - name: Gather debug-shell.service unit info
+          ansible.builtin.systemd_service:
+            name: debug-shell.service
           register: debug_shell_service
           failed_when:
             - debug_shell_service is failed
