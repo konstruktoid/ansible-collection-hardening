@@ -1,12 +1,30 @@
 ---
-- name: Configure /etc/security/access.conf for root
+- name: Stat and manage /etc/security/access.conf
   become: true
-  ansible.builtin.blockinfile:
-    path: /etc/security/access.conf
-    block: |
-      +:root:127.0.0.1 ::1
-      -:root:ALL
-    marker: "# {mark} ANSIBLE MANAGED ROOT ACCESS"
+  block:
+    - name: Stat access.conf
+      ansible.builtin.stat:
+        path: /etc/security/access.conf
+      register: security_access_conf
+
+    - name: Remove non-standard root entries from access.conf
+      ansible.builtin.replace:
+        path: /etc/security/access.conf
+        regexp: '^(?:\+:root:(?!127\.0\.0\.1 ::1$)|-:root:(?!ALL$)).*\n?'
+        replace: ''
+      when:
+        - security_access_conf.stat.exists
+
+    - name: Configure root access entries in access.conf
+      ansible.builtin.blockinfile:
+        path: /etc/security/access.conf
+        block: |
+          +:root:127.0.0.1 ::1
+          -:root:ALL
+        marker: "# {mark} ANSIBLE MANAGED ROOT ACCESS"
+        insertbefore: BOF
+      when:
+        - security_access_conf.stat.exists
 
 - name: Stat and clean /etc/securetty
   become: true
