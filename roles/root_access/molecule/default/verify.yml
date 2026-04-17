@@ -39,7 +39,7 @@
       block:
         - name: Get access.conf root entries
           ansible.builtin.command:
-            cmd: grep ':root:' /etc/security/access.conf
+            cmd: grep '^[+-]:root:' /etc/security/access.conf
           register: access_conf_root
           changed_when: false
           failed_when: access_conf_root.rc not in [0, 1]
