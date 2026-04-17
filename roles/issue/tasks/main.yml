@@ -1,0 +1,23 @@
+---
+- name: Add motd file
+  become: true
+  ansible.builtin.template:
+    src: "{{ motd_template }}"
+    dest: /etc/motd
+    backup: true
+    mode: "0644"
+    owner: root
+    group: root
+
+- name: Add issue and issue.net files
+  become: true
+  ansible.builtin.template:
+    src: "{{ issue_template }}"
+    dest: "{{ item }}"
+    backup: true
+    mode: "0644"
+    owner: root
+    group: root
+  loop:
+    - /etc/issue
+    - /etc/issue.net
