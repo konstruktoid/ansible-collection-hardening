@@ -56,7 +56,7 @@
       ansible.builtin.lineinfile:
         path: /etc/securetty
         line: console
-        regexp: '(?i)^\s*console\s*$'
+        regexp: '^console$'
         mode: "0644"
         state: present
       when:
