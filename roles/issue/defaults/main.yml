@@ -1,0 +1,6 @@
+---
+# /etc/issue template location.
+issue_template: "etc/issue.j2"
+
+# /etc/motd template location.
+motd_template: "etc/motd.j2"
