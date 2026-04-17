@@ -47,9 +47,10 @@
         - name: Assert access.conf root entries are correct
           ansible.builtin.assert:
             that:
-              - "'+:root:127.0.0.1 ::1' in access_conf_root.stdout"
-              - "'-:root:ALL' in access_conf_root.stdout"
-            fail_msg: "access.conf does not contain expected root entries. Got: {{ access_conf_root.stdout }}"
+              - access_conf_root.stdout_lines | length == 2
+              - access_conf_root.stdout_lines | difference(['+:root:127.0.0.1 ::1', '-:root:ALL']) | length == 0
+              - ['+:root:127.0.0.1 ::1', '-:root:ALL'] | difference(access_conf_root.stdout_lines) | length == 0
+            fail_msg: "access.conf does not contain exactly the expected root entries. Got: {{ access_conf_root.stdout_lines }}"
 
     - name: Stat /etc/securetty
       ansible.builtin.stat:
