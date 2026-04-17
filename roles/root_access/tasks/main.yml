@@ -55,6 +55,7 @@
     - name: Allow console in securetty
       ansible.builtin.lineinfile:
         path: /etc/securetty
+        regexp: '(?i)^\s*console\s*$'
         line: console
         regexp: '^console$'
         mode: "0644"
