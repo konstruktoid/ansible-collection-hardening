@@ -44,13 +44,17 @@
           changed_when: false
           failed_when: access_conf_root.rc not in [0, 1]
 
-        - name: Assert access.conf root entries are correct
-          ansible.builtin.assert:
-            that:
-              - access_conf_root.stdout_lines | length == 2
-              - access_conf_root.stdout_lines | difference(['+:root:127.0.0.1 ::1', '-:root:ALL']) | length == 0
-              - ['+:root:127.0.0.1 ::1', '-:root:ALL'] | difference(access_conf_root.stdout_lines) | length == 0
-            fail_msg: "access.conf does not contain exactly the expected root entries. Got: {{ access_conf_root.stdout_lines }}"
+    - name: Assert access.conf root entries are correct
+      ansible.builtin.assert:
+        that:
+          - access_conf_root.stdout_lines | length == 2
+          - access_conf_root.stdout_lines | difference(expected_root_entries) | length == 0
+          - expected_root_entries | difference(access_conf_root.stdout_lines) | length == 0
+        fail_msg: "access.conf does not contain exactly the expected root entries. Got: {{ access_conf_root.stdout_lines }}"
+      vars:
+        expected_root_entries:
+          - "+:root:127.0.0.1 ::1"
+          - "-:root:ALL"
 
     - name: Stat /etc/securetty
       ansible.builtin.stat:
