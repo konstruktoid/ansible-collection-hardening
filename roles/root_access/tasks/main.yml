@@ -1,67 +1,34 @@
 ---
-- name: Stat and manage /etc/security/access.conf
+- name: Configure /etc/security/access.conf for root
   become: true
-  block:
-    - name: Stat access.conf
-      ansible.builtin.stat:
-        path: /etc/security/access.conf
-      register: security_access_conf
-
-    - name: Remove existing root entries from access.conf
-      ansible.builtin.lineinfile:
-        path: /etc/security/access.conf
-        regexp: '^[+-]:root:'
-        mode: "0644"
-        state: absent
-      when:
-        - security_access_conf.stat.exists
-
-    - name: Allow localhost root access in access.conf
-      ansible.builtin.lineinfile:
-        path: /etc/security/access.conf
-        line: "+:root:127.0.0.1 ::1"
-        regexp: '^\+:root:127\.0\.0\.1 ::1$'
-        mode: "0644"
-        state: present
-      when:
-        - security_access_conf.stat.exists
-
-    - name: Deny root access from all other sources in access.conf
-      ansible.builtin.lineinfile:
-        path: /etc/security/access.conf
-        line: "-:root:ALL"
-        regexp: '^-:root:ALL$'
-        mode: "0644"
-        state: present
-      when:
-        - security_access_conf.stat.exists
+  ansible.builtin.blockinfile:
+    path: /etc/security/access.conf
+    block: |
+      +:root:127.0.0.1 ::1
+      -:root:ALL
+    marker: "# {mark} ANSIBLE MANAGED ROOT ACCESS"
 
 - name: Stat and clean /etc/securetty
   become: true
   block:
-    - name: Stat securetty
-      ansible.builtin.stat:
-        path: /etc/securetty
-      register: etc_securetty
+    - name: Ensure /etc/securetty is empty
+      ansible.builtin.copy:
+        dest: /etc/securetty
+        content: ""
+        owner: root
+        group: root
+        mode: "0000"
 
-    - name: Clean securetty
-      ansible.builtin.lineinfile:
-        path: /etc/securetty
-        regexp: '^(?!#|$|console$|tty[0-9]+$|ttyS[0-9]+$).+'
-        state: absent
-      when:
-        - etc_securetty.stat.exists
-
-    - name: Allow console in securetty
-      ansible.builtin.lineinfile:
-        path: /etc/securetty
-        regexp: '(?i)^\s*console\s*$'
-        line: console
-        regexp: '^console$'
-        mode: "0644"
-        state: present
-      when:
-        - etc_securetty.stat.exists
+- name: Gather all systemd unit info
+  community.general.systemd_info:
+    unitname:
+      - debug-shell.service
+  register: debug_shell_service
+  failed_when:
+    - debug_shell_service is failed
+    - "'No units match' not in debug_shell_service.msg"
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
 
 - name: Mask systemd debug-shell
   become: true
@@ -72,3 +39,4 @@
     state: stopped
   when:
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+    - debug_shell_service is success
