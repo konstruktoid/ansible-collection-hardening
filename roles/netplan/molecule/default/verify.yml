@@ -31,12 +31,27 @@
     - name: Verify netplan files permissions
       become: true
       block:
+        - name: Check if netplan directories exist
+          ansible.builtin.stat:
+            path: "{{ item }}"
+          loop:
+            - /etc/netplan
+            - /lib/netplan
+            - /run/netplan
+          register: netplan_dirs
+
+        - name: Set netplan existing directories
+          ansible.builtin.set_fact:
+            netplan_existing_dirs: >-
+              {{ netplan_dirs.results
+                 | selectattr('stat.exists')
+                 | map(attribute='item')
+                 | list }}
+
         - name: Find all netplan configuration files
+          when: netplan_existing_dirs | length > 0
           ansible.builtin.find:
-            paths:
-              - /etc/netplan
-              - /lib/netplan
-              - /run/netplan
+            paths: "{{ netplan_existing_dirs }}"
             recurse: true
             patterns:
               - "*.yaml"
@@ -46,7 +61,7 @@
         - name: Gather netplan files metadata
           ansible.builtin.stat:
             path: "{{ item.path }}"
-          loop: "{{ netplan_configuration.files }}"
+          loop: "{{ netplan_configuration.files | default([]) }}"
           register: netplan_configuration_stats
 
         - name: Assert netplan files permissions and ownership
