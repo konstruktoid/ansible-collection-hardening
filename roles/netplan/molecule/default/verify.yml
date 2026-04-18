@@ -43,11 +43,22 @@
               - "*.yml"
           register: netplan_configuration
 
-        - name: Assert netplan files permissions
+        - name: Gather netplan files metadata
+          ansible.builtin.stat:
+            path: "{{ item.path }}"
+          loop: "{{ netplan_configuration.files }}"
+          register: netplan_configuration_stats
+
+        - name: Assert netplan files permissions and ownership
           ansible.builtin.assert:
             that:
-              - item.mode == "0600"
-            success_msg: "{{ item.path }} has correct permissions: {{ item.mode }}"
-            fail_msg: "{{ item.path }} permissions are incorrect: {{ item.mode }}"
-          with_items:
-            - "{{ netplan_configuration.files }}"
+              - item.stat.mode == "0600"
+              - item.stat.pw_name == "root"
+              - item.stat.gr_name == "root"
+            success_msg: >-
+              {{ item.stat.path }} has correct permissions and ownership:
+              {{ item.stat.mode }} {{ item.stat.pw_name }}:{{ item.stat.gr_name }}
+            fail_msg: >-
+              {{ item.stat.path }} permissions or ownership are incorrect:
+              {{ item.stat.mode }} {{ item.stat.pw_name }}:{{ item.stat.gr_name }}
+          loop: "{{ netplan_configuration_stats.results }}"
