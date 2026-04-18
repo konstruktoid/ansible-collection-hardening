@@ -20,5 +20,6 @@
         mode: "0600"
         owner: root
         group: root
-      with_items:
-        - "{{ netplan_configuration.files }}"
+      loop: "{{ netplan_configuration.files | default([]) }}"
+      loop_control:
+        label: "{{ item.path }}"
