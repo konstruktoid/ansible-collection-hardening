@@ -1,0 +1,53 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for the host and reconnect
+          ansible.builtin.wait_for:
+            port: 22
+            host: "{{ (ansible_facts.ssh_host | default(ansible_facts.host)) | default(inventory_hostname) }}"
+            delay: 10
+            timeout: 120
+
+    - name: Include default vars
+      ansible.builtin.include_vars:
+        dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/"
+        extensions:
+          - yml
+
+    - name: Include host vars
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Verify netplan files permissions
+      become: true
+      block:
+        - name: Find all netplan configuration files
+          ansible.builtin.find:
+            paths:
+              - /etc/netplan
+              - /lib/netplan
+              - /run/netplan
+            recurse: true
+            patterns:
+              - "*.yaml"
+              - "*.yml"
+          register: netplan_configuration
+
+        - name: Assert netplan files permissions
+          ansible.builtin.assert:
+            that:
+              - item.mode == "0600"
+            success_msg: "{{ item.path }} has correct permissions: {{ item.mode }}"
+            fail_msg: "{{ item.path }} permissions are incorrect: {{ item.mode }}"
+          with_items:
+            - "{{ netplan_configuration.files }}"
