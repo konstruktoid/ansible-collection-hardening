@@ -9,7 +9,7 @@
     owner: root
     group: root
   notify:
-    - Reload systemd
+    - Restart systemd-journald
 
 - name: Probe systemd-journal-remote units
   become: true
