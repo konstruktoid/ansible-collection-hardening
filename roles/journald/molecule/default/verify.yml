@@ -53,4 +53,3 @@
       failed_when: rsyslog_filecreate.rc != 0
       when:
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
-

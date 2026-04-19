@@ -55,7 +55,7 @@
       z /run/log/journal {{ journald_dir_mode | default('2750') }} {{ journald_user }} {{ journald_group }} - -
       z /var/log/journal {{ journald_dir_mode | default('2750') }} {{ journald_user }} {{ journald_group }} - -
       z /var/log/journal/%m {{ journald_dir_mode | default('2750') }} {{ journald_user }} {{ journald_group }} - -
-      z /var/log/journal/%m/system.journal {{ journald_file_mode | default(journald_permissions | default('0640')) }} {{ journald_user }} {{ journald_group }} - -
+      z /var/log/journal/%m/system.journal {{ journald_file_mode | default('0640') }} {{ journald_user }} {{ journald_group }} - -
   when:
     - tmpfiles_d.stat.exists
 
@@ -105,6 +105,22 @@
         group: root
       when:
         - rsyslogconf.stat.exists
+        - rsyslogd.stat.exists
+      notify:
+        - Validate rsyslogd
+
+    - name: Set FileCreateMode in rsyslog.conf
+      ansible.builtin.lineinfile:
+        regexp: ^\$FileCreateMode
+        line: $FileCreateMode {{ rsyslog_filecreatemode }}
+        dest: /etc/rsyslog.conf
+        state: absent
+        mode: "0640"
+        owner: root
+        group: root
+      when:
+        - rsyslogconf.stat.exists
+        - not rsyslogd.stat.exists
       notify:
         - Validate rsyslogd
 
