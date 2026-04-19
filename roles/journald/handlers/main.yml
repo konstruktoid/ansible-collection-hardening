@@ -11,4 +11,5 @@
   ansible.builtin.command:
     cmd: rsyslogd -N3 -f /etc/rsyslog.conf
   register: validate_rsyslogd
-  changed_when: validate_rsyslogd.rc == 0
+  changed_when: false
+  failed_when: validate_rsyslogd.rc != 0
