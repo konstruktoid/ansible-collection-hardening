@@ -71,12 +71,14 @@
 
 - name: Configure cron.daily logrotate
   become: true
-  ansible.builtin.lineinfile:
-    line: /usr/sbin/logrotate /etc/logrotate.conf
+  ansible.builtin.copy:
     dest: /etc/cron.daily/logrotate
+    owner: root
+    group: root
     mode: "0750"
-    state: present
-    create: true
+    content: |
+      #!/bin/sh
+      /usr/sbin/logrotate /etc/logrotate.conf
 
 - name: Stat rsyslog.conf
   become: true
