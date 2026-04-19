@@ -11,22 +11,31 @@
   notify:
     - Reload systemd
 
-- name: Disable systemd-journal-remote
+- name: Probe systemd-journal-remote units
   become: true
-  ansible.builtin.systemd_service:
+  ansible.builtin.systemd:
     name: "{{ item }}"
-    state: stopped
-    enabled: false
-    masked: true
   loop:
     - systemd-journal-remote.socket
     - systemd-journal-remote.service
-  register: mask_journal_remote
-  failed_when:
-    - mask_journal_remote is not success
-    - not "Could not find the requested service" in mask_journal_remote.msg
+  register: journal_remote_units
+  failed_when: false
   when:
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+- name: Disable systemd-journal-remote
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ item.item }}"
+    state: stopped
+    enabled: false
+    masked: true
+  loop: "{{ journal_remote_units.results }}"
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+    - item.status is defined
+    - item.status.LoadState is defined
+    - item.status.LoadState == "loaded"
 
 - name: Stat journald tmpfiles configuration directory
   ansible.builtin.stat:
