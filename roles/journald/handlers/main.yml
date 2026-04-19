@@ -1,0 +1,14 @@
+---
+- name: Reload systemd
+  become: true
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+- name: Validate rsyslogd
+  become: true
+  ansible.builtin.command:
+    cmd: rsyslogd -N3 -f /etc/rsyslog.conf
+  register: validate_rsyslogd
+  changed_when: validate_rsyslogd.rc == 0

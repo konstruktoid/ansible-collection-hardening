@@ -1,0 +1,30 @@
+---
+# If True, journal files will be compressed.
+journald_compress: true
+
+# systemd journald.conf template location.
+journald_conf_template: "etc/systemd/journald.conf.j2"
+
+# If True, forward journal messages to syslog.
+journald_forwardtosyslog: false
+
+# The group that has access to the journal files.
+journald_group: "systemd-journal"
+
+# Sets the permissions for journal files and directories.
+journald_permissions: "2640"
+
+# Controls where to store journal data.
+journald_storage: "persistent"
+
+# How much disk space the journal may use up at most.
+journald_system_max_use: ""
+
+# The user that has access to the journal files.
+journald_user: "root"
+
+# logrotate.conf template location.
+logrotate_conf_template: "etc/logrotate.conf.j2"
+
+# Set the file creation mode for rsyslog log files.
+rsyslog_filecreatemode: "0640"

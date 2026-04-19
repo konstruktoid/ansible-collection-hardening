@@ -1,0 +1,112 @@
+---
+- name: Configure systemd journald.conf
+  become: true
+  ansible.builtin.template:
+    src: "{{ journald_conf_template }}"
+    dest: /etc/systemd/journald.conf
+    backup: true
+    mode: "0644"
+    owner: root
+    group: root
+  notify:
+    - Reload systemd
+
+- name: Disable systemd-journal-remote
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+    masked: true
+  loop:
+    - systemd-journal-remote.socket
+    - systemd-journal-remote.service
+  register: mask_journal_remote
+  failed_when:
+    - mask_journal_remote is not success
+    - not "Could not find the requested service" in mask_journal_remote.msg
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+- name: Stat journald tmpfiles configuration directory
+  ansible.builtin.stat:
+    path: /etc/tmpfiles.d/
+  register: tmpfiles_d
+
+- name: Set restrictive permssions on journal files
+  become: true
+  ansible.builtin.blockinfile:
+    path: /etc/tmpfiles.d/systemd.conf
+    mode: "0644"
+    owner: root
+    group: root
+    create: true
+    block: |
+      Z /run/log/journal/%m ~{{ journald_permissions }} {{ journald_user }} {{ journald_group }} - -
+      z /run/log/journal {{ journald_permissions }} {{ journald_user }} {{ journald_group }} - -
+      z /var/log/journal {{ journald_permissions }} {{ journald_user }} {{ journald_group }} - -
+      z /var/log/journal/%m {{ journald_permissions }} {{ journald_user }} {{ journald_group }} - -
+      z /var/log/journal/%m/system.journal 0640 {{ journald_user }} {{ journald_group }} - -
+  when:
+    - tmpfiles_d.stat.exists
+
+- name: Configure logrotate(8)
+  become: true
+  ansible.builtin.template:
+    src: "{{ logrotate_conf_template }}"
+    dest: /etc/logrotate.conf
+    backup: true
+    mode: "0644"
+    owner: root
+    group: root
+
+- name: Configure cron.daily logrotate
+  become: true
+  ansible.builtin.lineinfile:
+    line: /usr/sbin/logrotate /etc/logrotate.conf
+    dest: /etc/cron.daily/logrotate
+    mode: "0750"
+    state: present
+    create: true
+
+- name: Stat rsyslog.conf
+  become: true
+  ansible.builtin.stat:
+    path: /etc/rsyslog.conf
+  register: rsyslogconf
+
+- name: Stat rsyslog.d
+  become: true
+  ansible.builtin.stat:
+    path: /etc/rsyslog.d
+  register: rsyslogd
+
+- name: Set rsyslog FileCreateMode
+  become: true
+  block:
+    - name: Configure rsyslog.conf FileCreateMode
+      ansible.builtin.lineinfile:
+        regexp: ^\$FileCreateMode
+        line: $FileCreateMode {{ rsyslog_filecreatemode }}
+        dest: /etc/rsyslog.conf
+        mode: "0640"
+        state: present
+        create: false
+      when:
+        - rsyslogconf.stat.exists
+      notify:
+        - Validate rsyslogd
+
+    - name: Add FileCreateMode file to the rsyslog.d directory
+      ansible.builtin.lineinfile:
+        regexp: ^\$FileCreateMode
+        line: $FileCreateMode {{ rsyslog_filecreatemode }}
+        dest: /etc/rsyslog.d/99-filecreatemode.conf
+        mode: "0644"
+        state: present
+        create: true
+      when:
+        - rsyslogd.stat.exists
+        - rsyslogd.stat.isdir
+      notify:
+        - Validate rsyslogd

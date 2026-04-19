@@ -1,0 +1,17 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+# Managed by Ansible role {{ ansible_role_name }}
+
+daily
+{% if ansible_facts.distribution == 'Ubuntu' %}
+su root syslog
+{% endif %}
+rotate 7
+create
+dateext
+compress
+
+compresscmd /usr/bin/xz
+uncompresscmd /usr/bin/unxz
+compressext .xz
+
+include /etc/logrotate.d

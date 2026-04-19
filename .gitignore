@@ -26,6 +26,7 @@ roles/*
 !roles/disable_ipv6
 !roles/disable_wireless
 !roles/issue
+!roles/journald
 !roles/netplan
 !roles/root_access
 !roles/ssh
