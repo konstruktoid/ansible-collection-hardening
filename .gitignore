@@ -26,6 +26,7 @@ roles/*
 !roles/disable_ipv6
 !roles/disable_wireless
 !roles/issue
+!roles/netplan
 !roles/root_access
 !roles/ssh
 !roles/sudo
