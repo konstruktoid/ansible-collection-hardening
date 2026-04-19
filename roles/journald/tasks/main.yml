@@ -42,7 +42,7 @@
     path: /etc/tmpfiles.d/
   register: tmpfiles_d
 
-- name: Set restrictive permssions on journal files
+- name: Set restrictive permissions on journal files
   become: true
   ansible.builtin.blockinfile:
     path: /etc/tmpfiles.d/systemd.conf
