@@ -1,0 +1,15 @@
+---
+# Allow virtual system calls (vsyscall).
+allow_virtual_system_calls: true
+
+# Enable kernel page poisoning.
+enable_page_poisoning: true
+
+# Configures kernel_lockdown.
+kernel_lockdown: false
+
+# Enable page table isolation (PTI).
+page_table_isolation: true
+
+# Enable SLUB debugger poisoning.
+slub_debugger_poisoning: false

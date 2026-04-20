@@ -1,0 +1,179 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for the host and reconnect
+          ansible.builtin.wait_for:
+            port: 22
+            host: "{{ (ansible_facts.ssh_host | default(ansible_facts.host)) | default(inventory_hostname) }}"
+            delay: 10
+            timeout: 120
+
+    - name: Include default vars
+      ansible.builtin.include_vars:
+        dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/"
+        extensions:
+          - yml
+
+    - name: Include host vars
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Verify kernel hardening settings
+      become: true
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Verify RedHat GRUB none virtual system call settings
+          ansible.builtin.shell:
+            cmd: |
+              set -o pipefail
+              grubby --info="/boot/vmlinuz-$(uname -r)" | grep "vsyscall=none"
+          register: audit_grubenv
+          changed_when: false
+          failed_when: audit_grubenv.rc != 0
+          when:
+            - ansible_facts.os_family == "RedHat"
+            - not allow_virtual_system_calls
+
+        - name: Verify Debian GRUB none virtual system call settings
+          ansible.builtin.shell:
+            cmd: grep "linux.*vsyscall=none" /boot/grub/grub.cfg
+          register: page_grub_cfg
+          changed_when: false
+          failed_when: page_grub_cfg.rc != 0
+          when:
+            - ansible_facts.os_family == "Debian"
+            - not allow_virtual_system_calls
+
+        - name: Verify RedHat GRUB virtual system call settings
+          ansible.builtin.shell:
+            cmd: |
+              set -o pipefail
+              grubby --info="/boot/vmlinuz-$(uname -r)" | grep "vsyscall=emulate"
+          register: audit_grubenv
+          changed_when: false
+          failed_when: audit_grubenv.rc != 0
+          when:
+            - ansible_facts.os_family == "RedHat"
+            - allow_virtual_system_calls
+
+        - name: Verify Debian GRUB virtual system call settings
+          ansible.builtin.shell:
+            cmd: grep "linux.*vsyscall=emulate" /boot/grub/grub.cfg
+          register: page_grub_cfg
+          changed_when: false
+          failed_when: page_grub_cfg.rc != 0
+          when:
+            - ansible_facts.os_family == "Debian"
+            - allow_virtual_system_calls
+
+        - name: Verify RedHat GRUB page poisoning settings
+          ansible.builtin.shell:
+            cmd: |
+              set -o pipefail
+              grubby --info="/boot/vmlinuz-$(uname -r)" | grep "page_poison=1"
+          register: audit_grubenv
+          changed_when: false
+          failed_when: audit_grubenv.rc != 0
+          when:
+            - ansible_facts.os_family == "RedHat"
+            - enable_page_poisoning
+
+        - name: Verify Debian GRUB page poisoning settings
+          ansible.builtin.shell:
+            cmd: grep "linux.*page_poison=1" /boot/grub/grub.cfg
+          register: page_grub_cfg
+          changed_when: false
+          failed_when: page_grub_cfg.rc != 0
+          when:
+            - ansible_facts.os_family == "Debian"
+            - enable_page_poisoning
+
+        - name: Verify RedHat GRUB page table isolation settings
+          ansible.builtin.shell:
+            cmd: |
+              set -o pipefail
+              grubby --info="/boot/vmlinuz-$(uname -r)" | grep "pti={{ 'on' if page_table_isolation else 'auto' }}"
+          register: audit_grubenv
+          changed_when: false
+          failed_when: audit_grubenv.rc != 0
+          when:
+            - ansible_facts.os_family == "RedHat"
+
+        - name: Verify Debian GRUB page table isolation settings
+          ansible.builtin.shell:
+            cmd: grep "linux.*pti={{ 'on' if page_table_isolation else 'auto' }}" /boot/grub/grub.cfg
+          register: page_grub_cfg
+          changed_when: false
+          failed_when: page_grub_cfg.rc != 0
+          when:
+            - ansible_facts.os_family == "Debian"
+
+        - name: Verify RedHat GRUB SLUB debugger settings
+          ansible.builtin.shell:
+            cmd: |
+              set -o pipefail
+              grubby --info="/boot/vmlinuz-$(uname -r)" | grep "slub_debug=P"
+          register: audit_grubenv
+          changed_when: false
+          failed_when: audit_grubenv.rc != 0
+          when:
+            - ansible_facts.os_family == "RedHat"
+            - slub_debugger_poisoning
+
+        - name: Verify Debian GRUB SLUB debugger settings
+          ansible.builtin.shell:
+            cmd: grep "linux.*slub_debug=P" /boot/grub/grub.cfg
+          register: page_grub_cfg
+          changed_when: false
+          failed_when: page_grub_cfg.rc != 0
+          when:
+            - ansible_facts.os_family == "Debian"
+            - slub_debugger_poisoning
+
+    - name: Verify kernel lockdown
+      when:
+        - ansible_facts.kernel is version("5.4", ">=")
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Set kernel lockdown mode if defined
+          ansible.builtin.set_fact:
+            kernel_lockdown: >-
+              {% if kernel_lockdown == "integrity" %}
+                integrity
+              {% elif kernel_lockdown == "confidentiality" %}
+                confidentiality
+              {% elif kernel_lockdown %}
+                integrity
+              {% endif %}
+          when:
+            - kernel_lockdown is truthy
+            - kernel_lockdown is not false
+
+        - name: Set kernel lockdown mode if not defined or false
+          ansible.builtin.set_fact:
+            kernel_lockdown: none
+          when:
+            - kernel_lockdown is not defined or kernel_lockdown is false
+
+        - name: Verify kernel lockdown
+          become: true
+          ansible.builtin.command:
+            cmd: grep "\[{{ kernel_lockdown | trim }}\]"  /sys/kernel/security/lockdown
+          register: kernel_lockdown
+          changed_when: false
+          failed_when: kernel_lockdown.rc != 0
+
+        - name: Print kernel lockdown
+          ansible.builtin.debug:
+            msg: "{{ kernel_lockdown.stdout }}"

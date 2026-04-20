@@ -1,0 +1,142 @@
+---
+- name: Configure Kernel parameters
+  become: true
+  block:
+    - name: Configure virtual system calls
+      ansible.builtin.lineinfile:
+        line: GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX vsyscall={{ 'none' if not allow_virtual_system_calls else 'emulate' }}"
+        regexp: "^GRUB_CMDLINE_LINUX="
+        dest: /etc/default/grub.d/99-hardening-vsyscall.cfg
+        state: present
+        create: true
+        mode: "0640"
+        owner: root
+        group: root
+      when:
+        - ansible_facts.os_family == "Debian"
+      notify:
+        - Update GRUB
+
+    - name: Configure virtual system calls using grubby
+      ansible.builtin.command:
+        cmd: grubby --update-kernel=ALL --args="vsyscall={{ 'none' if not allow_virtual_system_calls else 'emulate' }}"
+      register: grubby_update_kernel
+      changed_when: false
+      when:
+        - ansible_facts.os_family == "RedHat"
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Configure page poisoning
+      ansible.builtin.lineinfile:
+        line: GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX page_poison={{ '1' if enable_page_poisoning else '0' }}"
+        regexp: "^GRUB_CMDLINE_LINUX="
+        dest: /etc/default/grub.d/99-hardening-page-poison.cfg
+        state: present
+        create: true
+        mode: "0640"
+        owner: root
+        group: root
+      when:
+        - ansible_facts.os_family == "Debian"
+      notify:
+        - Update GRUB
+
+    - name: Configure page poisoning using grubby
+      ansible.builtin.command:
+        cmd: grubby --update-kernel=ALL --args="page_poison={{ '1' if enable_page_poisoning else '0' }}"
+      register: grubby_update_kernel
+      changed_when: false
+      when:
+        - ansible_facts.os_family == "RedHat"
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Configure page table isolation
+      ansible.builtin.lineinfile:
+        line: GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX pti={{ 'on' if page_table_isolation else 'auto' }}"
+        regexp: "^GRUB_CMDLINE_LINUX="
+        dest: /etc/default/grub.d/99-hardening-pti.cfg
+        state: present
+        create: true
+        mode: "0640"
+        owner: root
+        group: root
+      when:
+        - ansible_facts.os_family == "Debian"
+      notify:
+        - Update GRUB
+
+    - name: Configure page table isolation using grubby
+      ansible.builtin.command:
+        cmd: grubby --update-kernel=ALL --args="pti={{ 'on' if page_table_isolation else 'auto' }}"
+      register: grubby_update_kernel
+      changed_when: false
+      when:
+        - ansible_facts.os_family == "RedHat"
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Configure SLUB debugger poisoning
+      ansible.builtin.lineinfile:
+        line: GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX slub_debug=P"
+        regexp: "^GRUB_CMDLINE_LINUX="
+        dest: /etc/default/grub.d/99-hardening-slub-debug.cfg
+        state: present
+        create: true
+        mode: "0640"
+        owner: root
+        group: root
+      when:
+        - ansible_facts.os_family == "Debian"
+        - slub_debugger_poisoning
+      notify:
+        - Update GRUB
+
+    - name: Configure SLUB debugger poisoning using grubby
+      ansible.builtin.command:
+        cmd: grubby --update-kernel=ALL --args="slub_debug=P"
+      register: grubby_update_kernel
+      changed_when: false
+      when:
+        - ansible_facts.os_family == "RedHat"
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+        - slub_debugger_poisoning
+
+    - name: Configure kernel lockdown
+      when:
+        - kernel_lockdown is defined
+        - kernel_lockdown is not false
+        - ansible_facts.kernel is version("5.4", ">=")
+      block:
+        - name: Set kernel lockdown mode as fact
+          ansible.builtin.set_fact:
+            kernel_lockdown: >-
+              {% if kernel_lockdown == "integrity" %}
+                integrity
+              {% elif kernel_lockdown == "confidentiality" %}
+                confidentiality
+              {% else %}
+                integrity
+              {% endif %}
+
+        - name: Configure kernel lockdown mode
+          ansible.builtin.lineinfile:
+            line: GRUB_CMDLINE_LINUX="$GRUB_CMDLINE_LINUX lockdown={{ kernel_lockdown | trim }}"
+            regexp: "^GRUB_CMDLINE_LINUX="
+            dest: /etc/default/grub.d/99-hardening-lockdown.cfg
+            state: present
+            create: true
+            mode: "0640"
+            owner: root
+            group: root
+          when:
+            - ansible_facts.os_family == "Debian"
+          notify:
+            - Update GRUB
+
+        - name: Configure kernel lockdown mode using grubby
+          ansible.builtin.command:
+            cmd: grubby --update-kernel=ALL --args="lockdown={{ kernel_lockdown | trim }}"
+          register: grubby_kernel_lockdown
+          changed_when: false
+          when:
+            - ansible_facts.os_family == "RedHat"
+            - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
