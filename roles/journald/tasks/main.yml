@@ -67,9 +67,28 @@
       - systemd-tmpfiles
       - --create
       - /etc/tmpfiles.d/systemd.conf
+  changed_when: false
   when:
     - tmpfiles_d.stat.exists
     - journald_tmpfiles_config is changed
+
+- name: Ensure logrotate is installed on Debian-based systems
+  become: true
+  ansible.builtin.apt:
+    name: logrotate
+    state: present
+    update_cache: true
+  when:
+    - ansible_facts.os_family == "Debian"
+
+- name: Ensure logrotate is installed on RedHat-based systems
+  become: true
+  ansible.builtin.dnf:
+    name: logrotate
+    state: present
+  when:
+    - ansible_facts.os_family == "RedHat"
+
 - name: Configure logrotate(8)
   become: true
   ansible.builtin.template:
