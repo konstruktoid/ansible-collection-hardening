@@ -51,7 +51,7 @@
     group: root
     create: true
     block: |
-      Z /run/log/journal/%m ~{{ journald_dir_mode | default('2750') }} {{ journald_user }} {{ journald_group }} - -
+      Z /run/log/journal/%m {{ journald_dir_mode | default('2750') }} {{ journald_user }} {{ journald_group }} - -
       z /run/log/journal {{ journald_dir_mode | default('2750') }} {{ journald_user }} {{ journald_group }} - -
       z /var/log/journal {{ journald_dir_mode | default('2750') }} {{ journald_user }} {{ journald_group }} - -
       z /var/log/journal/%m {{ journald_dir_mode | default('2750') }} {{ journald_user }} {{ journald_group }} - -
