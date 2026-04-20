@@ -72,19 +72,23 @@
     - tmpfiles_d.stat.exists
     - journald_tmpfiles_config is changed
 
-- name: Ensure logrotate is installed on Debian-based systems
+- name: Ensure logrotate and xz is installed on Debian-based systems
   become: true
   ansible.builtin.apt:
-    name: logrotate
+    name:
+      - logrotate
+      - xz-utils
     state: present
     update_cache: true
   when:
     - ansible_facts.os_family == "Debian"
 
-- name: Ensure logrotate is installed on RedHat-based systems
+- name: Ensure logrotate and xz is installed on RedHat-based systems
   become: true
   ansible.builtin.dnf:
-    name: logrotate
+    name:
+      - logrotate
+      - xz
     state: present
   when:
     - ansible_facts.os_family == "RedHat"
