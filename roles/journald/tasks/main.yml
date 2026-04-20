@@ -56,9 +56,20 @@
       z /var/log/journal {{ journald_dir_mode | default('2750') }} {{ journald_user }} {{ journald_group }} - -
       z /var/log/journal/%m {{ journald_dir_mode | default('2750') }} {{ journald_user }} {{ journald_group }} - -
       z /var/log/journal/%m/system.journal {{ journald_file_mode | default('0640') }} {{ journald_user }} {{ journald_group }} - -
+  register: journald_tmpfiles_config
   when:
     - tmpfiles_d.stat.exists
 
+- name: Apply journald tmpfiles permissions
+  become: true
+  ansible.builtin.command:
+    argv:
+      - systemd-tmpfiles
+      - --create
+      - /etc/tmpfiles.d/systemd.conf
+  when:
+    - tmpfiles_d.stat.exists
+    - journald_tmpfiles_config is changed
 - name: Configure logrotate(8)
   become: true
   ansible.builtin.template:
