@@ -170,10 +170,10 @@
           become: true
           ansible.builtin.command:
             cmd: grep "\[{{ kernel_lockdown | trim }}\]"  /sys/kernel/security/lockdown
-          register: kernel_lockdown
+          register: kernel_lockdown_check
           changed_when: false
-          failed_when: kernel_lockdown.rc != 0
+          failed_when: kernel_lockdown_check.rc != 0
 
         - name: Print kernel lockdown
           ansible.builtin.debug:
-            msg: "{{ kernel_lockdown.stdout }}"
+            msg: "{{ kernel_lockdown_check.stdout }}"
