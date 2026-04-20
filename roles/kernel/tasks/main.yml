@@ -18,8 +18,10 @@
         - Update GRUB
 
     - name: Configure virtual system calls using grubby
-      ansible.builtin.command:
-        cmd: grubby --update-kernel=ALL --args="vsyscall={{ 'none' if not allow_virtual_system_calls else 'emulate' }}"
+      ansible.builtin.shell:
+        cmd: |
+          grubby --update-kernel=ALL --remove-args="vsyscall"
+          grubby --update-kernel=ALL --args="vsyscall={{ 'none' if not allow_virtual_system_calls else 'emulate' }}"
       register: grubby_update_kernel
       changed_when: false
       when:
@@ -42,8 +44,10 @@
         - Update GRUB
 
     - name: Configure page poisoning using grubby
-      ansible.builtin.command:
-        cmd: grubby --update-kernel=ALL --args="page_poison={{ '1' if enable_page_poisoning else '0' }}"
+      ansible.builtin.shell:
+        cmd: |
+          grubby --update-kernel=ALL --remove-args="page_poison"
+          grubby --update-kernel=ALL --args="page_poison={{ '1' if enable_page_poisoning else '0' }}"
       register: grubby_update_kernel
       changed_when: false
       when:
@@ -66,8 +70,10 @@
         - Update GRUB
 
     - name: Configure page table isolation using grubby
-      ansible.builtin.command:
-        cmd: grubby --update-kernel=ALL --args="pti={{ 'on' if page_table_isolation else 'auto' }}"
+      ansible.builtin.shell:
+        cmd: |
+          grubby --update-kernel=ALL --remove-args="pti"
+          grubby --update-kernel=ALL --args="pti={{ 'on' if page_table_isolation else 'auto' }}"
       register: grubby_update_kernel
       changed_when: false
       when:
@@ -91,8 +97,10 @@
         - Update GRUB
 
     - name: Configure SLUB debugger poisoning using grubby
-      ansible.builtin.command:
-        cmd: grubby --update-kernel=ALL --args="slub_debug=P"
+      ansible.builtin.shell:
+        cmd: |
+          grubby --update-kernel=ALL --remove-args="slub_debug"
+          grubby --update-kernel=ALL --args="slub_debug=P"
       register: grubby_update_kernel
       changed_when: false
       when:
@@ -133,8 +141,10 @@
             - Update GRUB
 
         - name: Configure kernel lockdown mode using grubby
-          ansible.builtin.command:
-            cmd: grubby --update-kernel=ALL --args="lockdown={{ kernel_lockdown | trim }}"
+          ansible.builtin.shell:
+            cmd: |
+              grubby --update-kernel=ALL --remove-args="lockdown"
+              grubby --update-kernel=ALL --args="lockdown={{ kernel_lockdown | trim }}"
           register: grubby_kernel_lockdown
           changed_when: false
           when:
