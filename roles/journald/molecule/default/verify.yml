@@ -36,8 +36,8 @@
       failed_when: journald_conf.rc != 0
       with_items:
         - Storage={{ journald_storage }}
-        - ForwardToSyslog={{ 'yes' if journald_forwardtosyslog else 'no' }}
-        - Compress={{ 'yes' if journald_compress else 'no' }}
+        - ForwardToSyslog={{ 'yes' if (journald_forwardtosyslog | bool) else 'no' }}
+        - Compress={{ 'yes' if (journald_compress | bool) else 'no' }}
 
     - name: Verify rsyslog FileCreateMode
       become: true
