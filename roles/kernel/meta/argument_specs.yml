@@ -1,0 +1,35 @@
+---
+argument_specs:
+  main:
+    short_description: Kernel hardening.
+    description:
+      - Kernel hardening.
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      allow_virtual_system_calls:
+        description: "Allow virtual system calls (vsyscall)."
+        type: "bool"
+        default: "True"
+      enable_page_poisoning:
+        description: "Enable kernel page poisoning."
+        type: "bool"
+        default: "True"
+      kernel_lockdown:
+        description: "Configures kernel_lockdown."
+        type: "str"
+        default: "False"
+        choices:
+          - "confidentiality"
+          - "False"
+          - "integrity"
+          - "none"
+          - "True"
+      page_table_isolation:
+        description: "Enable page table isolation (PTI)."
+        type: "bool"
+        default: "True"
+      slub_debugger_poisoning:
+        description: "Enable SLUB debugger poisoning."
+        type: "bool"
+        default: "False"
