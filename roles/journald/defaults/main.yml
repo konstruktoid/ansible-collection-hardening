@@ -11,9 +11,11 @@ journald_forwardtosyslog: false
 # The group that has access to the journal files.
 journald_group: "systemd-journal"
 
-# Default permissions must be safe for journald directories created via tmpfiles.
-# 2750 preserves group access while keeping directories traversable.
-journald_permissions: "2750"
+# Default permissions journald directory permissions.
+journald_directory_mode: "2750"
+
+# Set the file creation mode for journal files.
+journald_file_mode: "0640"
 
 # Controls where to store journal data.
 journald_storage: "persistent"

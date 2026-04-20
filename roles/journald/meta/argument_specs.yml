@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Configuration of journald
+    short_description: Configuration of journald, rsyslog and logrotate.
     description:
-      - This role provides configuration of journald.
+      - This role provides configuration of journald, rsyslog and logrotate.
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:
@@ -28,10 +28,14 @@ argument_specs:
           - "none"
           - "persistent"
           - "volatile"
-      journald_permissions:
-        description: "Sets the permissions for journal files and directories."
+      journald_dir_mode:
+        description: "Sets the permissions for directories."
         type: "str"
-        default: "2640"
+        default: "2750"
+      journald_file_mode:
+        description: "Sets the permissions for journal files."
+        type: "str"
+        default: "0640"
       journald_group:
         description: "The group that has access to the journal files."
         type: "str"
