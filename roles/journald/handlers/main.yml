@@ -1,0 +1,16 @@
+---
+- name: Restart systemd-journald
+  become: true
+  ansible.builtin.systemd_service:
+    name: systemd-journald
+    state: restarted
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+- name: Validate rsyslogd
+  become: true
+  ansible.builtin.command:
+    cmd: rsyslogd -N3 -f /etc/rsyslog.conf
+  register: validate_rsyslogd
+  changed_when: false
+  failed_when: validate_rsyslogd.rc != 0

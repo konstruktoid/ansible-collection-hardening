@@ -1,0 +1,58 @@
+---
+argument_specs:
+  main:
+    short_description: Configuration of journald, rsyslog and logrotate.
+    description:
+      - This role provides configuration of journald, rsyslog and logrotate.
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      journald_conf_template:
+        description: "systemd journald.conf template location."
+        type: "path"
+        default: "etc/systemd/journald.conf.j2"
+      journald_compress:
+        description: "If True, journal files will be compressed."
+        type: "bool"
+        default: "True"
+      journald_forwardtosyslog:
+        description: "If True, forward journal messages to syslog."
+        type: "bool"
+        default: "False"
+      journald_storage:
+        description: "Controls where to store journal data."
+        type: "str"
+        default: "persistent"
+        choices:
+          - "auto"
+          - "none"
+          - "persistent"
+          - "volatile"
+      journald_dir_mode:
+        description: "Sets the permissions for directories."
+        type: "str"
+        default: "2750"
+      journald_file_mode:
+        description: "Sets the permissions for journal files."
+        type: "str"
+        default: "0640"
+      journald_group:
+        description: "The group that has access to the journal files."
+        type: "str"
+        default: "systemd-journal"
+      journald_user:
+        description: "The user that has access to the journal files."
+        type: "str"
+        default: "root"
+      journald_system_max_use:
+        description: "How much disk space the journal may use up at most."
+        type: "str"
+        default: ""
+      logrotate_conf_template:
+        description: "logrotate.conf template location."
+        type: "path"
+        default: "etc/logrotate.conf.j2"
+      rsyslog_filecreatemode:
+        description: "Set the file creation mode for rsyslog log files."
+        type: "str"
+        default: "0640"

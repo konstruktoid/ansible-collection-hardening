@@ -1,0 +1,191 @@
+---
+- name: Configure systemd journald.conf
+  become: true
+  ansible.builtin.template:
+    src: "{{ journald_conf_template }}"
+    dest: /etc/systemd/journald.conf
+    backup: true
+    mode: "0644"
+    owner: root
+    group: root
+  notify:
+    - Restart systemd-journald
+
+- name: Probe systemd-journal-remote units
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+  loop:
+    - systemd-journal-remote.socket
+    - systemd-journal-remote.service
+  register: journal_remote_units
+  failed_when: false
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+- name: Disable systemd-journal-remote
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ item.item }}"
+    state: stopped
+    enabled: false
+    masked: true
+  loop: "{{ journal_remote_units.results }}"
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+    - item.status is defined
+    - item.status.LoadState is defined
+    - item.status.LoadState == "loaded"
+
+- name: Stat journald tmpfiles configuration directory
+  ansible.builtin.stat:
+    path: /etc/tmpfiles.d/
+  register: tmpfiles_d
+
+- name: Set restrictive permissions on journal files
+  become: true
+  ansible.builtin.blockinfile:
+    path: /etc/tmpfiles.d/99-journald.conf
+    mode: "0644"
+    owner: root
+    group: root
+    create: true
+    block: |
+      Z /run/log/journal/%m {{ journald_dir_mode | default('2750') }} {{ journald_user }} {{ journald_group }} - -
+      z /run/log/journal {{ journald_dir_mode | default('2750') }} {{ journald_user }} {{ journald_group }} - -
+      z /var/log/journal {{ journald_dir_mode | default('2750') }} {{ journald_user }} {{ journald_group }} - -
+      z /var/log/journal/%m {{ journald_dir_mode | default('2750') }} {{ journald_user }} {{ journald_group }} - -
+      z /var/log/journal/%m/system.journal {{ journald_file_mode | default('0640') }} {{ journald_user }} {{ journald_group }} - -
+  register: journald_tmpfiles_config
+  when:
+    - tmpfiles_d.stat.exists
+
+- name: Apply journald tmpfiles permissions
+  become: true
+  ansible.builtin.command:
+    argv:
+      - systemd-tmpfiles
+      - --create
+      - /etc/tmpfiles.d/99-journald.conf
+  changed_when: false
+  when:
+    - tmpfiles_d.stat.exists
+    - journald_tmpfiles_config is changed
+
+- name: Ensure logrotate and xz is installed on Debian-based systems
+  become: true
+  ansible.builtin.apt:
+    name:
+      - logrotate
+      - xz-utils
+    state: present
+    update_cache: true
+  when:
+    - ansible_facts.os_family == "Debian"
+
+- name: Ensure logrotate and xz is installed on RedHat-based systems
+  become: true
+  ansible.builtin.dnf:
+    name:
+      - logrotate
+      - xz
+    state: present
+  when:
+    - ansible_facts.os_family == "RedHat"
+
+- name: Configure logrotate(8)
+  become: true
+  ansible.builtin.template:
+    src: "{{ logrotate_conf_template }}"
+    dest: /etc/logrotate.conf
+    backup: true
+    mode: "0644"
+    owner: root
+    group: root
+
+- name: Configure cron.daily logrotate
+  become: true
+  ansible.builtin.copy:
+    dest: /etc/cron.daily/logrotate
+    owner: root
+    group: root
+    mode: "0750"
+    content: |
+      #!/bin/sh
+      /usr/sbin/logrotate /etc/logrotate.conf
+
+- name: Ensure rsyslog is installed on Debian-based systems
+  become: true
+  ansible.builtin.apt:
+    name: rsyslog
+    state: present
+    update_cache: true
+  when:
+    - ansible_facts.os_family == "Debian"
+
+- name: Ensure rsyslog is installed on RedHat-based systems
+  become: true
+  ansible.builtin.dnf:
+    name: rsyslog
+    state: present
+  when:
+    - ansible_facts.os_family == "RedHat"
+
+- name: Stat rsyslog.conf
+  become: true
+  ansible.builtin.stat:
+    path: /etc/rsyslog.conf
+  register: rsyslogconf
+
+- name: Stat rsyslog.d
+  become: true
+  ansible.builtin.stat:
+    path: /etc/rsyslog.d
+  register: rsyslogd
+
+- name: Set rsyslog FileCreateMode
+  become: true
+  block:
+    - name: Remove FileCreateMode from rsyslog.conf
+      ansible.builtin.lineinfile:
+        regexp: ^\$FileCreateMode
+        dest: /etc/rsyslog.conf
+        state: absent
+        mode: "0640"
+        owner: root
+        group: root
+      when:
+        - rsyslogconf.stat.exists
+        - rsyslogd.stat.exists
+      notify:
+        - Validate rsyslogd
+
+    - name: Set FileCreateMode in rsyslog.conf
+      ansible.builtin.lineinfile:
+        regexp: ^\$FileCreateMode
+        line: $FileCreateMode {{ rsyslog_filecreatemode }}
+        dest: /etc/rsyslog.conf
+        state: present
+        mode: "0640"
+        owner: root
+        group: root
+      when:
+        - rsyslogconf.stat.exists
+        - not rsyslogd.stat.exists
+      notify:
+        - Validate rsyslogd
+
+    - name: Add FileCreateMode drop-in to rsyslog.d
+      ansible.builtin.lineinfile:
+        regexp: ^\$FileCreateMode
+        line: $FileCreateMode {{ rsyslog_filecreatemode }}
+        dest: /etc/rsyslog.d/99-filecreatemode.conf
+        mode: "0644"
+        owner: root
+        group: root
+        state: present
+        create: true
+      when:
+        - rsyslogd.stat.exists
+      notify:
+        - Validate rsyslogd
