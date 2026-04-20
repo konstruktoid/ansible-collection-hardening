@@ -177,6 +177,8 @@
         line: $FileCreateMode {{ rsyslog_filecreatemode }}
         dest: /etc/rsyslog.d/99-filecreatemode.conf
         mode: "0644"
+        owner: root
+        group: root
         state: present
         create: true
       when:
