@@ -162,6 +162,5 @@
         create: true
       when:
         - rsyslogd.stat.exists
-        - rsyslogd.stat.isdir
       notify:
         - Validate rsyslogd
