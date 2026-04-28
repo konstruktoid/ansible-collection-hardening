@@ -1,0 +1,37 @@
+---
+- name: Configure limits.conf
+  become: true
+  ansible.builtin.template:
+    src: "{{ limits_conf_template }}"
+    dest: /etc/security/limits.conf
+    backup: true
+    mode: "0644"
+    owner: root
+    group: root
+
+- name: Configure coredump.conf
+  become: true
+  ansible.builtin.template:
+    src: "{{ coredump_conf_template }}"
+    dest: /etc/systemd/coredump.conf
+    backup: true
+    mode: "0644"
+    owner: root
+    group: root
+
+- name: Disable kdump service
+  become: true
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    enabled: false
+    state: stopped
+    masked: true
+  register: mask_kdump
+  failed_when:
+    - mask_kdump is not success
+    - not "Could not find the requested service" in mask_kdump.msg
+  loop:
+    - kdump.service
+    - kdump-tools.service
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]

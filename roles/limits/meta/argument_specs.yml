@@ -1,0 +1,33 @@
+---
+argument_specs:
+  main:
+    short_description: Configure limits and coredumps
+    description:
+      - Configure limits and coredumps.
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      coredump_conf_template:
+        description: "systemd coredump.conf template location."
+        type: "path"
+        default: "etc/systemd/coredump.conf.j2"
+      limits_conf_template:
+        description: "limits.conf template location."
+        type: "path"
+        default: "etc/security/limits.conf.j2"
+      limit_nofile_hard:
+        description: "Maximum number of open files, hard resource limit"
+        type: "int"
+        default: 1024
+      limit_nofile_soft:
+        description: "Maximum number of open files, soft resource limit"
+        type: "int"
+        default: 512
+      limit_nproc_hard:
+        description: "Maximum number of processes, hard resource limit"
+        type: "int"
+        default: 1024
+      limit_nproc_soft:
+        description: "Maximum number of processes, soft resource limit"
+        type: "int"
+        default: 512

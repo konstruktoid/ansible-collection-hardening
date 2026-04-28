@@ -1,0 +1,18 @@
+---
+# systemd coredump.conf template location.
+coredump_conf_template: "etc/systemd/coredump.conf.j2"
+
+# Maximum number of open files, hard resource limit
+limit_nofile_hard: 1024
+
+# Maximum number of open files, soft resource limit
+limit_nofile_soft: 512
+
+# Maximum number of processes, hard resource limit
+limit_nproc_hard: 1024
+
+# Maximum number of processes, soft resource limit
+limit_nproc_soft: 512
+
+# limits.conf template location.
+limits_conf_template: "etc/security/limits.conf.j2"

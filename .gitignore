@@ -28,6 +28,7 @@ roles/*
 !roles/issue
 !roles/journald
 !roles/kernel
+!roles/limits
 !roles/netplan
 !roles/root_access
 !roles/ssh
