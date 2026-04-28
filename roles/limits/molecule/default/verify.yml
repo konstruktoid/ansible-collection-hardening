@@ -41,3 +41,15 @@
         - "* hard core 0"
         - "* soft nproc {{ limit_nproc_soft }}"
         - "* hard nproc {{ limit_nproc_hard }}"
+
+    - name: Verify coredump.conf
+      ansible.builtin.lineinfile:
+        dest: /etc/systemd/coredump.conf
+        line: "{{ item }}"
+        state: present
+      check_mode: true
+      register: coredump_conf
+      failed_when: coredump_conf is changed
+      with_items:
+        - "Storage=none"
+        - "ProcessSizeMax=0"
