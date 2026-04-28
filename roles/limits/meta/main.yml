@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  role_name: hardening
+  role_name: limits
   author: konstruktoid
   description: AlmaLinux, Debian and Ubuntu hardening. systemd edition.
   license: apache
