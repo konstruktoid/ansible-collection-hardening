@@ -1,0 +1,55 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for the host and reconnect
+          ansible.builtin.wait_for:
+            port: 22
+            host: "{{ (ansible_facts.ssh_host | default(ansible_facts.host)) | default(inventory_hostname) }}"
+            delay: 10
+            timeout: 120
+
+    - name: Include default vars
+      ansible.builtin.include_vars:
+        dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/"
+        extensions:
+          - yml
+
+    - name: Include host vars
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Verify limits.conf
+      ansible.builtin.lineinfile:
+        dest: /etc/security/limits.conf
+        line: "{{ item }}"
+        state: present
+      check_mode: true
+      register: limits_conf
+      failed_when: limits_conf is changed
+      with_items:
+        - "* hard maxlogins 10"
+        - "* hard core 0"
+        - "* soft nproc {{ limit_nproc_soft }}"
+        - "* hard nproc {{ limit_nproc_hard }}"
+
+    - name: Verify coredump.conf
+      ansible.builtin.lineinfile:
+        dest: /etc/systemd/coredump.conf
+        line: "{{ item }}"
+        state: present
+      check_mode: true
+      register: coredump_conf
+      failed_when: coredump_conf is changed
+      with_items:
+        - "Storage=none"
+        - "ProcessSizeMax=0"
