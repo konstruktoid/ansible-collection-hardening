@@ -16,7 +16,7 @@ provisioner:
     host_vars:
       almalinux10:
       trixie:
-      noble:
+      resolute:
 platforms:
   - name: almalinux10
     box: almalinux/10-kitten-x86_64_v2
@@ -33,7 +33,7 @@ platforms:
     instance_raw_config_args:
       - vbguest.auto_update = false
     memory: 1024
-  - name: noble
+  - name: resolute
     box: konstruktoid/ubuntu-26.04
     config_options:
       vm.boot_timeout: 600
