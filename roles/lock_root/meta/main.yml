@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: lock_root
   author: konstruktoid
-  description: Lock the root account.
+  description: Lock the root account and remove root SSH authorized_keys.
   license: apache
   min_ansible_version: "2.18"
   platforms:
