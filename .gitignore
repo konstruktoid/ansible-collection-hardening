@@ -30,6 +30,7 @@ roles/*
 !roles/kernel
 !roles/limits
 !roles/lock_root
+!roles/logindconf
 !roles/netplan
 !roles/root_access
 !roles/ssh
