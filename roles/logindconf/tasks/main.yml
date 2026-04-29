@@ -19,4 +19,4 @@
         owner: root
         group: root
       notify:
-        - Reload systemd
+        - Restart systemd-logind
