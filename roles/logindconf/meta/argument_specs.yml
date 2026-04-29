@@ -15,7 +15,8 @@ argument_specs:
         type: "dict"
         default:
           - killuserprocesses: true
-          - killexcludeusers: "['root']"
+          - killexcludeusers:
+              - "root"
           - idleaction: "lock"
           - idleactionsec: "15min"
           - removeipc: true
