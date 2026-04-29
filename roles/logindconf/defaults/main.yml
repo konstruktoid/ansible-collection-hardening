@@ -1,0 +1,14 @@
+---
+# Configure systemd-logind settings.
+logind:
+  killuserprocesses: true # Configures whether the processes of a user should be killed when the user logs out.
+  killexcludeusers: ["root"] # A list of usernames that override the KillUserProcesses setting.
+  idleaction: "lock" # Configures the action to take when the system is idle.
+  idleactionsec: "15min" # Configures the delay after which the action configured in C(IdleAction) is taken after the system is idle.
+  removeipc: true # Controls whether System V and POSIX IPC objects belonging to the user shall be removed when the user fully logs out.
+
+# systemd logind.conf template location.
+logind_conf_template: "etc/systemd/logind.conf.j2"
+
+# Sets, in seconds, the StopIdleSessionSec if systemd version 252 or newer
+session_timeout: 900

@@ -1,0 +1,55 @@
+---
+argument_specs:
+  main:
+    short_description: Configure systemd-logind settings.
+    description:
+      - This role configures systemd-logind settings by modifying the C(logind.conf) file.
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      logind_conf_template:
+        description: "systemd logind.conf template location."
+        type: "path"
+        default: "etc/systemd/logind.conf.j2"
+      logind:
+        type: "dict"
+        default:
+          - killuserprocesses: true
+          - killexcludeusers: "['root']"
+          - idleaction: "lock"
+          - idleactionsec: "15min"
+          - removeipc: true
+        description: "Configure systemd-logind settings."
+        options:
+          killuserprocesses:
+            description: "Configures whether the processes of a user should be killed when the user logs out."
+            type: "bool"
+          killexcludeusers:
+            description: "A list of usernames that override the KillUserProcesses setting."
+            type: "list"
+            elements: "str"
+          idleaction:
+            description: "Configures the action to take when the system is idle."
+            type: "str"
+            choices:
+              - "halt"
+              - "hibernate"
+              - "hybrid-sleep"
+              - "ignore"
+              - "kexec"
+              - "lock"
+              - "poweroff"
+              - "reboot"
+              - "suspend"
+              - "suspend-then-hibernate"
+              - "sleep"
+          idleactionsec:
+            description: "Configures the delay after which the action configured in C(IdleAction) is taken after the system is idle."
+            type: "str"
+          removeipc:
+            description: "Controls whether System V and POSIX IPC objects belonging to the user shall be removed when the user fully logs out."
+            type: "bool"
+      session_timeout:
+        description: "Sets, in seconds, the StopIdleSessionSec if systemd version 252 or newer"
+        type: "int"
+        default: 900
