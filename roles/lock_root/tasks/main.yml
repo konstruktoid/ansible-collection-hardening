@@ -11,3 +11,15 @@
       ansible.builtin.file:
         path: /root/.ssh/authorized_keys
         state: absent
+
+    - name: Check that root ssh authorized keys are absent
+      ansible.builtin.stat:
+        path: /root/.ssh/authorized_keys
+      register: root_authorized_keys_stat
+
+    - name: Assert root ssh authorized keys are absent
+      ansible.builtin.assert:
+        that:
+          - not root_authorized_keys_stat.stat.exists
+        fail_msg: Root SSH authorized_keys file should be absent
+        success_msg: Root SSH authorized_keys file is absent
