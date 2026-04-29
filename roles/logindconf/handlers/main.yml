@@ -1,7 +1,8 @@
 ---
-- name: Reload systemd
+- name: Restart systemd-logind
   become: true
   ansible.builtin.systemd_service:
-    daemon_reload: true
+    name: systemd-logind
+    state: restarted
   when:
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
