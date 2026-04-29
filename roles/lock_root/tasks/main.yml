@@ -1,0 +1,13 @@
+---
+- name: Lock the root account and remove ssh authorized keys
+  become: true
+  block:
+    - name: Lock the root account
+      ansible.builtin.user:
+        name: root
+        password_lock: true
+
+    - name: Remove ssh authorized keys for root
+      ansible.builtin.file:
+        path: /root/.ssh/authorized_keys
+        state: absent

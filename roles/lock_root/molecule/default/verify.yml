@@ -1,0 +1,42 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for the host and reconnect
+          ansible.builtin.wait_for:
+            port: 22
+            host: "{{ (ansible_facts.ssh_host | default(ansible_facts.host)) | default(inventory_hostname) }}"
+            delay: 10
+            timeout: 120
+
+    - name: Include default vars
+      ansible.builtin.include_vars:
+        dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/"
+        extensions:
+          - yml
+
+    - name: Include host vars
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Get root account entry
+      become: true
+      command: grep '^root:' /etc/shadow
+      register: root_shadow
+      changed_when: false
+
+    - name: Assert root account is locked
+      assert:
+        that:
+          - root_shadow.stdout.split(':')[1] is match('^[!*]')
+        fail_msg: "Root account is not locked!"
+        success_msg: "Root account is locked."
