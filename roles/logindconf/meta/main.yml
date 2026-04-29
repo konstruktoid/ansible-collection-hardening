@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: logindconf
   author: konstruktoid
-  description: Configure systemd-logind settings by modifying the C(logind.conf) file.
+  description: Configure systemd-logind settings by managing a C(logind.conf.d) drop-in file.
   license: apache
   min_ansible_version: "2.18"
   platforms:
