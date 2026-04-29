@@ -23,4 +23,4 @@
 
     - name: Include Ansible role
       ansible.builtin.import_role:
-        name: "konstruktoid.hardening.{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') | basename }}"
+        name: konstruktoid.hardening.lock_root
