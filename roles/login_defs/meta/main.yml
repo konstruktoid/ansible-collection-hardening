@@ -1,0 +1,30 @@
+---
+galaxy_info:
+  role_name: hardening
+  author: konstruktoid
+  description: AlmaLinux, Debian and Ubuntu hardening. systemd edition.
+  license: apache
+  min_ansible_version: "2.18"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+    - name: EL
+      versions:
+        - "9"
+        - "10"
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+  galaxy_tags:
+    - almalinux
+    - centos
+    - cis
+    - debian
+    - disa
+    - hardening
+    - security
+    - system
+    - systemd
+    - ubuntu

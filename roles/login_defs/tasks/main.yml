@@ -1,0 +1,34 @@
+---
+- name: Get PAM version
+  block:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Get libpam version in Debian family
+      ansible.builtin.set_fact:
+        pam_version: "{{ ansible_facts.packages['libpam-modules'][0].version }}"
+      when:
+        - ansible_facts.os_family == "Debian"
+        - "'libpam-modules' in ansible_facts.packages"
+
+    - name: Get libpam version in RedHat family
+      ansible.builtin.set_fact:
+        pam_version: "{{ ansible_facts.packages['pam'][0].version }}"
+      when:
+        - ansible_facts.os_family in ["RedHat", "Suse"]
+        - "'pam' in ansible_facts.packages"
+
+- name: Set hashing algorithm for password (yescrypt|sha512)
+  ansible.builtin.set_fact:
+    password_algorithm: "{{ 'yescrypt' if (pam_version is version('1.4.0', '>=')) else 'sha512' }}"
+
+- name: Configure login.defs
+  become: true
+  ansible.builtin.template:
+    src: "{{ login_defs_template }}"
+    dest: /etc/login.defs
+    backup: true
+    mode: "0644"
+    owner: root
+    group: root

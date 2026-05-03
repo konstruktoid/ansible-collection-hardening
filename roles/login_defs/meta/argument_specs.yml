@@ -1,0 +1,54 @@
+---
+argument_specs:
+  main:
+    short_description: login_defs configuration.
+    description:
+      - This module manages the configuration of login.defs.
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      login_defs_template:
+        description: "/etc/login.defs template location."
+        type: "path"
+        default: "etc/login.defs.j2"
+      login_defs:
+        type: "dict"
+        default:
+          - home_mode: "0700"
+          - login_retries: 5
+          - login_timeout: 60
+          - pass_max_days: 60
+          - pass_min_days: 1
+          - pass_min_length: 15
+          - pass_warn_age: 7
+          - umask_value: "0077"
+          - usergroups_enabled: true
+        description: "login.defs configuration options."
+        options:
+          home_mode:
+            description: "The permissions assigned to a newly created user's home directory."
+            type: "int"
+          login_retries:
+            description: "Maximum number of login retries in case of bad password."
+            type: "int"
+          login_timeout:
+            description: "Max time in seconds for login."
+            type: "int"
+          pass_max_days:
+            description: "The maximum number of days a password may be used. If the password is older than this, a password change will be forced."
+            type: "int"
+          pass_min_days:
+            description: "The minimum number of days allowed between password changes. If a user tries to change their password before this time."
+            type: "int"
+          pass_min_length:
+            description: "The minimum acceptable size for a new password."
+            type: "int"
+          pass_warn_age:
+            description: "The number of days before password expiration that the user will be warned about the impending expiration."
+            type: "int"
+          umask_value:
+            description: "The umask value for user home directories."
+            type: "str"
+          usergroups_enabled:
+            description: "If True, userdel will remove the user's group if it's empty, and useradd will create by default a group with the name of the user."
+            type: "bool"
