@@ -27,7 +27,7 @@ argument_specs:
         options:
           home_mode:
             description: "The permissions assigned to a newly created user's home directory."
-            type: "int"
+            type: "str"
           login_retries:
             description: "Maximum number of login retries in case of bad password."
             type: "int"
