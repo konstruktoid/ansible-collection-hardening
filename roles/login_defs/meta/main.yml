@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: login_defs
   author: konstruktoid
-  description: AlmaLinux, Debian and Ubuntu hardening. systemd edition.
+  description: Configure /etc/login.defs settings to enforce secure account and password policy defaults on supported Linux systems.
   license: apache
   min_ansible_version: "2.18"
   platforms:
