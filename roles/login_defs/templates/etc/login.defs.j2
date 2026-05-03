@@ -1,0 +1,39 @@
+# Managed by Ansible role {{ ansible_role_name }}
+
+# Shadow password suite configuration
+# See login.defs(5) for more information
+
+CHFN_RESTRICT rwh
+DEFAULT_HOME no
+ENCRYPT_METHOD {{ password_algorithm | upper }}
+ENV_PATH PATH=/usr/local/bin:/usr/sbin:/usr/bin:/bin:/snap/bin
+ENV_SUPATH PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+ERASECHAR 0177
+FAILLOG_ENAB yes
+FTMP_FILE /var/log/btmp
+GID_MAX 60000
+GID_MIN 1000
+HOME_MODE {{ login_defs.home_mode }}
+HUSHLOGIN_FILE .hushlogin
+KILLCHAR 025
+LOGIN_RETRIES {{ login_defs.login_retries }}
+LOGIN_TIMEOUT {{ login_defs.login_timeout }}
+LOG_OK_LOGINS yes
+LOG_UNKFAIL_ENAB no
+MAIL_DIR /var/mail
+PASS_MAX_DAYS {{ login_defs.pass_max_days }}
+PASS_MIN_DAYS {{ login_defs.pass_min_days }}
+PASS_MIN_LEN {{ login_defs.pass_min_length }}
+PASS_WARN_AGE {{ login_defs.pass_warn_age }}
+SHA_CRYPT_MAX_ROUNDS 65536
+SHA_CRYPT_MIN_ROUNDS 10000
+SU_NAME su
+SYSLOG_SG_ENAB yes
+SYSLOG_SU_ENAB yes
+TTYGROUP tty
+TTYPERM 0600
+UID_MAX 60000
+UID_MIN 1000
+UMASK {{ login_defs.umask_value }}
+USERGROUPS_ENAB {{ 'yes' if login_defs.usergroups_enabled else 'no' }}
+YESCRYPT_COST_FACTOR 11
