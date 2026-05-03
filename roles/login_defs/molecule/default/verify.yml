@@ -67,6 +67,7 @@
         - LOGIN_TIMEOUT {{ login_defs.login_timeout }}
         - PASS_MAX_DAYS {{ login_defs.pass_max_days }}
         - PASS_MIN_DAYS {{ login_defs.pass_min_days }}
+        - PASS_MIN_LEN {{ login_defs.pass_min_length }}
         - PASS_WARN_AGE {{ login_defs.pass_warn_age }}
         - SHA_CRYPT_MAX_ROUNDS 65536
         - SHA_CRYPT_MIN_ROUNDS 10000
