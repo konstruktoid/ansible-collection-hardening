@@ -116,20 +116,27 @@
       when:
         - ubuntu_esm_hook.stat.exists
 
-    - name: Gather motd-news.service systemd unit status
-      ansible.builtin.systemd:
-        name: motd-news.service
-      register: motd_news_service_status
+    - name: Probe motdnews units
+      become: true
+      ansible.builtin.command:
+        cmd: systemctl list-unit-files {{ item }}
+      register: motdnews_units
+      changed_when: false
       failed_when: false
+      loop:
+        - motd-news.service
+        - motd-news.timer
       when:
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
 
-    - name: Mask motd-news.service
-      become: true
-      ansible.builtin.systemd_service:
+    - name: Gather motd-news.service systemd unit status
+      ansible.builtin.systemd:
         name: motd-news.service
-        masked: true
-        enabled: false
+        name: "{{ item.item }}"
+      failed_when: false
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      loop: "{{ motdnews_units.results | selectattr('rc', 'equalto', 0) | list }}"
         state: stopped
       when:
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
