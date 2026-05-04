@@ -32,6 +32,7 @@ roles/*
 !roles/login_defs
 !roles/lock_root
 !roles/logindconf
+!roles/motd_news
 !roles/netplan
 !roles/root_access
 !roles/ssh

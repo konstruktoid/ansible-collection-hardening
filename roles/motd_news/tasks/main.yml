@@ -1,0 +1,104 @@
+---
+- name: Manage apt esm, motd-news and Ubuntu PRO
+  when:
+    - ansible_facts.os_family == "Debian"
+  block:
+    - name: Stat /etc/default/motd-news
+      ansible.builtin.stat:
+        path: /etc/default/motd-news
+      register: motd_news
+
+    - name: Disable motd-news
+      become: true
+      ansible.builtin.lineinfile:
+        regexp: ^ENABLED=
+        line: ENABLED=0
+        dest: /etc/default/motd-news
+        mode: "0644"
+        state: present
+        create: false
+        backrefs: true
+      when:
+        - motd_news.stat.exists
+
+    - name: Find update-motd.d files
+      become: true
+      ansible.builtin.find:
+        paths: /etc/update-motd.d
+        file_type: file
+      register: update_motd_permissions
+
+    - name: Update motd permissions
+      become: true
+      ansible.builtin.file:
+        dest: "{{ item.path }}"
+        mode: "0444"
+        state: file
+      with_items:
+        - "{{ update_motd_permissions.files }}"
+
+    - name: Set /etc/update-motd.d permission
+      become: true
+      ansible.builtin.file:
+        dest: /etc/update-motd.d
+        mode: "0755"
+        state: directory
+
+    - name: Stat /usr/bin/pro
+      ansible.builtin.stat:
+        path: /usr/bin/pro
+      register: ubuntu_advantage_pro
+
+    - name: Check apt_news status
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          pro config show | grep '^apt_news.*False'
+      args:
+        executable: /bin/bash
+      register: ubuntu_advantage_pro_state
+      changed_when: false
+      failed_when: ubuntu_advantage_pro_state.rc > 1
+      when:
+        - ubuntu_advantage_pro.stat.exists
+
+    - name: Disable apt_news
+      become: true
+      ansible.builtin.command:
+        cmd: pro config set apt_news=false
+      register: disable_apt_news
+      changed_when: disable_apt_news.rc != 0
+      failed_when: disable_apt_news.rc != 0
+      when:
+        - ubuntu_advantage_pro.stat.exists
+        - ubuntu_advantage_pro_state.rc != 0
+
+    - name: Stat apt ESM hook
+      ansible.builtin.stat:
+        path: /etc/apt/apt.conf.d/20apt-esm-hook.conf
+      register: ubuntu_esm_hook
+
+    - name: Remove apt ESM hook
+      become: true
+      ansible.builtin.file:
+        dest: /etc/apt/apt.conf.d/20apt-esm-hook.conf
+        state: absent
+      when:
+        - ubuntu_esm_hook.stat.exists
+
+    - name: Mask motdnews
+      become: true
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+        masked: true
+        enabled: false
+        state: stopped
+      register: mask_motdnews
+      failed_when:
+        - mask_motdnews is not success
+        - not "Could not find the requested service" in mask_motdnews.msg
+      loop:
+        - motd-news.service
+        - motd-news.timer
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]

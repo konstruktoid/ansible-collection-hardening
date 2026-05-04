@@ -1,0 +1,78 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for the host and reconnect
+          ansible.builtin.wait_for:
+            port: 22
+            host: "{{ (ansible_facts.ssh_host | default(ansible_facts.host)) | default(inventory_hostname) }}"
+            delay: 10
+            timeout: 120
+
+    - name: Include default vars
+      ansible.builtin.include_vars:
+        dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/"
+        extensions:
+          - yml
+
+    - name: Include host vars
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Stat /etc/default/motd-news
+      ansible.builtin.stat:
+        path: /etc/default/motd-news
+      register: motd_news
+
+    - name: Verify masked motdnews service
+      become: true
+      ansible.builtin.systemd_service:
+        name: motd-news.service
+        masked: true
+        enabled: false
+        state: stopped
+      check_mode: true
+      register: motdnews_service
+      failed_when: motdnews_service is changed
+      when:
+        - ansible_facts.os_family == "Debian"
+        - motd_news.stat.exists
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Stat /usr/bin/pro
+      ansible.builtin.stat:
+        path: /usr/bin/pro
+      register: ubuntu_advantage_pro
+      when:
+        - ansible_facts.os_family == "Debian"
+
+    - name: Verify that apt_news is disabled
+      become: true
+      ansible.builtin.shell: |
+        set -o pipefail
+        pro config show | grep '^apt_news.*False'
+      args:
+        executable: /bin/bash
+      register: ubuntu_advantage_pro_state
+      changed_when: false
+      failed_when: ubuntu_advantage_pro_state.rc != 0
+      when:
+        - ansible_facts.os_family == "Debian"
+        - ubuntu_advantage_pro.stat.exists
+
+    - name: Stat apt ESM hook
+      ansible.builtin.stat:
+        path: /etc/apt/apt.conf.d/20apt-esm-hook.conf
+      register: ubuntu_esm_hook
+      failed_when: ubuntu_esm_hook.stat.exists
+      when:
+        - ansible_facts.os_family == "Debian"
