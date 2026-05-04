@@ -116,19 +116,42 @@
       when:
         - ubuntu_esm_hook.stat.exists
 
-    - name: Mask motdnews
+    - name: Gather motd-news.service systemd unit status
+      ansible.builtin.systemd:
+        name: motd-news.service
+      register: motd_news_service_status
+      failed_when: false
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Mask motd-news.service
       become: true
       ansible.builtin.systemd_service:
-        name: "{{ item }}"
+        name: motd-news.service
         masked: true
         enabled: false
         state: stopped
-      register: mask_motdnews
-      failed_when:
-        - mask_motdnews is not success
-        - not "Could not find the requested service" in mask_motdnews.msg
-      loop:
-        - motd-news.service
-        - motd-news.timer
       when:
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+        - motd_news_service_status.status is defined
+        - motd_news_service_status.status.LoadState == "loaded"
+
+    - name: Gather motd-news.timer systemd unit status
+      ansible.builtin.systemd:
+        name: motd-news.timer
+      register: motd_news_timer_status
+      failed_when: false
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Mask motd-news.timer
+      become: true
+      ansible.builtin.systemd_service:
+        name: motd-news.timer
+        masked: true
+        enabled: false
+        state: stopped
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+        - motd_news_timer_status.status is defined
+        - motd_news_timer_status.status.LoadState == "loaded"
