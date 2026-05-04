@@ -1,0 +1,134 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for the host and reconnect
+          ansible.builtin.wait_for:
+            port: 22
+            host: "{{ (ansible_facts.ssh_host | default(ansible_facts.host)) | default(inventory_hostname) }}"
+            delay: 10
+            timeout: 120
+
+    - name: Include default vars
+      ansible.builtin.include_vars:
+        dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/"
+        extensions:
+          - yml
+
+    - name: Include host vars
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Stat /etc/default/motd-news
+      ansible.builtin.stat:
+        path: /etc/default/motd-news
+      register: motd_news
+
+    - name: Verify masked motdnews service
+      become: true
+      ansible.builtin.systemd_service:
+        name: motd-news.service
+        masked: true
+        enabled: false
+        state: stopped
+      check_mode: true
+      register: motdnews_service
+      failed_when: motdnews_service is changed
+      when:
+        - ansible_facts.os_family == "Debian"
+        - motd_news.stat.exists
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Gather motd-news.timer systemd unit status
+      ansible.builtin.systemd:
+        name: motd-news.timer
+      register: motd_news_timer_status
+      failed_when: false
+      when:
+        - ansible_facts.os_family == "Debian"
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Assert motd-news.timer is masked
+      ansible.builtin.assert:
+        that:
+          - motd_news_timer_status.status.LoadState == "masked" or motd_news_timer_status.status.LoadState == "not-found"
+        fail_msg: "motd-news.timer is not masked. LoadState: {{ motd_news_timer_status.status.LoadState }}"
+      when:
+        - ansible_facts.os_family == "Debian"
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+        - motd_news_timer_status.status is defined
+        - motd_news_timer_status.status.LoadState is defined
+
+    - name: Stat /usr/bin/pro
+      ansible.builtin.stat:
+        path: /usr/bin/pro
+      register: ubuntu_advantage_pro
+      when:
+        - ansible_facts.os_family == "Debian"
+
+    - name: Verify that apt_news is disabled
+      become: true
+      ansible.builtin.shell: |
+        set -o pipefail
+        pro config show | grep '^apt_news.*False'
+      args:
+        executable: /bin/bash
+      register: ubuntu_advantage_pro_state
+      changed_when: false
+      failed_when: ubuntu_advantage_pro_state.rc != 0
+      when:
+        - ansible_facts.os_family == "Debian"
+        - ubuntu_advantage_pro.stat.exists
+
+    - name: Stat apt ESM hook
+      ansible.builtin.stat:
+        path: /etc/apt/apt.conf.d/20apt-esm-hook.conf
+      register: ubuntu_esm_hook
+      failed_when: ubuntu_esm_hook.stat.exists
+      when:
+        - ansible_facts.os_family == "Debian"
+
+    - name: Stat /etc/update-motd.d
+      ansible.builtin.stat:
+        path: /etc/update-motd.d
+      register: update_motd_directory
+      when:
+        - ansible_facts.os_family == "Debian"
+
+    - name: Assert /etc/update-motd.d mode
+      ansible.builtin.assert:
+        that:
+          - update_motd_directory.stat.isdir
+          - update_motd_directory.stat.mode == "0755"
+        fail_msg: "/etc/update-motd.d must be a directory with mode 0755"
+      when:
+        - ansible_facts.os_family == "Debian"
+        - update_motd_directory.stat.exists
+
+    - name: Find update-motd.d files
+      ansible.builtin.find:
+        paths: /etc/update-motd.d
+        file_type: file
+      register: update_motd_files
+      when:
+        - ansible_facts.os_family == "Debian"
+        - update_motd_directory.stat.exists
+
+    - name: Assert update-motd.d file modes
+      ansible.builtin.assert:
+        that:
+          - item.mode == "0444"
+        fail_msg: "{{ item.path }} must have mode 0444"
+      loop: "{{ update_motd_files.files | default([]) }}"
+      when:
+        - ansible_facts.os_family == "Debian"
+        - update_motd_directory.stat.exists

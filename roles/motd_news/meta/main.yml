@@ -1,0 +1,21 @@
+---
+galaxy_info:
+  role_name: motd_news
+  author: konstruktoid
+  description: Manage apt esm, motd-news and Ubuntu PRO
+  license: apache
+  min_ansible_version: "2.18"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+  galaxy_tags:
+    - cis
+    - disa
+    - hardening
+    - security
+    - ubuntu

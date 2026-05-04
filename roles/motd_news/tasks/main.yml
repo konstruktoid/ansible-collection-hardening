@@ -1,0 +1,138 @@
+---
+- name: Manage apt esm, motd-news and Ubuntu PRO
+  when:
+    - ansible_facts.os_family == "Debian"
+  block:
+    - name: Stat /etc/default/motd-news
+      ansible.builtin.stat:
+        path: /etc/default/motd-news
+      register: motd_news
+
+    - name: Disable motd-news
+      become: true
+      ansible.builtin.lineinfile:
+        regexp: ^ENABLED=
+        line: ENABLED=0
+        dest: /etc/default/motd-news
+        mode: "0644"
+        state: present
+        create: false
+        backrefs: true
+      when:
+        - motd_news.stat.exists
+
+    - name: Stat /etc/update-motd.d
+      ansible.builtin.stat:
+        path: /etc/update-motd.d
+      register: update_motd_d
+
+    - name: Find update-motd.d files
+      become: true
+      ansible.builtin.find:
+        paths: /etc/update-motd.d
+        file_type: file
+      register: update_motd_permissions
+      when:
+        - update_motd_d.stat.exists
+
+    - name: Update motd permissions
+      become: true
+      ansible.builtin.file:
+        dest: "{{ item.path }}"
+        mode: "0444"
+        state: file
+      with_items:
+        - "{{ update_motd_permissions.files | default([]) }}"
+      when:
+        - update_motd_d.stat.exists
+
+    - name: Set /etc/update-motd.d permission
+      become: true
+      ansible.builtin.file:
+        dest: /etc/update-motd.d
+        mode: "0755"
+        state: directory
+      when:
+        - update_motd_d.stat.exists
+
+    - name: Stat /usr/bin/pro
+      ansible.builtin.stat:
+        path: /usr/bin/pro
+      register: ubuntu_advantage_pro
+
+    - name: Check apt_news status
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          pro config show | grep '^apt_news.*False'
+      args:
+        executable: /bin/bash
+      register: ubuntu_advantage_pro_state
+      changed_when: false
+      failed_when: ubuntu_advantage_pro_state.rc > 1
+      when:
+        - ubuntu_advantage_pro.stat.exists
+
+    - name: Disable apt_news
+      become: true
+      ansible.builtin.command:
+        cmd: pro config set apt_news=false
+      register: disable_apt_news
+      changed_when: disable_apt_news.rc == 0
+      failed_when: disable_apt_news.rc != 0
+      when:
+        - ubuntu_advantage_pro.stat.exists
+        - ubuntu_advantage_pro_state.rc != 0
+
+    - name: Stat apt ESM hook
+      ansible.builtin.stat:
+        path: /etc/apt/apt.conf.d/20apt-esm-hook.conf
+      register: ubuntu_esm_hook
+
+    - name: Remove apt ESM hook
+      become: true
+      ansible.builtin.file:
+        dest: /etc/apt/apt.conf.d/20apt-esm-hook.conf
+        state: absent
+      when:
+        - ubuntu_esm_hook.stat.exists
+
+    - name: Gather motd-news.service systemd unit status
+      ansible.builtin.systemd:
+        name: motd-news.service
+      register: motd_news_service_status
+      failed_when: false
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Mask motd-news.service
+      become: true
+      ansible.builtin.systemd_service:
+        name: motd-news.service
+        masked: true
+        enabled: false
+        state: stopped
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+        - motd_news_service_status.status is defined
+        - motd_news_service_status.status.LoadState == "loaded"
+
+    - name: Gather motd-news.timer systemd unit status
+      ansible.builtin.systemd:
+        name: motd-news.timer
+      register: motd_news_timer_status
+      failed_when: false
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Mask motd-news.timer
+      become: true
+      ansible.builtin.systemd_service:
+        name: motd-news.timer
+        masked: true
+        enabled: false
+        state: stopped
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+        - motd_news_timer_status.status is defined
+        - motd_news_timer_status.status.LoadState == "loaded"
