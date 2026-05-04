@@ -21,12 +21,19 @@
       when:
         - motd_news.stat.exists
 
+    - name: Stat /etc/update-motd.d
+      ansible.builtin.stat:
+        path: /etc/update-motd.d
+      register: update_motd_d
+
     - name: Find update-motd.d files
       become: true
       ansible.builtin.find:
         paths: /etc/update-motd.d
         file_type: file
       register: update_motd_permissions
+      when:
+        - update_motd_d.stat.exists
 
     - name: Update motd permissions
       become: true
@@ -35,7 +42,9 @@
         mode: "0444"
         state: file
       with_items:
-        - "{{ update_motd_permissions.files }}"
+        - "{{ update_motd_permissions.files | default([]) }}"
+      when:
+        - update_motd_d.stat.exists
 
     - name: Set /etc/update-motd.d permission
       become: true
@@ -43,11 +52,15 @@
         dest: /etc/update-motd.d
         mode: "0755"
         state: directory
+      when:
+        - update_motd_d.stat.exists
 
     - name: Stat /etc/update-motd.d
       ansible.builtin.stat:
         path: /etc/update-motd.d
       register: update_motd_directory
+      when:
+        - update_motd_d.stat.exists
 
     - name: Verify /etc/update-motd.d permissions
       ansible.builtin.assert:
@@ -57,12 +70,16 @@
           - update_motd_directory.stat.mode == "0755"
         fail_msg: /etc/update-motd.d must exist as a directory with mode 0755
         success_msg: /etc/update-motd.d permissions are hardened correctly
+      when:
+        - update_motd_d.stat.exists
 
     - name: Stat update-motd.d files after hardening
       ansible.builtin.stat:
         path: "{{ item.path }}"
-      loop: "{{ update_motd_permissions.files }}"
+      loop: "{{ update_motd_permissions.files | default([]) }}"
       register: update_motd_file_stats
+      when:
+        - update_motd_d.stat.exists
 
     - name: Verify update-motd.d file permissions
       ansible.builtin.assert:
@@ -72,7 +89,9 @@
           - item.stat.mode == "0444"
         fail_msg: "{{ item.stat.path }} must exist as a regular file with mode 0444"
         success_msg: "{{ item.stat.path }} permissions are hardened correctly"
-      loop: "{{ update_motd_file_stats.results }}"
+      loop: "{{ update_motd_file_stats.results | default([]) }}"
+      when:
+        - update_motd_d.stat.exists
 
     - name: Stat /usr/bin/pro
       ansible.builtin.stat:
