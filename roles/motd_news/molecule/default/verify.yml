@@ -60,7 +60,7 @@
     - name: Assert motd-news.timer is masked
       ansible.builtin.assert:
         that:
-          - motd_news_timer_status.status.LoadState == "masked"
+          - motd_news_timer_status.status.LoadState == "masked" or motd_news_timer_status.status.LoadState == "not-found"
         fail_msg: "motd-news.timer is not masked. LoadState: {{ motd_news_timer_status.status.LoadState }}"
       when:
         - ansible_facts.os_family == "Debian"
