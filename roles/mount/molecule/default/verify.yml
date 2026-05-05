@@ -34,7 +34,7 @@
       block:
         - name: Verify noexec /dev/shm
           ansible.builtin.shell:
-            cmd: grep '^tmpfs\s/dev/shm.*noexec' /proc/mounts
+            cmd: grep '^tmpfs[[:space:]]/dev/shm.*noexec' /proc/mounts
           register: dev_shm_noexec
           changed_when: false
           failed_when: dev_shm_noexec.rc != 0
@@ -42,7 +42,7 @@
         - name: Verify /proc hidepid
           ansible.builtin.shell: |
             set -o pipefail
-            grep -E '^proc\s/proc proc rw,nosuid,nodev,noexec,relatime.*hidepid=({{ hide_pid }}|invisible)' /proc/mounts
+            grep -E '^proc[[:space:]]+/proc proc rw,nosuid,nodev,noexec,relatime.*hidepid=({{ hide_pid }}|invisible)' /proc/mounts
           args:
             executable: /bin/bash
           register: proc_opts
@@ -52,7 +52,7 @@
         - name: Verify /proc process group
           ansible.builtin.shell: |
             set -o pipefail
-            grep -E '^proc\s/proc proc rw,nosuid,nodev,noexec.*gid={{ process_group }}' /proc/mounts
+            grep -E '^proc[[:space:]]+/proc proc rw,nosuid,nodev,noexec.*gid={{ process_group }}' /proc/mounts
           args:
             executable: /bin/bash
           register: proc_opts
@@ -67,15 +67,31 @@
             name: tmp.mount
           register: tmp_mount
           changed_when: false
-          failed_when:
-            - "'nosuid' not in tmp_mount.status.Options"
-            - "'nodev' not in tmp_mount.status.Options"
-            - "'noexec' not in tmp_mount.status.Options"
+          failed_when: >-
+            'nosuid' not in tmp_mount.status.Options or
+            'nodev' not in tmp_mount.status.Options or
+            'noexec' not in tmp_mount.status.Options
 
-        - name: Verify /tmp
+        - name: Verify /tmp nosuid
           become: true
           ansible.builtin.shell:
-            cmd: grep '^tmpfs\s/tmp\s.*nosuid,nodev,noexec' /proc/mounts
-          register: mounts_tmp
+            cmd: grep '^tmpfs[[:space:]]/tmp[[:space:]].*nosuid' /proc/mounts
+          register: mounts_tmp_nosuid
           changed_when: false
-          failed_when: mounts_tmp.rc != 0
+          failed_when: mounts_tmp_nosuid.rc != 0
+
+        - name: Verify /tmp nodev
+          become: true
+          ansible.builtin.shell:
+            cmd: grep '^tmpfs[[:space:]]/tmp[[:space:]].*nodev' /proc/mounts
+          register: mounts_tmp_nodev
+          changed_when: false
+          failed_when: mounts_tmp_nodev.rc != 0
+
+        - name: Verify /tmp noexec
+          become: true
+          ansible.builtin.shell:
+            cmd: grep '^tmpfs[[:space:]]/tmp[[:space:]].*noexec' /proc/mounts
+          register: mounts_tmp_noexec
+          changed_when: false
+          failed_when: mounts_tmp_noexec.rc != 0
