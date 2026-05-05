@@ -1,0 +1,3 @@
+---
+# List of users to delete.
+delete_users: ["games", "gnats", "irc", "list", "news", "sync", "uucp"]
