@@ -68,6 +68,8 @@
           register: tmp_mount
           changed_when: false
           failed_when: >-
+            tmp_mount.status is not defined or
+            tmp_mount.status.Options is not defined or
             'nosuid' not in tmp_mount.status.Options or
             'nodev' not in tmp_mount.status.Options or
             'noexec' not in tmp_mount.status.Options
