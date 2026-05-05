@@ -5,7 +5,7 @@
     path: /proc
     src: none
     fstype: proc
-    opts: rw,nosuid,nodev,noexec,relatime,hidepid={{ hide_pid | int }},gid={{ process_group }}
+    opts: rw,nosuid,nodev,noexec,relatime,hidepid={{ hide_pid | int }},gid={{ process_group | int }}
     state: mounted
   when:
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
