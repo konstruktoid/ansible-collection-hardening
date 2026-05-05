@@ -25,6 +25,7 @@
     state: mounted
   when:
     - dev_shm.stat.exists
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
 
 - name: Configure /tmp mount
   become: true
