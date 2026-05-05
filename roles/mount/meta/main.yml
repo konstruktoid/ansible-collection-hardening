@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: mount
   author: konstruktoid
-  description: AlmaLinux, Debian and Ubuntu hardening. systemd edition.
+  description: Manage /dev/shm, /proc and /tmp mounts.
   license: apache
   min_ansible_version: "2.18"
   platforms:
