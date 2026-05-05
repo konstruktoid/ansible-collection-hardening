@@ -5,5 +5,4 @@
     name: "{{ item }}"
     state: absent
     remove: true
-  loop:
-    - "{{ delete_users }}"
+  loop: "{{ delete_users | default([]) }}"
