@@ -23,6 +23,7 @@ roles/*
 !roles/compilers
 !roles/cron
 !roles/ctrlaltdel
+!roles/delete_users
 !roles/disable_ipv6
 !roles/disable_wireless
 !roles/issue

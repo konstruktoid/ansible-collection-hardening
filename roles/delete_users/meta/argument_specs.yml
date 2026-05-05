@@ -1,0 +1,14 @@
+---
+argument_specs:
+  main:
+    short_description: Delete unnecessary users.
+    description:
+      - "This module deletes unnecessary users from the system."
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      delete_users:
+        description: "List of users to delete."
+        type: "list"
+        elements: "str"
+        default: "['games', 'gnats', 'irc', 'list', 'news', 'sync', 'uucp']"

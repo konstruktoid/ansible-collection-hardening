@@ -1,0 +1,9 @@
+---
+- name: Remove users
+  become: true
+  ansible.builtin.user:
+    name: "{{ item }}"
+    state: absent
+    remove: true
+  loop:
+    - "{{ delete_users }}"
