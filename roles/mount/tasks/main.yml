@@ -7,6 +7,8 @@
     fstype: proc
     opts: rw,nosuid,nodev,noexec,relatime,hidepid={{ hide_pid | int }},gid={{ process_group }}
     state: mounted
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
 
 - name: Stat /dev/shm
   ansible.builtin.stat:
