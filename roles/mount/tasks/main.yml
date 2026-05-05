@@ -6,7 +6,7 @@
     src: none
     fstype: proc
     opts: rw,nosuid,nodev,noexec,relatime,hidepid={{ hide_pid | int }},gid={{ process_group }}
-    state: present
+    state: mounted
 
 - name: Stat /dev/shm
   ansible.builtin.stat:
