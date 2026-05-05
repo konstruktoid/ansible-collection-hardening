@@ -1,0 +1,68 @@
+---
+- name: Mount /proc with additional options
+  become: true
+  ansible.posix.mount:
+    path: /proc
+    src: none
+    fstype: proc
+    opts: rw,nosuid,nodev,noexec,relatime,hidepid={{ hide_pid | int }},gid={{ process_group }}
+    state: present
+
+- name: Stat /dev/shm
+  ansible.builtin.stat:
+    path: /dev/shm
+  register: dev_shm
+
+- name: Mount /dev/shm with noexec
+  become: true
+  ansible.posix.mount:
+    path: /dev/shm
+    src: none
+    fstype: tmpfs
+    opts: rw,nosuid,nodev,noexec
+    state: present
+  when:
+    - dev_shm.stat.exists
+
+- name: Configure /tmp mount
+  become: true
+  block:
+    - name: Add systemd tmp.mount
+      ansible.builtin.template:
+        src: "{{ tmp_mount_template }}"
+        dest: /etc/systemd/system/tmp.mount
+        backup: true
+        mode: "0644"
+        owner: root
+        group: root
+
+    - name: Stat tmp.mount
+      ansible.builtin.stat:
+        path: /etc/systemd/system/tmp.mount
+      register: tmp_mount
+
+- name: Unmask and start tmp.mount
+  become: true
+  when:
+    - tmp_mount.stat.exists
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+  block:
+    - name: Remove /tmp from fstab
+      ansible.posix.mount:
+        path: /tmp
+        state: absent
+
+    - name: Unmask tmp.mount
+      ansible.builtin.systemd_service:
+        name: tmp.mount
+        masked: false
+
+    - name: Start tmp.mount
+      environment:
+        TMP: /var/tmp
+        TMPDIR: /var/tmp
+      ansible.builtin.systemd_service:
+        name: tmp.mount
+        daemon_reload: true
+        state: started
+        enabled: true

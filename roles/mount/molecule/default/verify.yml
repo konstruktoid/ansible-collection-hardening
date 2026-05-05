@@ -1,0 +1,78 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for the host and reconnect
+          ansible.builtin.wait_for:
+            port: 22
+            host: "{{ (ansible_facts.ssh_host | default(ansible_facts.host)) | default(inventory_hostname) }}"
+            delay: 10
+            timeout: 120
+
+    - name: Include default vars
+      ansible.builtin.include_vars:
+        dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/"
+        extensions:
+          - yml
+
+    - name: Include host vars
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Verify mounts
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Verify noexec /dev/shm
+          ansible.builtin.shell:
+            cmd: grep '^tmpfs\s/dev/shm.*noexec' /proc/mounts
+          register: dev_shm_noexec
+          changed_when: false
+          failed_when: dev_shm_noexec.rc != 0
+
+        - name: Verify /proc hidepid
+          ansible.builtin.shell: |
+            set -o pipefail
+            grep -E '^proc\s/proc proc rw,nosuid,nodev,noexec,relatime.*hidepid=({{ hide_pid }}|invisible)' /proc/mounts
+          args:
+            executable: /bin/bash
+          register: proc_opts
+          changed_when: false
+          failed_when: proc_opts.rc != 0
+
+        - name: Verify /proc process group
+          ansible.builtin.shell: |
+            set -o pipefail
+            grep -E '^proc\s/proc proc rw,nosuid,nodev,noexec.*gid={{ process_group }}' /proc/mounts
+          args:
+            executable: /bin/bash
+          register: proc_opts
+          changed_when: false
+          failed_when: proc_opts.rc != 0
+          when:
+            - process_group != 0
+
+        - name: Verify tmp.mount
+          become: true
+          ansible.builtin.systemd_service:
+            name: tmp.mount
+          register: tmp_mount
+          changed_when: false
+          failed_when: not 'nosuid,nodev,noexec' in tmp_mount.status.Options
+
+        - name: Verify /tmp
+          become: true
+          ansible.builtin.shell:
+            cmd: grep '^tmpfs\s/tmp\s.*nosuid,nodev,noexec' /proc/mounts
+          register: mounts_tmp
+          changed_when: false
+          failed_when: mounts_tmp.rc != 0

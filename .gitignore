@@ -33,6 +33,7 @@ roles/*
 !roles/lock_root
 !roles/logindconf
 !roles/motd_news
+!roles/mount
 !roles/netplan
 !roles/root_access
 !roles/ssh
