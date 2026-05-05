@@ -67,7 +67,10 @@
             name: tmp.mount
           register: tmp_mount
           changed_when: false
-          failed_when: not 'nosuid,nodev,noexec' in tmp_mount.status.Options
+          failed_when:
+            - "'nosuid' not in tmp_mount.status.Options"
+            - "'nodev' not in tmp_mount.status.Options"
+            - "'noexec' not in tmp_mount.status.Options"
 
         - name: Verify /tmp
           become: true
