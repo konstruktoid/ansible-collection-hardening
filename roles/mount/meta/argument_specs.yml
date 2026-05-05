@@ -1,0 +1,25 @@
+---
+argument_specs:
+  main:
+    short_description: Manage /dev/shm, /proc and /tmp mounts.
+    description:
+      - This role manages the /dev/shm, /proc and /tmp mounts.
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      hide_pid:
+        description: "This option controls who can access the information in C(/proc/pid) directories"
+        type: "int"
+        default: 2
+        choices:
+          - 0
+          - 1
+          - 2
+      process_group:
+        description: "Specifies the ID of a group whose members are authorized to learn process information otherwise prohibited by hidepid."
+        type: "int"
+        default: 0
+      tmp_mount_template:
+        description: "tmp.mount template location."
+        type: "path"
+        default: "etc/systemd/system/tmp.mount.j2"
