@@ -1,3 +1,4 @@
+roles/*
 !roles/adduser
 !roles/aide
 !roles/apparmor
@@ -20,6 +21,7 @@
 !roles/motd_news
 !roles/mount
 !roles/netplan
+!roles/package_management
 !roles/root_access
 !roles/ssh
 !roles/sudo
@@ -34,4 +36,3 @@
 .venv
 .yamllint
 ansible.cfg
-roles/*
