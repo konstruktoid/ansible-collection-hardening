@@ -24,14 +24,14 @@ tags:
   - security
   - ubuntu
 build_ignore:
-  .ansible/
-  .cache
-  .env
-  .env.yml
-  .github/
-  .nox
-  .tox
-  .vagrant
-  .venv
-  .yamllint
-  ansible.cfg
+  - .ansible/
+  - .cache
+  - .env
+  - .env.yml
+  - .github/
+  - .nox
+  - .tox
+  - .vagrant
+  - .venv
+  - .yamllint
+  - ansible.cfg
