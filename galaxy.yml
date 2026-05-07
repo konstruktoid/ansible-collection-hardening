@@ -5,7 +5,13 @@ version: 0.0.1
 readme: README.md
 authors:
   - 'Thomas Sjögren (@konstruktoid)'
-description: A collection of Ansible content for hardening Linux servers.
+description: >
+  Ansible collection for Linux server hardening focused on systemd-based
+  distributions including AlmaLinux, Debian, and Ubuntu.
+dependencies:
+  ansible.posix: ">=1.5.0"
+  community.crypto: ">=2.0.0"
+  community.general: ">=8.0.0"
 license_file: 'LICENSE'
 tags:
   - almalinux
@@ -17,23 +23,15 @@ tags:
   - rhel
   - security
   - ubuntu
-dependencies: {}
-repository: https://github.com/konstruktoid/ansible-collection-hardening
-issues: https://github.com/konstruktoid/ansible-collection-hardening/issues
 build_ignore:
-  - '*.deb'
-  - '*.html'
-  - '*.log'
-  - '*.retry'
-  - '*.rpm'
-  - '*suid.list'
-  - '.ansible'
-  - '.cache'
-  - '.env.yml'
-  - '.scannerwork'
-  - '.sonar'
-  - '.tox'
-  - '.vagrant'
-  - '.yamllint'
-  - 'drafts/*'
-  - 'hosts'
+  .ansible/
+  .cache
+  .env
+  .env.yml
+  .github/
+  .nox
+  .tox
+  .vagrant
+  .venv
+  .yamllint
+  ansible.cfg
