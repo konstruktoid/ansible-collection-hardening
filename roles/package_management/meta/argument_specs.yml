@@ -11,10 +11,18 @@ argument_specs:
         description: "Options used to configure the APT suite of tools."
         type: "list"
         elements: "str"
-        default: "[ 'Acquire::AllowDowngradeToInsecureRepositories \"false\";', 'Acquire::AllowInsecureRepositories \"false\";', 'Acquire::http::AllowRedirect \"\
-          false\";', 'APT::Get::AllowUnauthenticated \"false\";', 'APT::Get::AutomaticRemove \"true\";', 'APT::Install-Recommends \"false\";', 'APT::Install-Suggests
-          \"false\";', 'APT::Periodic::AutocleanInterval \"7\";', 'APT::Sandbox::Seccomp \"1\";', 'Unattended-Upgrade::Remove-Unused-Dependencies \"true\";', 'Unattended-Upgrade::Remove-Unused-Kernel-Packages
-          \"true\";' ]"
+        default:
+          - 'Acquire::AllowDowngradeToInsecureRepositories "false";'
+          - 'Acquire::AllowInsecureRepositories "false";'
+          - 'Acquire::http::AllowRedirect "false";'
+          - 'APT::Get::AllowUnauthenticated "false";'
+          - 'APT::Get::AutomaticRemove "true";'
+          - 'APT::Install-Recommends "false";'
+          - 'APT::Install-Suggests "false";'
+          - 'APT::Periodic::AutocleanInterval "7";'
+          - 'APT::Sandbox::Seccomp "1";'
+          - 'Unattended-Upgrade::Remove-Unused-Dependencies "true";'
+          - 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";'
       system_upgrade:
         description: "If True, then the installed packages will be upgraded to the latest version using C(apt) or C(dnf)."
         type: "bool"
