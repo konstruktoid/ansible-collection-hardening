@@ -17,9 +17,6 @@
       ansible.builtin.apt:
         upgrade: safe
         update_cache: true
-      changed_when:
-        - "'0 upgraded, 0 newly installed, 0 to remove' not in apt_upgrade_response.stdout"
-      register: apt_upgrade_response
       when:
         - system_upgrade | bool
       notify:
