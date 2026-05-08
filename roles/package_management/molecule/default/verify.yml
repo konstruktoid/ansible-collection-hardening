@@ -64,7 +64,7 @@
         - name: Read yum.conf settings
           become: true
           ansible.builtin.command:
-            cmd: grep -E '^(gpgcheck|localpkg_gpgcheck|clean_requirements_on_remove)=' /etc/yum.conf
+            cmd: grep -E '^(gpgcheck|localpkg_gpgcheck|repo_gpgcheck|clean_requirements_on_remove)=' /etc/yum.conf
           register: package_management_yum_conf_settings
           changed_when: false
 
@@ -73,4 +73,5 @@
             that:
               - "'gpgcheck=1' in package_management_yum_conf_settings.stdout_lines"
               - "'localpkg_gpgcheck=1' in package_management_yum_conf_settings.stdout_lines"
+              - "'repo_gpgcheck=1' in package_management_yum_conf_settings.stdout_lines"
               - "'clean_requirements_on_remove=True' in package_management_yum_conf_settings.stdout_lines"
