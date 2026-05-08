@@ -57,7 +57,7 @@
                 package_management_apt_hardening_content.content
                 | b64decode
                 | splitlines()
-                | reject("match", "^#|^$")
+                | reject("match", "^(#|$)")
                 | list
               }}
 
@@ -84,7 +84,7 @@
                 package_management_yum_conf_content.content
                 | b64decode
                 | splitlines()
-                | select("match", "^(gpgcheck|localpkg_gpgcheck|repo_gpgcheck|clean_requirements_on_remove)=")
+                | select("match", "^(gpgcheck=1|localpkg_gpgcheck=1|repo_gpgcheck=1|clean_requirements_on_remove=True)$")
                 | list
               }}
 
