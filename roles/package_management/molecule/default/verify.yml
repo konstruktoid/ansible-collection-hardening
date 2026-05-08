@@ -46,15 +46,25 @@
 
         - name: Read apt hardening configuration
           become: true
-          ansible.builtin.command:
-            cmd: grep -vE '^#|^$' /etc/apt/apt.conf.d/98-hardening-ubuntu
-          register: package_management_apt_hardening_output
-          changed_when: false
+          ansible.builtin.slurp:
+            path: /etc/apt/apt.conf.d/98-hardening-ubuntu
+          register: package_management_apt_hardening_content
+
+        - name: Set apt hardening options from file content
+          ansible.builtin.set_fact:
+            package_management_apt_hardening_options: >-
+              {{
+                package_management_apt_hardening_content.content
+                | b64decode
+                | splitlines()
+                | reject("match", "^#|^$")
+                | list
+              }}
 
         - name: Assert apt hardening options
           ansible.builtin.assert:
             that:
-              - item in package_management_apt_hardening_output.stdout_lines
+              - item in package_management_apt_hardening_options
           loop: "{{ apt_options }}"
 
     - name: Verify yum.conf hardening settings
@@ -63,15 +73,25 @@
       block:
         - name: Read yum.conf settings
           become: true
-          ansible.builtin.command:
-            cmd: grep -E '^(gpgcheck|localpkg_gpgcheck|repo_gpgcheck|clean_requirements_on_remove)=' /etc/yum.conf
-          register: package_management_yum_conf_settings
-          changed_when: false
+          ansible.builtin.slurp:
+            path: /etc/yum.conf
+          register: package_management_yum_conf_content
+
+        - name: Set yum.conf settings from file content
+          ansible.builtin.set_fact:
+            package_management_yum_conf_settings: >-
+              {{
+                package_management_yum_conf_content.content
+                | b64decode
+                | splitlines()
+                | select("match", "^(gpgcheck|localpkg_gpgcheck|repo_gpgcheck|clean_requirements_on_remove)=")
+                | list
+              }}
 
         - name: Assert yum.conf hardening settings
           ansible.builtin.assert:
             that:
-              - "'gpgcheck=1' in package_management_yum_conf_settings.stdout_lines"
-              - "'localpkg_gpgcheck=1' in package_management_yum_conf_settings.stdout_lines"
-              - "'repo_gpgcheck=1' in package_management_yum_conf_settings.stdout_lines"
-              - "'clean_requirements_on_remove=True' in package_management_yum_conf_settings.stdout_lines"
+              - "'gpgcheck=1' in package_management_yum_conf_settings"
+              - "'localpkg_gpgcheck=1' in package_management_yum_conf_settings"
+              - "'repo_gpgcheck=1' in package_management_yum_conf_settings"
+              - "'clean_requirements_on_remove=True' in package_management_yum_conf_settings"
