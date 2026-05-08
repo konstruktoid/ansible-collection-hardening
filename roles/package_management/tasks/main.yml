@@ -7,6 +7,8 @@
     - name: Configure apt
       ansible.builtin.lineinfile:
         dest: /etc/apt/apt.conf.d/98-hardening-ubuntu
+        owner: root
+        group: root
         mode: "0644"
         state: present
         create: true
