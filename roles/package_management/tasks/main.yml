@@ -35,6 +35,7 @@
         owner: root
         group: root
         state: link
+        force: true
       when:
         - ansible_facts.distribution == "Fedora"
 
