@@ -57,15 +57,27 @@
                 package_management_apt_hardening_content.content
                 | b64decode
                 | splitlines()
-                | reject("match", "^(#|$)")
+                | reject("match", "^\\s*(#|$)")
                 | list
               }}
+            package_management_apt_hardening_expected_options:
+              - 'Acquire::AllowDowngradeToInsecureRepositories "false";'
+              - 'Acquire::AllowInsecureRepositories "false";'
+              - 'Acquire::http::AllowRedirect "false";'
+              - 'APT::Get::AllowUnauthenticated "false";'
+              - 'APT::Get::AutomaticRemove "true";'
+              - 'APT::Install-Recommends "false";'
+              - 'APT::Install-Suggests "false";'
+              - 'APT::Periodic::AutocleanInterval "7";'
+              - 'APT::Sandbox::Seccomp "1";'
+              - 'Unattended-Upgrade::Remove-Unused-Dependencies "true";'
+              - 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";'
 
         - name: Assert apt hardening options
           ansible.builtin.assert:
             that:
               - item in package_management_apt_hardening_options
-          loop: "{{ apt_options }}"
+          loop: "{{ package_management_apt_hardening_expected_options }}"
 
     - name: Verify yum.conf hardening settings
       when:
@@ -84,6 +96,7 @@
                 package_management_yum_conf_content.content
                 | b64decode
                 | splitlines()
+                | reject("match", "^\\s*(#|$)")
                 | list
               }}
             package_management_yum_conf_expected_settings:
