@@ -84,14 +84,16 @@
                 package_management_yum_conf_content.content
                 | b64decode
                 | splitlines()
-                | select("match", "^(gpgcheck=1|localpkg_gpgcheck=1|repo_gpgcheck=1|clean_requirements_on_remove=True)$")
                 | list
               }}
+            package_management_yum_conf_expected_settings:
+              - gpgcheck=1
+              - localpkg_gpgcheck=1
+              - repo_gpgcheck=1
+              - clean_requirements_on_remove=True
 
         - name: Assert yum.conf hardening settings
           ansible.builtin.assert:
             that:
-              - "'gpgcheck=1' in package_management_yum_conf_settings"
-              - "'localpkg_gpgcheck=1' in package_management_yum_conf_settings"
-              - "'repo_gpgcheck=1' in package_management_yum_conf_settings"
-              - "'clean_requirements_on_remove=True' in package_management_yum_conf_settings"
+              - item in package_management_yum_conf_settings
+          loop: "{{ package_management_yum_conf_expected_settings }}"
