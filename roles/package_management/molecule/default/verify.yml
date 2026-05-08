@@ -46,6 +46,8 @@
 
     - name: Verify apt hardening settings
       become: true
+      when:
+        - ansible_facts.os_family == "Debian"
       ansible.builtin.shell:
         cmd: grep -Fx '{{ item }}' /etc/apt/apt.conf.d/98-hardening-ubuntu
       args:
