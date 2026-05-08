@@ -53,7 +53,7 @@
 
     - name: Set yum.conf clean_requirements
       ansible.builtin.lineinfile:
-        regexp: ^\s*clean_requirements_on_remove\s*=
+        regexp: '^\s*clean_requirements_on_remove\s*='
         line: clean_requirements_on_remove=True
         dest: /etc/yum.conf
         mode: "0644"
@@ -63,7 +63,7 @@
 
     - name: Set yum.conf localpkg_gpgcheck
       ansible.builtin.lineinfile:
-        regexp: ^\s*localpkg_gpgcheck\s*=
+        regexp: '^\s*localpkg_gpgcheck\s*='
         line: localpkg_gpgcheck=1
         dest: /etc/yum.conf
         mode: "0644"
