@@ -47,11 +47,9 @@
     - name: Verify apt hardening settings
       become: true
       ansible.builtin.shell:
-        cmd: grep -oE '^{{ item }}' /etc/apt/apt.conf.d/98-hardening-ubuntu
+        cmd: grep -Fx '{{ item }}' /etc/apt/apt.conf.d/98-hardening-ubuntu
       args:
         executable: /bin/bash
-      when:
-        - ansible_facts.os_family == "Debian"
       changed_when: false
       loop:
         - 'Acquire::AllowDowngradeToInsecureRepositories "false";'
