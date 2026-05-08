@@ -44,69 +44,39 @@
               - package_management_apt_hardening_configuration.stat.exists
               - package_management_apt_hardening_configuration.stat.mode == "0644"
 
-        - name: Read apt hardening configuration
-          become: true
-          ansible.builtin.slurp:
-            path: /etc/apt/apt.conf.d/98-hardening-ubuntu
-          register: package_management_apt_hardening_content
-
-        - name: Set apt hardening options from file content
-          ansible.builtin.set_fact:
-            package_management_apt_hardening_options: >-
-              {{
-                package_management_apt_hardening_content.content
-                | b64decode
-                | splitlines()
-                | reject("match", "^\\s*(#|$)")
-                | list
-              }}
-            package_management_apt_hardening_expected_options:
-              - 'Acquire::AllowDowngradeToInsecureRepositories "false";'
-              - 'Acquire::AllowInsecureRepositories "false";'
-              - 'Acquire::http::AllowRedirect "false";'
-              - 'APT::Get::AllowUnauthenticated "false";'
-              - 'APT::Get::AutomaticRemove "true";'
-              - 'APT::Install-Recommends "false";'
-              - 'APT::Install-Suggests "false";'
-              - 'APT::Periodic::AutocleanInterval "7";'
-              - 'APT::Sandbox::Seccomp "1";'
-              - 'Unattended-Upgrade::Remove-Unused-Dependencies "true";'
-              - 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";'
-
-        - name: Assert apt hardening options
-          ansible.builtin.assert:
-            that:
-              - item in package_management_apt_hardening_options
-          loop: "{{ package_management_apt_hardening_expected_options }}"
+    - name: Verify apt hardening settings
+      become: true
+      ansible.builtin.shell:
+        cmd: grep -oE '^{{ item }}' /etc/apt/apt.conf.d/98-hardening-ubuntu
+      args:
+        executable: /bin/bash
+      when:
+        - ansible_facts.os_family == "Debian"
+      changed_when: false
+      loop:
+        - 'Acquire::AllowDowngradeToInsecureRepositories "false";'
+        - 'Acquire::AllowInsecureRepositories "false";'
+        - 'Acquire::http::AllowRedirect "false";'
+        - 'APT::Get::AllowUnauthenticated "false";'
+        - 'APT::Get::AutomaticRemove "true";'
+        - 'APT::Install-Recommends "false";'
+        - 'APT::Install-Suggests "false";'
+        - 'APT::Periodic::AutocleanInterval "7";'
+        - 'APT::Sandbox::Seccomp "1";'
+        - 'Unattended-Upgrade::Remove-Unused-Dependencies "true";'
+        - 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";'
 
     - name: Verify yum.conf hardening settings
+      become: true
+      ansible.builtin.shell:
+        cmd: grep -oE '^{{ item }}' /etc/yum.conf
+      args:
+        executable: /bin/bash
+      changed_when: false
       when:
         - ansible_facts.os_family == "RedHat"
-      block:
-        - name: Read yum.conf settings
-          become: true
-          ansible.builtin.slurp:
-            path: /etc/yum.conf
-          register: package_management_yum_conf_content
-
-        - name: Set yum.conf settings from file content
-          ansible.builtin.set_fact:
-            package_management_yum_conf_settings: >-
-              {{
-                package_management_yum_conf_content.content
-                | b64decode
-                | splitlines()
-                | reject("match", "^\\s*(#|$)")
-                | list
-              }}
-            package_management_yum_conf_expected_settings:
-              - gpgcheck=1
-              - localpkg_gpgcheck=1
-              - repo_gpgcheck=1
-              - clean_requirements_on_remove=1
-
-        - name: Assert yum.conf hardening settings
-          ansible.builtin.assert:
-            that:
-              - item in package_management_yum_conf_settings
-          loop: "{{ package_management_yum_conf_expected_settings }}"
+      loop:
+        - "gpgcheck=1"
+        - "localpkg_gpgcheck=1"
+        - "repo_gpgcheck=1"
+        - "clean_requirements_on_remove=True"
