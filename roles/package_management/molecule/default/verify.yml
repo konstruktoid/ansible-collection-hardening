@@ -27,3 +27,50 @@
     - name: Include host vars
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Verify apt hardening configuration
+      when:
+        - ansible_facts.os_family == "Debian"
+      block:
+        - name: Stat apt hardening configuration file
+          become: true
+          ansible.builtin.stat:
+            path: /etc/apt/apt.conf.d/98-hardening-ubuntu
+          register: package_management_apt_hardening_configuration
+
+        - name: Assert apt hardening configuration file exists
+          ansible.builtin.assert:
+            that:
+              - package_management_apt_hardening_configuration.stat.exists
+              - package_management_apt_hardening_configuration.stat.mode == "0644"
+
+        - name: Read apt hardening configuration
+          become: true
+          ansible.builtin.command:
+            cmd: grep -vE '^#|^$' /etc/apt/apt.conf.d/98-hardening-ubuntu
+          register: package_management_apt_hardening_output
+          changed_when: false
+
+        - name: Assert apt hardening options
+          ansible.builtin.assert:
+            that:
+              - item in package_management_apt_hardening_output.stdout_lines
+          loop: "{{ apt_options }}"
+
+    - name: Verify yum.conf hardening settings
+      when:
+        - ansible_facts.os_family == "RedHat"
+      block:
+        - name: Read yum.conf settings
+          become: true
+          ansible.builtin.command:
+            cmd: grep -E '^(gpgcheck|localpkg_gpgcheck|clean_requirements_on_remove)=' /etc/yum.conf
+          register: package_management_yum_conf_settings
+          changed_when: false
+
+        - name: Assert yum.conf hardening settings
+          ansible.builtin.assert:
+            that:
+              - "'gpgcheck=1' in package_management_yum_conf_settings.stdout_lines"
+              - "'localpkg_gpgcheck=1' in package_management_yum_conf_settings.stdout_lines"
+              - "'clean_requirements_on_remove=True' in package_management_yum_conf_settings.stdout_lines"
