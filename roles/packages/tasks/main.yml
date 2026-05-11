@@ -60,13 +60,11 @@
     - name: Run apt purge
       become: true
       ansible.builtin.apt:
-        name: "{{ packages_blocklist }}"
+        name: "{{ blocked_installed_packages }}"
         state: absent
         purge: true
-      register: apt_purge
-      failed_when:
-        - apt_purge is not success
-        - not "No package" in apt_purge.msg
+      when:
+        - blocked_installed_packages | length > 0
       notify:
         - Run apt-get clean
         - Run apt-get autoremove
