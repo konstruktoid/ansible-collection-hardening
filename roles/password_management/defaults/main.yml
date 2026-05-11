@@ -64,7 +64,7 @@ login_template: "etc/pam.d/login.j2"
 set_crypto_policy: true
 
 # The cryptographic policy to set if C(set_crypto_policy: true).
-crypto_policy: "DEFAULT:NO-SHA1"
+crypto_policy: "DEFAULT"
 
 # If True, manage PAM configuration files.
 manage_pam: true

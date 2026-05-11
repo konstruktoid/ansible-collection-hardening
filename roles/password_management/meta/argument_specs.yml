@@ -177,7 +177,7 @@ argument_specs:
       crypto_policy:
         description: "The cryptographic policy to set if C(set_crypto_policy: true)."
         type: "str"
-        default: "DEFAULT:NO-SHA1"
+        default: "DEFAULT"
       manage_pam:
         description: "If True, manage PAM configuration files."
         type: "bool"
