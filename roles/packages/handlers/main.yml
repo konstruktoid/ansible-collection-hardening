@@ -1,0 +1,21 @@
+---
+- name: Run apt-get clean
+  become: true
+  ansible.builtin.apt:
+    autoclean: true
+    clean: true
+
+- name: Run apt-get autoremove
+  become: true
+  ansible.builtin.apt:
+    autoremove: true
+
+- name: Run dnf autoremove
+  become: true
+  ansible.builtin.dnf:
+    autoremove: true
+  when:
+    - ansible_facts.os_family == "RedHat"
+  tags:
+    - dnf
+    - packages

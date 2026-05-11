@@ -22,6 +22,7 @@ roles/*
 !roles/mount
 !roles/netplan
 !roles/package_management
+!roles/packages
 !roles/root_access
 !roles/ssh
 !roles/sudo
