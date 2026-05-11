@@ -1,0 +1,20 @@
+---
+- name: Update Debian cracklib
+  become: true
+  ansible.builtin.shell: |
+    update-cracklib
+  register: update_debian_cracklib
+  changed_when: update_debian_cracklib.rc == 0
+  when:
+    - ansible_facts.os_family == "Debian"
+
+- name: Update RedHat cracklib
+  environment:
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  become: true
+  ansible.builtin.command:
+    cmd: create-cracklib-dict /usr/share/dict/*
+  register: update_redhat_cracklib
+  changed_when: update_redhat_cracklib.rc == 0
+  when:
+    - ansible_facts.os_family == "RedHat"

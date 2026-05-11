@@ -1,0 +1,34 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+# Managed by Ansible role {{ ansible_role_name }}
+
+auth       optional   pam_faildelay.so  delay=4000000
+
+{% if (ansible_facts.distribution_major_version < '11' and ansible_facts.distribution == "Debian") or ansible_facts.distribution == "Ubuntu" %}
+auth [success=ok new_authtok_reqd=ok ignore=ignore user_unknown=bad default=die] pam_securetty.so
+{% endif %}
+
+auth       requisite  pam_nologin.so
+
+session [success=ok ignore=ignore module_unknown=ignore default=bad] pam_selinux.so close
+
+session    required   pam_loginuid.so
+
+session [success=ok ignore=ignore module_unknown=ignore default=bad] pam_selinux.so open
+
+session    required   pam_env.so readenv=1 envfile=/etc/default/locale
+
+@include common-auth
+
+auth       optional   pam_group.so
+
+session    required   pam_limits.so
+
+session    optional   pam_lastlog.so showfailed
+
+session    optional   pam_mail.so standard
+
+session    optional   pam_keyinit.so force revoke
+
+@include common-account
+@include common-session
+@include common-password

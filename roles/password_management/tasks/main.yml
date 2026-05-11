@@ -1,0 +1,258 @@
+---
+- name: Set crypto-policies config as fact
+  block:
+    - name: Stat crypto-policies config
+      ansible.builtin.stat:
+        path: /etc/crypto-policies/config
+      register: stat_crypto_policies_config
+
+    - name: Set config fact
+      ansible.builtin.set_fact:
+        crypto_policies_config: "{{ stat_crypto_policies_config.stat.exists }}"
+
+- name: Get PAM version
+  block:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Get libpam version in Debian family
+      ansible.builtin.set_fact:
+        pam_version: "{{ ansible_facts.packages['libpam-modules'][0].version }}"
+      when:
+        - ansible_facts.os_family == "Debian"
+        - "'libpam-modules' in ansible_facts.packages"
+
+    - name: Get libpam version in RedHat family
+      ansible.builtin.set_fact:
+        pam_version: "{{ ansible_facts.packages['pam'][0].version }}"
+      when:
+        - ansible_facts.os_family in ["RedHat", "Suse"]
+        - "'pam' in ansible_facts.packages"
+
+- name: Set hashing algorithm for password (yescrypt|sha512)
+  ansible.builtin.set_fact:
+    password_algorithm: "{{ 'yescrypt' if (pam_version is version('1.4.0', '>=')) else 'sha512' }}"
+
+- name: Update current facts
+  ansible.builtin.setup:
+
+- name: Configure faillock.conf
+  become: true
+  ansible.builtin.template:
+    src: "{{ faillock_conf_template }}"
+    dest: /etc/security/faillock.conf
+    mode: "0644"
+    owner: root
+    group: root
+  when:
+    - manage_faillock | bool
+
+- name: Debian OS family PAM configuration
+  become: true
+  when:
+    - ansible_facts.os_family == "Debian"
+    - manage_pam
+  block:
+    - name: Configure common-password
+      ansible.builtin.template:
+        src: "{{ common_password_template }}"
+        dest: /etc/pam.d/common-password
+        mode: "0644"
+        owner: root
+        group: root
+
+    - name: Configure common-auth
+      ansible.builtin.template:
+        src: "{{ common_auth_template }}"
+        dest: /etc/pam.d/common-auth
+        mode: "0644"
+        owner: root
+        group: root
+
+    - name: Configure common-account
+      ansible.builtin.template:
+        src: "{{ common_account_template }}"
+        dest: /etc/pam.d/common-account
+        mode: "0644"
+        owner: root
+        group: root
+
+    - name: Configure login
+      ansible.builtin.template:
+        src: "{{ login_template }}"
+        dest: /etc/pam.d/login
+        mode: "0644"
+        owner: root
+        group: root
+
+- name: RedHat OS family PAM configuration
+  become: true
+  when:
+    - ansible_facts.os_family == "RedHat"
+    - manage_pam
+  block:
+    - name: Remove 'nullok'
+      ansible.builtin.replace:
+        path: "{{ item }}"
+        regexp: \s*nullok
+        mode: "0644"
+        owner: root
+        group: root
+      register: rm_nullok
+      loop:
+        - /etc/pam.d/password-auth
+        - /etc/pam.d/sssd-shadowutils
+        - /etc/pam.d/system-auth
+      failed_when:
+        - rm_nullok is not success
+        - not "does not exist" in rm_nullok.msg
+
+    - name: Set hashing algorithm for password
+      ansible.builtin.replace:
+        path: "{{ item }}"
+        regexp: \s+(bigcrypt|blowfish|gost_yescrypt|md5|sha256|sha512|yescrypt)\s+
+        replace: " {{ password_algorithm }} "
+        mode: "0644"
+        owner: root
+        group: root
+      loop:
+        - /etc/pam.d/password-auth
+        - /etc/pam.d/system-auth
+
+    - name: Set rounds
+      ansible.builtin.replace:
+        path: "{{ item }}"
+        regexp: (\s+{{ password_algorithm }}.*?(?=\s+rounds=\d+|$))(\s+rounds=\d+)*
+        replace: \1 rounds={{ "65536" if (password_algorithm == "sha512") else "11" }}
+        mode: "0644"
+        owner: root
+        group: root
+      loop:
+        - /etc/pam.d/password-auth
+        - /etc/pam.d/system-auth
+
+- name: Install and configure pwquality
+  become: true
+  when:
+    - manage_pwquality
+  block:
+    - name: Install pwquality
+      ansible.builtin.package:
+        name: "{{ 'libpam-pwquality' if ansible_facts.os_family == 'Debian' else 'libpwquality' }}"
+        state: present
+
+    - name: Configure pwquality
+      ansible.builtin.template:
+        src: "{{ pwquality_conf_template }}"
+        dest: /etc/security/pwquality.conf
+        mode: "0644"
+        owner: root
+        group: root
+
+- name: Stat libuser configuration
+  become: true
+  ansible.builtin.stat:
+    path: /etc/libuser.conf
+  register: libuser
+
+- name: Set libuser crypt_style
+  become: true
+  ansible.builtin.replace:
+    regexp: crypt_style(\s+.*)
+    replace: crypt_style = {{ password_algorithm }}
+    dest: /etc/libuser.conf
+    mode: "0644"
+    owner: root
+    group: root
+  when:
+    - libuser.stat.exists
+
+- name: Set crypto policy
+  become: true
+  when:
+    - set_crypto_policy
+  block:
+    - name: Get crypto-policies value
+      environment:
+        PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      ansible.builtin.command:
+        cmd: grep -iqo "^{{ crypto_policy }}$" /etc/crypto-policies/config
+      register: crypto_policy_set
+      changed_when: false
+      failed_when: crypto_policy_set.rc > 1
+      when:
+        - crypto_policies_config
+
+    - name: Update crypto-policies
+      ansible.builtin.command:
+        cmd: update-crypto-policies --set "{{ crypto_policy | upper }}"
+      register: update_crypto_policies
+      changed_when: update_crypto_policies.rc != 0
+      failed_when: update_crypto_policies.rc != 0
+      when:
+        - crypto_policies_config
+        - crypto_policy_set.rc != 0
+        - crypto_policy.split(':')[0] | upper != "FIPS"
+
+    - name: Set FIPS mode
+      ansible.builtin.command:
+        cmd: fips-mode-setup --enable
+      register: set_fips_mode
+      changed_when: set_fips_mode.rc != 0
+      failed_when: set_fips_mode.rc != 0
+      when:
+        - crypto_policies_config
+        - crypto_policy_set.rc != 0
+        - crypto_policy.split(':')[0] | upper == "FIPS"
+
+- name: Add cracklib password list
+  become: true
+  ansible.builtin.copy:
+    src: usr/share/dict/passwords.list
+    dest: /usr/share/dict/passwords
+    mode: "0644"
+    owner: root
+    group: root
+  notify:
+    - Update Debian cracklib
+    - Update RedHat cracklib
+
+- name: Add local information to password list
+  become: true
+  ansible.builtin.lineinfile:
+    dest: /usr/share/dict/passwords.local
+    mode: "0644"
+    owner: root
+    group: root
+    state: present
+    create: true
+    line: "{{ item }}"
+  notify:
+    - Update Debian cracklib
+    - Update RedHat cracklib
+  loop:
+    - "{{ ansible_facts.hostname | lower }}"
+    - "{{ ansible_facts.os_family | lower }}"
+
+- name: Get all local user accounts
+  ansible.builtin.getent:
+    database: passwd
+  register: local_users
+
+- name: Add local usernames to password list
+  become: true
+  ansible.builtin.lineinfile:
+    dest: /usr/share/dict/passwords.local
+    mode: "0644"
+    owner: root
+    group: root
+    state: present
+    create: true
+    line: "{{ item }}"
+  changed_when: false
+  notify:
+    - Update Debian cracklib
+    - Update RedHat cracklib
+  with_items:
+    - "{{ local_users.ansible_facts.getent_passwd | list }}"

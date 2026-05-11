@@ -1,0 +1,31 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+# Managed by Ansible role {{ ansible_role_name }}
+
+# Configuration for the libpwquality library
+# See pwquality.conf(5) for more information
+
+dcredit = {{ pwquality.dcredit }}
+dictcheck = {{ '1' if pwquality.dictcheck else '0' }}
+{% if pwquality.dictpath != "" %}
+dictpath = {{ pwquality.dictpath }}
+{% endif %}
+difok = {{ pwquality.difok }}
+{% if (pwquality.enforce_for_root | bool) %}
+enforce_for_root
+{% endif %}
+enforcing = {{ '1' if pwquality.enforcing else '0' }}
+gecoscheck = {{ '1' if pwquality.gecoscheck else '0' }}
+lcredit = {{ pwquality.lcredit }}
+{% if (pwquality.local_users_only | bool) %}
+local_users_only
+{% endif %}
+maxclassrepeat = {{ pwquality.maxclassrepeat }}
+maxrepeat = {{ pwquality.maxrepeat }}
+maxsequence = {{ pwquality.maxsequence }}
+minclass = {{ pwquality.minclass }}
+minlen = {{ pwquality.minlen }}
+ocredit = {{ pwquality.ocredit }}
+retry = {{ pwquality.retry }}
+ucredit = {{ pwquality.ucredit }}
+usercheck = {{ '1' if pwquality.usercheck else '0' }}
+usersubstr = {{ pwquality.usersubstr }}

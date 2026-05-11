@@ -1,0 +1,14 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+# Managed by Ansible role {{ ansible_role_name }}
+
+{% if (manage_faillock | bool) %}
+auth required pam_faillock.so preauth
+auth [success=1 default=ignore] pam_unix.so
+auth [default=die] pam_faillock.so authfail
+auth sufficient pam_faillock.so authsucc
+{% else %}
+auth [success=1 default=ignore] pam_unix.so
+{% endif %}
+auth requisite pam_deny.so
+auth required pam_permit.so
+auth optional pam_cap.so
