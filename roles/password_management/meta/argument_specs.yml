@@ -178,6 +178,10 @@ argument_specs:
         description: "The cryptographic policy to set if C(set_crypto_policy: true)."
         type: "str"
         default: "DEFAULT"
+      set_crypto_policy:
+        description: "If True, set crypto policy when config exists."
+        type: "bool"
+        default: "True"
       manage_pam:
         description: "If True, manage PAM configuration files."
         type: "bool"
