@@ -92,21 +92,25 @@
     - ansible_facts.os_family == "RedHat"
     - manage_pam
   block:
+    - name: Check RedHat PAM files for nullok removal
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      register: redhat_pam_files
+      loop:
+        - /etc/pam.d/password-auth
+        - /etc/pam.d/sssd-shadowutils
+        - /etc/pam.d/system-auth
+
     - name: Remove 'nullok'
       ansible.builtin.replace:
-        path: "{{ item }}"
+        path: "{{ item.stat.path }}"
         regexp: \s*nullok
         mode: "0644"
         owner: root
         group: root
       register: rm_nullok
-      loop:
-        - /etc/pam.d/password-auth
-        - /etc/pam.d/sssd-shadowutils
-        - /etc/pam.d/system-auth
-      failed_when:
-        - rm_nullok is not success
-        - not "does not exist" in rm_nullok.msg
+      loop: "{{ redhat_pam_files.results }}"
+      when: item.stat.exists
 
     - name: Set hashing algorithm for password
       ansible.builtin.replace:
