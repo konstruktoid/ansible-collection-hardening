@@ -188,7 +188,7 @@
       ansible.builtin.command:
         cmd: update-crypto-policies --set "{{ crypto_policy | upper }}"
       register: update_crypto_policies
-      changed_when: update_crypto_policies.rc != 0
+      changed_when: update_crypto_policies.rc == 0
       failed_when: update_crypto_policies.rc != 0
       when:
         - crypto_policies_config
