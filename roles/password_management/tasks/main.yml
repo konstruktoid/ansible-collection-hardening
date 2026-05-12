@@ -199,7 +199,7 @@
       ansible.builtin.command:
         cmd: fips-mode-setup --enable
       register: set_fips_mode
-      changed_when: set_fips_mode.rc != 0
+      changed_when: set_fips_mode.rc == 0
       failed_when: set_fips_mode.rc != 0
       when:
         - crypto_policies_config
