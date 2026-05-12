@@ -23,6 +23,7 @@ roles/*
 !roles/netplan
 !roles/package_management
 !roles/packages
+!roles/password_management
 !roles/root_access
 !roles/ssh
 !roles/sudo

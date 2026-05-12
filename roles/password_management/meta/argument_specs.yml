@@ -1,0 +1,192 @@
+---
+argument_specs:
+  main:
+    short_description: AlmaLinux, Debian and Ubuntu hardening.
+    description:
+      - AlmaLinux, Debian and Ubuntu hardening.
+      - Focused on using systemd services and options.
+    author:
+      - konstruktoid
+    options:
+      common_account_template:
+        description: "PAM common-account template location."
+        type: "path"
+        default: "etc/pam.d/common-account.j2"
+      common_auth_template:
+        description: "PAM common-auth template location."
+        type: "path"
+        default: "etc/pam.d/common-auth.j2"
+      common_password_template:
+        description: "PAM common-password template location."
+        type: "path"
+        default: "etc/pam.d/common-password.j2"
+      faillock_conf_template:
+        description: "faillock.conf template location."
+        type: "path"
+        default: "etc/security/faillock.conf.j2"
+      login_template:
+        description: "login template location"
+        type: "path"
+        default: "etc/pam.d/login.j2"
+      pwquality_conf_template:
+        description: "pwquality.conf template location."
+        type: "path"
+        default: "etc/security/pwquality.conf.j2"
+      manage_faillock:
+        description: "If True, enable and manage faillock."
+        type: "bool"
+        default: "True"
+      manage_pwquality:
+        description: "If True, enable and manage pwquality."
+        type: "bool"
+        default: "True"
+      faillock:
+        type: "dict"
+        default:
+          - admin_group: ""
+          - audit: true
+          - deny: 5
+          - dir: "/var/run/faillock"
+          - even_deny_root: true
+          - fail_interval: 900
+          - local_users_only: true
+          - no_log_info: false
+          - nodelay: true
+          - root_unlock_time: 600
+          - silent: false
+          - unlock_time: 600
+        description: "Faillock configuration options."
+        options:
+          admin_group:
+            description: "Members of the group will be handled the same as the root account"
+            type: "str"
+          audit:
+            description: "Will log the user name into the system log if the user is not found"
+            type: "bool"
+          deny:
+            description: "Deny access if the number of login failures exceeds the value of this option."
+            type: "int"
+          dir:
+            description: "Where the user files with the failure records are kept."
+            type: "path"
+          even_deny_root:
+            description: "Root account can become locked as well as regular accounts."
+            type: "bool"
+          fail_interval:
+            description: "The length of the interval during which the consecutive authentication failures must happen for the user account to lock out."
+            type: "int"
+          local_users_only:
+            description: "Only track failed user authentications attempts for local users in /etc/passwd."
+            type: "bool"
+          no_log_info:
+            description: "Don't log informative messages via syslog(3)."
+            type: "bool"
+          nodelay:
+            description: "Don't enforce a delay after authentication failures."
+            type: "bool"
+          root_unlock_time:
+            description: "Allow access after N seconds to root account after the account is locked."
+            type: "int"
+          silent:
+            description: "Don't print informative messages to the user."
+            type: "bool"
+          unlock_time:
+            description: "Allow access after N seconds to user accounts after the account is locked."
+            type: "int"
+      pwquality:
+        type: "dict"
+        default:
+          - dcredit: -1
+          - dictcheck: true
+          - dictpath: ""
+          - difok: 8
+          - enforce_for_root: true
+          - enforcing: true
+          - gecoscheck: true
+          - lcredit: -1
+          - local_users_only: true
+          - maxclassrepeat: 4
+          - maxrepeat: 3
+          - maxsequence: 3
+          - minclass: 4
+          - minlen: 15
+          - ocredit: -1
+          - retry: 3
+          - ucredit: -1
+          - usercheck: true
+          - usersubstr: 3
+        description: "pwquality configuration options."
+        options:
+          dcredit:
+            description: "The maximum credit for having digits in the new password."
+            type: "int"
+          dictcheck:
+            description: "Check whether the password matches a word in a dictionary."
+            type: "bool"
+          dictpath:
+            description: "The path to the dictionary file used for password strength checking."
+            type: "path"
+          difok:
+            description: "The number of characters that must be different between the new password and the old one."
+            type: "int"
+          enforce_for_root:
+            description: "The module will return error on failed check even if the user changing the password is root."
+            type: "bool"
+          enforcing:
+            description: "Reject the password if it fails the checks, otherwise only print the warning."
+            type: "bool"
+          gecoscheck:
+            description: "Check whether the password matches a word in the GECOS field of the user account."
+            type: "bool"
+          lcredit:
+            description: "The maximum credit for having lowercase letters in the new password."
+            type: "int"
+          local_users_only:
+            description: "The module will not test the password quality for users that are not present in the C(/etc/passwd) file."
+            type: "bool"
+          maxclassrepeat:
+            description: "Reject passwords which contain more than N consecutive characters of the same class."
+            type: "int"
+          maxrepeat:
+            description: "Reject passwords which contain more than N consecutive characters."
+            type: "int"
+          maxsequence:
+            description: "Reject passwords which contain monotonic character sequences longer than N."
+            type: "int"
+          minclass:
+            description: "The minimum number of character classes that must be present in the new password."
+            type: "int"
+          minlen:
+            description: "The minimum length of the new password."
+            type: "int"
+          ocredit:
+            description: "This is the maximum credit for having other characters in the new password."
+            type: "int"
+          retry:
+            description: "The number of times the user is allowed to retry entering a password that passes the checks."
+            type: "int"
+          ucredit:
+            description: "The maximum credit for having uppercase letters in the new password."
+            type: "int"
+          usercheck:
+            description: "Check whether the password (with possible modifications) contains the user name in some form."
+            type: "bool"
+          usersubstr:
+            description: "Check whether the password contains a substring of at least N length"
+            type: "int"
+      crypto_policy:
+        description: "The cryptographic policy to set if C(set_crypto_policy: true)."
+        type: "str"
+        default: "DEFAULT"
+      set_crypto_policy:
+        description: "If True, set crypto policy when config exists."
+        type: "bool"
+        default: "True"
+      manage_pam:
+        description: "If True, manage PAM configuration files."
+        type: "bool"
+        default: "True"
+      password_remember:
+        description: "The number of previous passwords to remember and not allow the user to reuse."
+        type: "int"
+        default: 24

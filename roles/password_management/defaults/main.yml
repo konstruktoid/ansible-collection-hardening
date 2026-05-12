@@ -1,0 +1,73 @@
+---
+# PAM common-account template location.
+common_account_template: "etc/pam.d/common-account.j2"
+
+# PAM common-auth template location.
+common_auth_template: "etc/pam.d/common-auth.j2"
+
+# PAM common-password template location.
+common_password_template: "etc/pam.d/common-password.j2"
+
+# If True, enable and manage faillock.
+manage_faillock: true
+
+# Faillock configuration options.
+faillock:
+  admin_group: "" # Members of the group will be handled the same as the root account
+  audit: true # Will log the user name into the system log if the user is not found
+  deny: 5 # Deny access if the number of login failures exceeds the value of this option.
+  dir: "/var/run/faillock" # Where the user files with the failure records are kept.
+  even_deny_root: true # Root account can become locked as well as regular accounts.
+  fail_interval: 900 # The length of the interval during which the consecutive authentication failures must happen for the user account to lock out.
+  local_users_only: true # Only track failed user authentications attempts for local users in /etc/passwd.
+  no_log_info: false # Don't log informative messages via syslog(3).
+  nodelay: true # Don't enforce a delay after authentication failures.
+  root_unlock_time: 600 # Allow access after N seconds to root account after the account is locked.
+  silent: false # Don't print informative messages to the user.
+  unlock_time: 600 # Allow access after N seconds to user accounts after the account is locked.
+
+# faillock.conf template location.
+faillock_conf_template: "etc/security/faillock.conf.j2"
+
+# If True, enable and manage pwquality.
+manage_pwquality: true
+
+# pwquality configuration options.
+pwquality:
+  dcredit: -1 # The maximum credit for having digits in the new password.
+  dictcheck: true # Check whether the password matches a word in a dictionary.
+  dictpath: "" # The path to the dictionary file used for password strength checking.
+  difok: 8 # The number of characters that must be different between the new password and the old one.
+  enforce_for_root: true # The module will return error on failed check even if the user changing the password is root.
+  enforcing: true # Reject the password if it fails the checks, otherwise only print the warning.
+  gecoscheck: true # Check whether the password matches a word in the GECOS field of the user account.
+  lcredit: -1 # The maximum credit for having lowercase letters in the new password.
+  local_users_only: true # The module will not test the password quality for users that are not present in the C(/etc/passwd) file.
+  maxclassrepeat: 4 # Reject passwords which contain more than N consecutive characters of the same class.
+  maxrepeat: 3 # Reject passwords which contain more than N consecutive characters.
+  maxsequence: 3 # Reject passwords which contain monotonic character sequences longer than N.
+  minclass: 4 # The minimum number of character classes that must be present in the new password.
+  minlen: 15 # The minimum length of the new password.
+  ocredit: -1 # This is the maximum credit for having other characters in the new password.
+  retry: 3 # The number of times the user is allowed to retry entering a password that passes the checks.
+  ucredit: -1 # The maximum credit for having uppercase letters in the new password.
+  usercheck: true # Check whether the password (with possible modifications) contains the user name in some form.
+  usersubstr: 3 # Check whether the password contains a substring of at least N length
+
+# pwquality.conf template location.
+pwquality_conf_template: "etc/security/pwquality.conf.j2"
+
+# login template location
+login_template: "etc/pam.d/login.j2"
+
+# Set and use cryptographic policies if C(/etc/crypto-policies/config) exists and C(set_crypto_policy: true).
+set_crypto_policy: true
+
+# The cryptographic policy to set if C(set_crypto_policy: true).
+crypto_policy: "DEFAULT"
+
+# If True, manage PAM configuration files.
+manage_pam: true
+
+# The number of previous passwords to remember and not allow the user to reuse.
+password_remember: 24
