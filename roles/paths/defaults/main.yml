@@ -1,0 +1,3 @@
+---
+# profile initpath.sh template location.
+initpath_sh_template: "etc/profile.d/initpath.sh.j2"
