@@ -12,8 +12,10 @@
   environment:
     PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
   become: true
-  ansible.builtin.command:
-    cmd: create-cracklib-dict /usr/share/dict/*
+  ansible.builtin.shell: |
+    create-cracklib-dict /usr/share/dict/*
+  args:
+    executable: /bin/bash
   register: update_redhat_cracklib
   changed_when: update_redhat_cracklib.rc == 0
   when:
