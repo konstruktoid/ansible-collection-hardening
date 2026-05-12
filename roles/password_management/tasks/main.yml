@@ -254,7 +254,6 @@
     state: present
     create: true
     line: "{{ item }}"
-  changed_when: false
   notify:
     - Update Debian cracklib
     - Update RedHat cracklib
