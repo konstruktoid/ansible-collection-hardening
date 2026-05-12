@@ -257,5 +257,4 @@
   notify:
     - Update Debian cracklib
     - Update RedHat cracklib
-  with_items:
-    - "{{ local_users.ansible_facts.getent_passwd | list }}"
+  loop: "{{ local_users.ansible_facts.getent_passwd | list }}"
