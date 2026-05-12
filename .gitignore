@@ -25,6 +25,7 @@ roles/*
 !roles/packages
 !roles/password_management
 !roles/paths
+!roles/postfix
 !roles/root_access
 !roles/ssh
 !roles/sudo
