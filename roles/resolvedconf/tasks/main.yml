@@ -13,7 +13,7 @@
   register: apt_resolved
   failed_when:
     - apt_resolved is failed
-    - not "'No package matching' in apt_resolved.msg"
+    - not ('No package matching' in apt_resolved.msg)
   when:
     - ansible_facts.os_family == "Debian"
 
