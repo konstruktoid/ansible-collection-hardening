@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: prelink
   author: konstruktoid
-  description: AlmaLinux, Debian and Ubuntu hardening. systemd edition.
+  description: Disable prelink/prelinking on AlmaLinux, Debian, and Ubuntu systems.
   license: apache
   min_ansible_version: "2.18"
   platforms:
