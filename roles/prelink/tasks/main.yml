@@ -12,14 +12,16 @@
 - name: Ensure PRELINKING=no in /etc/sysconfig/prelink
   become: true
   ansible.builtin.lineinfile:
+    path: /etc/sysconfig/prelink
+    regexp: '^PRELINKING='
     line: PRELINKING=no
-    dest: /etc/sysconfig/prelink
     mode: "0644"
+    owner: root
+    group: root
     state: present
     create: true
   when:
     - ansible_facts.os_family == "RedHat"
-    - sysconfig_prelink.stat.exists
 
 - name: Run prelink -ua when /etc/prelink.conf exists
   become: true
