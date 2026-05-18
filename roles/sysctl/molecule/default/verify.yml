@@ -1,0 +1,114 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for the host and reconnect
+          ansible.builtin.wait_for:
+            port: 22
+            host: "{{ (ansible_facts.ssh_host | default(ansible_facts.host)) | default(inventory_hostname) }}"
+            delay: 10
+            timeout: 120
+
+    - name: Include default vars
+      ansible.builtin.include_vars:
+        dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/"
+        extensions:
+          - yml
+
+    - name: Include host vars
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Set sysctl configuration directory as fact
+      block:
+        - name: Stat /usr/lib/sysctl.d/ exists
+          ansible.builtin.stat:
+            path: /usr/lib/sysctl.d/
+          register: usr_lib_sysctl_d
+
+        - name: Set sysctl fact
+          ansible.builtin.set_fact:
+            usr_lib_sysctl_d_dir: "{{ true if usr_lib_sysctl_d.stat.exists else false }}"
+
+    - name: Print sysctl configuration directory
+      ansible.builtin.debug:
+        msg: "{{ sysctl_conf_dir }}"
+
+    - name: Merge sysctl settings
+      ansible.builtin.set_fact:
+        sysctl_settings: "{{ generic_sysctl_settings | combine(ipv4_sysctl_settings) }}"
+
+    - name: Verify sysctl configuration
+      become: true
+      ansible.builtin.shell: |
+        set -o pipefail
+        /lib/systemd/systemd-sysctl --cat-config | grep "^{{ item.key }}.*{{ item.value }}$"
+      args:
+        executable: /bin/bash
+      with_dict: "{{ sysctl_settings | dict2items | rejectattr('key', 'search', 'nf_conntrack') | rejectattr('key', 'search', 'unprivileged_userns_clone') | items2dict
+        }}"
+      register: sysctl_file_config
+      changed_when: false
+      failed_when: sysctl_file_config.rc != 0
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Verify sysctl runtime configuration
+      become: true
+      ansible.builtin.shell: |
+        set -o pipefail
+        sysctl -a | grep "^{{ item.key }}.*{{ item.value }}$"
+      args:
+        executable: /bin/bash
+      with_dict: "{{ sysctl_settings | dict2items | rejectattr('key', 'search', 'nf_conntrack') | rejectattr('key', 'search', 'unprivileged_userns_clone') | items2dict
+        }}"
+      register: sysctl_runtime_config
+      changed_when: false
+      failed_when: sysctl_runtime_config.rc != 0
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: IPv6 sysctl configuration
+      become: true
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Verify IPv6 sysctl configuration
+          ansible.builtin.shell: |
+            set -o pipefail
+            /lib/systemd/systemd-sysctl --cat-config | grep "^{{ item }}$"
+          args:
+            executable: /bin/bash
+          register: sysctl_ipv6_config
+          changed_when: false
+          failed_when: sysctl_ipv6_config.rc != 0
+          with_items:
+            - net.ipv6.conf.all.disable_ipv6 = 1
+            - net.ipv6.conf.default.disable_ipv6 = 1
+          when:
+            - disable_ipv6
+
+        - name: Verify IPv6 sysctl runtime configuration
+          environment:
+            PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          ansible.builtin.shell: |
+            set -o pipefail
+            sysctl -a | grep "^{{ item.key }}.*{{ item.value | int }}$"
+          args:
+            executable: /bin/bash
+          with_dict: "{{ ipv6_disable_sysctl_settings }}"
+          register: sysctl_ipv6
+          changed_when: false
+          failed_when: sysctl_ipv6.rc != 0
+          when:
+            - system_has_ipv6
+            - disable_ipv6

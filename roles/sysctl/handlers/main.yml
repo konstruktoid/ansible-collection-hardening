@@ -1,0 +1,8 @@
+---
+- name: Restart sysctl
+  become: true
+  ansible.builtin.service:
+    name: systemd-sysctl
+    state: restarted
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]

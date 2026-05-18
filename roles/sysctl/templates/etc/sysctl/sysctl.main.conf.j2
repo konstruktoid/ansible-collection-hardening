@@ -1,0 +1,22 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+# Managed by Ansible role {{ ansible_role_name }}
+
+### IPV4 related settings
+{% for key, value in ipv4_sysctl_settings.items() %}
+{{ key }} = {{ value }}
+{% endfor %}
+
+### Generic sysctl hardening
+{% if (ansible_facts.kernel is version("5", ">=")) %}
+dev.tty.ldisc_autoload = {{ sysctl_dev_tty_ldisc_autoload | int }}
+{% endif %}
+{% for key, value in generic_sysctl_settings.items() %}
+{{ key }} = {{ value }}
+{% endfor %}
+
+{% if disable_ipv6 %}
+### Disabling IPv6
+{% for key, value in ipv6_disable_sysctl_settings.items() %}
+{{ key }} = {{ value }}
+{% endfor %}
+{% endif %}
