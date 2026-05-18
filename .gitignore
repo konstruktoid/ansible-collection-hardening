@@ -27,6 +27,7 @@ roles/*
 !roles/paths
 !roles/postfix
 !roles/prelink
+!roles/resolvedconf
 !roles/root_access
 !roles/ssh
 !roles/sudo
