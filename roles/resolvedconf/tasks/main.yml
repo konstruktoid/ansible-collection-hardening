@@ -1,8 +1,4 @@
 ---
-- name: Merge all DNS servers
-  ansible.builtin.set_fact:
-    dns_merged: "{{ dns + fallback_dns }}"
-
 - name: Install systemd-resolved
   become: true
   ansible.builtin.apt:
