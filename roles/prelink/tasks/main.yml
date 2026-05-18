@@ -1,15 +1,15 @@
 ---
-- name: Stat sysconfig prelink file
+- name: Stat /etc/sysconfig/prelink
   ansible.builtin.stat:
     path: /etc/sysconfig/prelink
   register: sysconfig_prelink
 
-- name: Stat prelink configuration file
+- name: Stat /etc/prelink.conf
   ansible.builtin.stat:
     path: /etc/prelink.conf
   register: etc_prelink
 
-- name: Set PRELINKING=no in /etc/sysconfig/prelink
+- name: Ensure PRELINKING=no in /etc/sysconfig/prelink
   become: true
   ansible.builtin.lineinfile:
     line: PRELINKING=no
@@ -21,7 +21,7 @@
     - ansible_facts.os_family == "RedHat"
     - sysconfig_prelink.stat.exists
 
-- name: Run prelink -ua to restore non-prelinked state
+- name: Run prelink -ua when prelink config exists
   become: true
   ansible.builtin.command:
     cmd: prelink -ua
