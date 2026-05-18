@@ -1,0 +1,39 @@
+---
+argument_specs:
+  main:
+    short_description: "Ansible role to configure systemd-resolved."
+    description:
+      - "This role configures systemd-resolved to use the specified DNS servers and settings."
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      resolved_conf_template:
+        description: "systemd resolved.conf template location."
+        type: "path"
+        default: "etc/systemd/resolved.conf.j2"
+      dns:
+        description: "A list of addresses to use as system DNS servers."
+        type: "list"
+        elements: "str"
+        default: "['1.1.1.2', '9.9.9.9']"
+      fallback_dns:
+        description: "A list of addresses to use as the fallback DNS servers."
+        type: "list"
+        elements: "str"
+        default: "['1.0.0.2', '149.112.112.112']"
+      dnssec:
+        description: "Set the DNSSEC mode for systemd-resolved."
+        type: "str"
+        default: "allow-downgrade"
+        choices:
+          - "allow-downgrade"
+          - "False"
+          - "True"
+      dns_over_tls:
+        description: "Set the DNS over TLS mode for systemd-resolved."
+        type: "str"
+        default: "opportunistic"
+        choices:
+          - "opportunistic"
+          - "False"
+          - "True"

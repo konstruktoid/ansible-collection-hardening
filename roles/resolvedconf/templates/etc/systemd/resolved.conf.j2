@@ -1,0 +1,10 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+# Managed by Ansible role {{ ansible_role_name }}
+
+[Resolve]
+DNS={{ dns | join(' ') }}
+FallbackDNS={{ fallback_dns | join(' ') }}
+DNSSEC={{ dnssec }}
+{% if ansible_facts.virtualization_type not in ["container", "docker", "podman"] %} and ansible_facts.systemd.version | int >= 239 %}
+DNSOverTLS={{ dns_over_tls }}
+{% endif %}

@@ -1,0 +1,13 @@
+---
+# A list of addresses to use as system DNS servers.
+dns: ["1.1.1.2", "9.9.9.9"]
+# Set the DNS over TLS mode for systemd-resolved.
+dns_over_tls: "opportunistic"
+
+# Set the DNSSEC mode for systemd-resolved.
+dnssec: "allow-downgrade"
+
+# A list of addresses to use as the fallback DNS servers.
+fallback_dns: ["1.0.0.2", "149.112.112.112"]
+# Systemd resolved.conf template location.
+resolved_conf_template: "etc/systemd/resolved.conf.j2"

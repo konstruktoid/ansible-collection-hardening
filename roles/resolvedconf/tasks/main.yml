@@ -1,0 +1,53 @@
+---
+- name: Merge all DNS servers
+  ansible.builtin.set_fact:
+    dns_merged: "{{ dns + fallback_dns }}"
+
+- name: Install systemd-resolved
+  become: true
+  ansible.builtin.apt:
+    name: systemd-resolved
+    state: present
+    install_recommends: false
+    update_cache: true
+  register: apt_resolved
+  failed_when:
+    - apt_resolved is failed
+    - not "'No package matching' in apt_resolved.msg"
+  when:
+    - ansible_facts.os_family == "Debian"
+
+- name: Install systemd-resolved
+  become: true
+  ansible.builtin.dnf:
+    name: systemd-resolved
+    state: present
+    update_cache: true
+  when:
+    - ansible_facts.os_family == "RedHat"
+
+- name: Configure systemd resolved
+  become: true
+  ansible.builtin.template:
+    src: "{{ resolved_conf_template }}"
+    dest: /etc/systemd/resolved.conf
+    backup: true
+    mode: "0644"
+    owner: root
+    group: root
+  register: resolved_conf
+
+- name: Ensure configuration is active
+  become: true
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+    - resolved_conf is changed
+  block:
+    - name: Reload systemd
+      ansible.builtin.systemd_service:
+        daemon_reload: true
+
+    - name: Restart resolved service
+      ansible.builtin.service:
+        name: systemd-resolved
+        state: restarted
