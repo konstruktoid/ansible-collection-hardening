@@ -26,6 +26,7 @@ roles/*
 !roles/password_management
 !roles/paths
 !roles/postfix
+!roles/prelink
 !roles/resolvedconf
 !roles/root_access
 !roles/ssh
