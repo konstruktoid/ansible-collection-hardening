@@ -240,7 +240,7 @@ argument_specs:
               - 1
               - 2
           kernel.unprivileged_userns_clone:
-            description: "Controls whether unprivilegd users can create user namespaces."
+            description: "Controls whether unprivileged users can create user namespaces."
             type: "int"
             choices:
               - 0
