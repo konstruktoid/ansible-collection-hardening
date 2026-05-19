@@ -21,6 +21,14 @@
       when:
         - ansible_facts.os_family == 'Debian'
 
+    - name: Remove apport since it changes sysctl
+      become: true
+      ansible.builtin.apt:
+        name: apport
+        state: absent
+      when:
+        - ansible_facts.os_family == 'Debian'
+
     - name: Include Ansible role
       ansible.builtin.import_role:
         name: konstruktoid.hardening.sysctl
