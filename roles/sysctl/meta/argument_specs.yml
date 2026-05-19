@@ -130,19 +130,6 @@ argument_specs:
         description: "If 0, restrict loading TTY line disciplines to the CAP_SYS_MODULE capability."
         type: "int"
         default: 0
-      conntrack_sysctl_settings:
-        type: "dict"
-        default:
-          - net.netfilter.nf_conntrack_max: 2000000
-          - net.netfilter.nf_conntrack_tcp_loose: 0
-        description: "Connection tracking sysctl settings."
-        options:
-          net.netfilter.nf_conntrack_max:
-            description: "The maximum number of connections that the system’s connection tracking table can hold at any time."
-            type: "int"
-          net.netfilter.nf_conntrack_tcp_loose:
-            description: "If 0, the system will not allow TCP connections to be established without a SYN packet."
-            type: "int"
       generic_sysctl_settings:
         type: "dict"
         default:

@@ -2,11 +2,6 @@
 # If True, disable IPv6 on the system.
 disable_ipv6: false
 
-# Connection tracking sysctl settings.
-conntrack_sysctl_settings:
-  net.netfilter.nf_conntrack_max: 2000000 # The maximum number of connections that the system’s connection tracking table can hold at any time.
-  net.netfilter.nf_conntrack_tcp_loose: 0 # If 0, the system will not allow TCP connections to be established without a SYN packet.
-
 # Generic sysctl settings.
 generic_sysctl_settings:
   fs.protected_fifos: 2 # Avoid unintentional writes to an attacker-controlled FIFO, where a program expected to create a regular file.
