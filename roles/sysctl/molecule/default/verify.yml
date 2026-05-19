@@ -51,7 +51,7 @@
       become: true
       ansible.builtin.shell: |
         set -o pipefail
-        /lib/systemd/systemd-sysctl --cat-config | grep "^{{ item.key }}.*{{ item.value }}$"
+        /lib/systemd/systemd-sysctl --cat-config | grep -F -- "{{ item.key }} = {{ item.value }}"
       args:
         executable: /bin/bash
       with_dict: "{{ sysctl_settings | dict2items | rejectattr('key', 'search', 'nf_conntrack') | rejectattr('key', 'search', 'unprivileged_userns_clone') | items2dict
@@ -66,7 +66,7 @@
       become: true
       ansible.builtin.shell: |
         set -o pipefail
-        sysctl -a | grep "^{{ item.key }}.*{{ item.value }}$"
+        sysctl -a | grep -F -- "{{ item.key }} = {{ item.value }}"
       args:
         executable: /bin/bash
       with_dict: "{{ sysctl_settings | dict2items | rejectattr('key', 'search', 'nf_conntrack') | rejectattr('key', 'search', 'unprivileged_userns_clone') | items2dict
