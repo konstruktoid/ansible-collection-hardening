@@ -67,7 +67,7 @@ ipv6_sysctl_settings:
   net.ipv6.conf.default.accept_ra: 0 # If 0, the system does not accept IPv6 router advertisements on the default interface.
   net.ipv6.conf.default.accept_ra_defrtr: 0 # If 0, the system does not accept default routers from IPv6 router advertisements on the default interface.
   net.ipv6.conf.default.accept_ra_pinfo: 0 # If 0, the system does not accept prefix information from IPv6 router advertisements on the default interface.
-  net.ipv6.conf.default.accept_ra_rtr_pref: 0 # If 0, the system does not accept router preference from IPv6 router advertisments on the default interface.
+  net.ipv6.conf.default.accept_ra_rtr_pref: 0 # If 0, the system does not accept router preference from IPv6 router advertisements on the default interface.
   net.ipv6.conf.default.accept_redirects: 0 # If 0, the system does not accept IPv6 redirects on the default interface.
   net.ipv6.conf.default.accept_source_route: 0 # If 0, deny forwarding of IPv6 Source Routed Packets on the default interface.
   net.ipv6.conf.default.autoconf: 0 # If 0, the system doesn't autoconfigure addresses using Prefix Information in Router Advertisements.
