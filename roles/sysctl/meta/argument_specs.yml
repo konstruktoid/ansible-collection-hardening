@@ -8,10 +8,6 @@ argument_specs:
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:
-      sysctl_apparmor_config_template:
-        description: "AppArmor sysctl configuration template location."
-        type: "path"
-        default: "etc/sysctl/sysctl.apparmor.conf.j2"
       sysctl_ipv6_config_template:
         description: "IPv6 sysctl configuration template location."
         type: "path"
