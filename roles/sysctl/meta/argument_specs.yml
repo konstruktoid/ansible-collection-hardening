@@ -84,7 +84,7 @@ argument_specs:
             description: "If 0, the system does not accept prefix information from IPv6 router advertisements on the default interface."
             type: "int"
           net.ipv6.conf.default.accept_ra_rtr_pref:
-            description: "If 0, the system does not accept router preference from IPv6 router advertisments on the default interface."
+            description: "If 0, the system does not accept router preference from IPv6 router advertisements on the default interface."
             type: "int"
           net.ipv6.conf.default.accept_redirects:
             description: "If 0, the system does not accept IPv6 redirects on the default interface."
