@@ -1,0 +1,60 @@
+---
+- name: Set sysctl configuration directory as fact
+  block:
+    - name: Stat /usr/lib/sysctl.d/
+      ansible.builtin.stat:
+        path: /usr/lib/sysctl.d/
+      register: sysctl_usr_lib_sysctl_d
+
+    - name: Set sysctl_conf_dir fact based on /usr/lib/sysctl.d/ existence
+      ansible.builtin.set_fact:
+        sysctl_conf_dir: >-
+          {{ '/usr/lib/sysctl.d'
+          if sysctl_usr_lib_sysctl_d.stat.exists
+          else '/etc/sysctl.d' }}
+
+- name: Stat IPv6 status
+  become: true
+  ansible.builtin.stat:
+    path: /proc/sys/net/ipv6
+  register: stat_ipv6
+
+- name: Set IPv6 fact
+  ansible.builtin.set_fact:
+    system_has_ipv6: "{{ stat_ipv6.stat.exists }}"
+
+- name: Ensure sysctl configuration dir has the correct permissions
+  become: true
+  ansible.builtin.file:
+    path: "{{ sysctl_conf_dir }}"
+    mode: "0755"
+    owner: root
+    group: root
+    state: directory
+
+- name: Template the sysctl file with general sysctl hardening settings
+  become: true
+  ansible.builtin.template:
+    src: "{{ sysctl_main_config_template }}"
+    dest: "{{ sysctl_conf_dir }}/zz-main-hardening.conf"
+    mode: "0644"
+    owner: root
+    group: root
+    backup: false
+  notify:
+    - Restart sysctl
+
+- name: Template sysctl file with IPv6 settings
+  become: true
+  ansible.builtin.template:
+    src: "{{ sysctl_ipv6_config_template }}"
+    dest: "{{ sysctl_conf_dir }}/zz-ipv6-hardening.conf"
+    mode: "0644"
+    owner: root
+    group: root
+    backup: false
+  when:
+    - system_has_ipv6
+    - not disable_ipv6
+  notify:
+    - Restart sysctl

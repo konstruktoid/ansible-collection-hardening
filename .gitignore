@@ -31,6 +31,7 @@ roles/*
 !roles/root_access
 !roles/ssh
 !roles/sudo
+!roles/sysctl
 !roles/tcpwrappers
 .ansible/
 .cache

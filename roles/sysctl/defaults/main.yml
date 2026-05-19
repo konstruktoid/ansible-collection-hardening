@@ -1,0 +1,95 @@
+---
+# If True, disable IPv6 on the system.
+disable_ipv6: false
+
+# Generic sysctl settings.
+generic_sysctl_settings:
+  fs.protected_fifos: 2 # Avoid unintentional writes to an attacker-controlled FIFO, where a program expected to create a regular file.
+  fs.protected_regular: 2 # Avoid unintentional writes to an attacker-controlled regular file, where a program expected to create one.
+  fs.protected_hardlinks: 1 # Restrict hard links to files that are not owned by the user.
+  fs.protected_symlinks: 1 # Restrict symbolic links to files that are not owned by the user.
+  fs.suid_dumpable: 0 # Set the core dump mode for setuid or otherwise protected/tainted binaries.
+  kernel.core_pattern: "|/bin/false" # Specify a core dumpfile pattern name.
+  kernel.core_uses_pid: 1 # If 1, the core dump file name will include the PID of the process that created it.
+  kernel.dmesg_restrict: 1 # If 1, unprivileged users are prevented from using dmesg to view messages from the kernel’s log buffer.
+  kernel.kptr_restrict: 2 # Whether restrictions are placed on exposing kernel addresses via /proc and other interfaces.
+  kernel.panic: 60 # The value in this file determines the behaviour of the kernel on a panic.
+  kernel.panic_on_oops: 1 # If 1, Panic immediately. If the panic sysctl is also non-zero then the machine will be rebooted.
+  kernel.perf_event_paranoid: 2 # Controls use of the performance events system by unprivileged users.
+  kernel.randomize_va_space: 2 # Select the type of process address space randomization that is used in the system.
+  kernel.sysrq: 0 # If 1, the magic SysRq key is enabled.
+  kernel.unprivileged_bpf_disabled: 1 # Controls whether BPF programs are disabled for unprivileged users.
+  kernel.unprivileged_userns_clone: 0 # Controls whether unprivileged users can create user namespaces.
+  kernel.yama.ptrace_scope: 2 # Select which processes can be debugged with ptrace.
+  net.core.bpf_jit_harden: 2 # Level of hardening applied to the BPF JIT compiler.
+  user.max_user_namespaces: 0 # The maximum number of user namespaces that can be created by a user.
+
+# IPv4 sysctl settings.
+ipv4_sysctl_settings:
+  net.ipv4.conf.all.accept_redirects: 0 # If 0, the system does not accept IPv4 redirects.
+  net.ipv4.conf.all.accept_source_route: 0 # If 0, deny IPv4 source routing.
+  net.ipv4.conf.all.log_martians: 1 # If 1, log packets with un-routable source addresses to the kernel log.
+  net.ipv4.conf.all.rp_filter: 1 # Set the reverse path filtering mode for all interfaces.
+  net.ipv4.conf.all.secure_redirects: 1 # If 1, accept messages only to gateways listed in the interface's current gateway list. Overridden by shared_media.
+  net.ipv4.conf.all.send_redirects: 0 # If 0, the system does not send ICMP redirect messages.
+  net.ipv4.conf.all.shared_media: 1 # If 1, indicates that the media is shared with different subnets, overrides secure_redirects.
+  net.ipv4.conf.default.accept_redirects: 0 # If 0, the system does not accept IPv4 redirects on the default interface.
+  net.ipv4.conf.default.accept_source_route: 0 # If 0, deny IPv4 source routing on the default interface.
+  net.ipv4.conf.default.log_martians: 1 # If 1, log packets with un-routable source addresses to the kernel log on the default interface.
+  net.ipv4.conf.default.rp_filter: 1 # Set the reverse path filtering mode for the default interface.
+  net.ipv4.conf.default.secure_redirects: 1 # If 1, accept messages only to gateways listed in the current list on the default interface. Overridden by shared_media.
+  net.ipv4.conf.default.send_redirects: 0 # If 0, the system does not send ICMP redirect messages on the default interface.
+  net.ipv4.conf.default.shared_media: 1 # If 1, indicates that the media is shared with different subnets, overrides secure_redirects on the default interface.
+  net.ipv4.icmp_echo_ignore_broadcasts: 1 # If 1, the system ignores ICMP echo requests sent to broadcast addresses.
+  net.ipv4.icmp_ignore_bogus_error_responses: 1 # If 1, the system ignores bogus ICMP responses.
+  net.ipv4.ip_forward: 0 # If 1, the system forwards IPv4 packets between interfaces.
+  net.ipv4.tcp_challenge_ack_limit: 2147483647 # Set the TCP challenge ACK limit.
+  net.ipv4.tcp_invalid_ratelimit: 500 # The maximal rate for sending duplicate acknowledgments in response to incoming TCP packets, in milliseconds.
+  net.ipv4.tcp_max_syn_backlog: 20480 # The number of SYN requests the kernel can queue before it starts dropping them.
+  net.ipv4.tcp_rfc1337: 1 # If 1, the system will not accept TCP connections that are vulnerable to the TCP sequence number attack described in RFC 1337.
+  net.ipv4.tcp_syn_retries: 5 # Number of times initial SYNs for an active TCP connection attempt will be retransmitted. Should not be higher than 127.
+  net.ipv4.tcp_synack_retries: 5 # Number of times SYNACKs for a passive TCP connection attempt will be retransmitted. Should not be higher than 255.
+  net.ipv4.tcp_syncookies: 1 # If 1, the system will use TCP SYN cookies to protect against SYN flood attacks.
+  net.ipv4.tcp_timestamps: 1 # Enable timestamps as defined in RFC1323.
+
+# IPv6 sysctl settings to disable IPv6.
+ipv6_disable_sysctl_settings:
+  net.ipv6.conf.all.disable_ipv6: 1 # If 1, the system disables IPv6 on all interfaces.
+  net.ipv6.conf.default.disable_ipv6: 1 # If 1, the system disables IPv6 on the default interface.
+
+# IPv6 sysctl settings.
+ipv6_sysctl_settings:
+  net.ipv6.conf.all.accept_ra: 0 # If 0, the system does not accept IPv6 router advertisements.
+  net.ipv6.conf.all.accept_redirects: 0 # If 0, the system does not accept IPv6 redirects.
+  net.ipv6.conf.all.accept_source_route: 0 # If 0, deny forwarding of IPv6 Source Routed Packets
+  net.ipv6.conf.all.forwarding: 0 # If 0, denies IPv6 forwarding.
+  net.ipv6.conf.all.use_tempaddr: 2 # Preference for IPv6 Privacy Extensions on all interfaces.
+  net.ipv6.conf.default.accept_ra: 0 # If 0, the system does not accept IPv6 router advertisements on the default interface.
+  net.ipv6.conf.default.accept_ra_defrtr: 0 # If 0, the system does not accept default routers from IPv6 router advertisements on the default interface.
+  net.ipv6.conf.default.accept_ra_pinfo: 0 # If 0, the system does not accept prefix information from IPv6 router advertisements on the default interface.
+  net.ipv6.conf.default.accept_ra_rtr_pref: 0 # If 0, the system does not accept router preference from IPv6 router advertisements on the default interface.
+  net.ipv6.conf.default.accept_redirects: 0 # If 0, the system does not accept IPv6 redirects on the default interface.
+  net.ipv6.conf.default.accept_source_route: 0 # If 0, deny forwarding of IPv6 Source Routed Packets on the default interface.
+  net.ipv6.conf.default.autoconf: 0 # If 0, the system doesn't autoconfigure addresses using Prefix Information in Router Advertisements.
+  net.ipv6.conf.default.dad_transmits: 0 # The amount of Duplicate Address Detection probes to send.
+  net.ipv6.conf.default.max_addresses: 1 # Maximum number of autoconfigured IPv6 addresses per interface.
+  net.ipv6.conf.default.router_solicitations: 0 # Number of Router Solicitations to send until assuming no routers are present.
+  net.ipv6.conf.default.use_tempaddr: 2 # Preference for IPv6 Privacy Extensions on the default interface.
+
+# IPv6 sysctl configuration template location.
+sysctl_ipv6_config_template: "etc/sysctl/sysctl.ipv6.conf.j2"
+
+# main sysctl configuration template location.
+sysctl_main_config_template: "etc/sysctl/sysctl.main.conf.j2"
+
+# If 0, the system denies IPv6 router solicitations.
+sysctl_net_ipv6_conf_accept_ra_rtr_pref: 0
+
+# Sets the sysctl configuration directory.
+sysctl_conf_dir: "{{ '/usr/lib/sysctl.d' if usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"
+
+# If True, use C(/usr/lib/sysctl.d) as the sysctl configuration directory, otherwise use C(/etc/sysctl.d).
+usr_lib_sysctl_d_dir: false
+
+# If 0, restrict loading TTY line disciplines to the CAP_SYS_MODULE capability.
+sysctl_dev_tty_ldisc_autoload: 0

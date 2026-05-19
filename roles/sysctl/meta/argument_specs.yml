@@ -1,0 +1,388 @@
+---
+argument_specs:
+  main:
+    short_description: Set sysctl settings for AlmaLinux, Debian and Ubuntu.
+    description:
+      - "This role sets sysctl settings for AlmaLinux, Debian and Ubuntu. It includes settings to harden the kernel and network stack, as well as settings to disable
+        IPv6."
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      sysctl_ipv6_config_template:
+        description: "IPv6 sysctl configuration template location."
+        type: "path"
+        default: "etc/sysctl/sysctl.ipv6.conf.j2"
+      sysctl_main_config_template:
+        description: "main sysctl configuration template location."
+        type: "path"
+        default: "etc/sysctl/sysctl.main.conf.j2"
+      sysctl_net_ipv6_conf_accept_ra_rtr_pref:
+        description: "If 0, the system does not accept IPv6 router preferences from router advertisements."
+        type: "int"
+        default: 0
+      ipv6_disable_sysctl_settings:
+        type: "dict"
+        default:
+          - net.ipv6.conf.all.disable_ipv6: 1
+          - net.ipv6.conf.default.disable_ipv6: 1
+        description: "IPv6 sysctl settings to disable IPv6."
+        options:
+          net.ipv6.conf.all.disable_ipv6:
+            description: "If 1, the system disables IPv6 on all interfaces."
+            type: "int"
+          net.ipv6.conf.default.disable_ipv6:
+            description: "If 1, the system disables IPv6 on the default interface."
+            type: "int"
+      ipv6_sysctl_settings:
+        type: "dict"
+        default:
+          - net.ipv6.conf.all.accept_ra: 0
+          - net.ipv6.conf.all.accept_redirects: 0
+          - net.ipv6.conf.all.accept_source_route: 0
+          - net.ipv6.conf.all.forwarding: 0
+          - net.ipv6.conf.all.use_tempaddr: 2
+          - net.ipv6.conf.default.accept_ra: 0
+          - net.ipv6.conf.default.accept_ra_defrtr: 0
+          - net.ipv6.conf.default.accept_ra_pinfo: 0
+          - net.ipv6.conf.default.accept_ra_rtr_pref: 0
+          - net.ipv6.conf.default.accept_redirects: 0
+          - net.ipv6.conf.default.accept_source_route: 0
+          - net.ipv6.conf.default.autoconf: 0
+          - net.ipv6.conf.default.dad_transmits: 0
+          - net.ipv6.conf.default.max_addresses: 1
+          - net.ipv6.conf.default.router_solicitations: 0
+          - net.ipv6.conf.default.use_tempaddr: 2
+        description: "IPv6 sysctl settings."
+        options:
+          net.ipv6.conf.all.accept_ra:
+            description: "If 0, the system does not accept IPv6 router advertisements."
+            type: "int"
+          net.ipv6.conf.all.accept_redirects:
+            description: "If 0, the system does not accept IPv6 redirects."
+            type: "int"
+          net.ipv6.conf.all.accept_source_route:
+            description: "If 0, deny forwarding of IPv6 Source Routed Packets"
+            type: "int"
+          net.ipv6.conf.all.forwarding:
+            description: "If 0, denies IPv6 forwarding."
+            type: "int"
+          net.ipv6.conf.all.use_tempaddr:
+            description: "Preference for IPv6 Privacy Extensions on all interfaces."
+            type: "int"
+            default: 2
+            choices:
+              - 0
+              - 1
+              - 2
+          net.ipv6.conf.default.accept_ra:
+            description: "If 0, the system does not accept IPv6 router advertisements on the default interface."
+            type: "int"
+          net.ipv6.conf.default.accept_ra_defrtr:
+            description: "If 0, the system does not accept default routers from IPv6 router advertisements on the default interface."
+            type: "int"
+          net.ipv6.conf.default.accept_ra_pinfo:
+            description: "If 0, the system does not accept prefix information from IPv6 router advertisements on the default interface."
+            type: "int"
+          net.ipv6.conf.default.accept_ra_rtr_pref:
+            description: "If 0, the system does not accept router preference from IPv6 router advertisements on the default interface."
+            type: "int"
+          net.ipv6.conf.default.accept_redirects:
+            description: "If 0, the system does not accept IPv6 redirects on the default interface."
+            type: "int"
+            default: 0
+          net.ipv6.conf.default.accept_source_route:
+            description: "If 0, deny forwarding of IPv6 Source Routed Packets on the default interface."
+            type: "int"
+            default: 0
+          net.ipv6.conf.default.autoconf:
+            description: "If 0, the system doesn't autoconfigure addresses using Prefix Information in Router Advertisements."
+            type: "int"
+            default: 0
+          net.ipv6.conf.default.dad_transmits:
+            description: "The amount of Duplicate Address Detection probes to send."
+            type: "int"
+            default: 0
+          net.ipv6.conf.default.max_addresses:
+            description: "Maximum number of autoconfigured IPv6 addresses per interface."
+            type: "int"
+            default: 1
+          net.ipv6.conf.default.router_solicitations:
+            description: "Number of Router Solicitations to send until assuming no routers are present."
+            type: "int"
+            default: 0
+          net.ipv6.conf.default.use_tempaddr:
+            description: "Preference for IPv6 Privacy Extensions on the default interface."
+            type: "int"
+            default: 2
+            choices:
+              - 0
+              - 1
+              - 2
+      usr_lib_sysctl_d_dir:
+        description: "If True, use C(/usr/lib/sysctl.d) as the sysctl configuration directory, otherwise use C(/etc/sysctl.d)."
+        type: "bool"
+        default: "False"
+      sysctl_conf_dir:
+        description: "Sets the sysctl configuration directory."
+        type: "str"
+        default: "{{ '/usr/lib/sysctl.d' if usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"
+      sysctl_dev_tty_ldisc_autoload:
+        description: "If 0, restrict loading TTY line disciplines to the CAP_SYS_MODULE capability."
+        type: "int"
+        default: 0
+      generic_sysctl_settings:
+        type: "dict"
+        default:
+          - fs.protected_fifos: 2
+          - fs.protected_regular: 2
+          - fs.protected_hardlinks: 1
+          - fs.protected_symlinks: 1
+          - fs.suid_dumpable: 0
+          - kernel.core_pattern: "|/bin/false"
+          - kernel.core_uses_pid: 1
+          - kernel.dmesg_restrict: 1
+          - kernel.kptr_restrict: 2
+          - kernel.panic: 60
+          - kernel.panic_on_oops: 1
+          - kernel.perf_event_paranoid: 2
+          - kernel.randomize_va_space: 2
+          - kernel.sysrq: 0
+          - kernel.unprivileged_bpf_disabled: 1
+          - kernel.unprivileged_userns_clone: 0
+          - kernel.yama.ptrace_scope: 2
+          - net.core.bpf_jit_harden: 2
+          - user.max_user_namespaces: 0
+        description: "Generic sysctl settings."
+        options:
+          fs.protected_fifos:
+            description: "Avoid unintentional writes to an attacker-controlled FIFO, where a program expected to create a regular file."
+            type: "int"
+            choices:
+              - 0
+              - 1
+              - 2
+          fs.protected_regular:
+            description: "Avoid unintentional writes to an attacker-controlled regular file, where a program expected to create one."
+            type: "int"
+            choices:
+              - 0
+              - 1
+              - 2
+          fs.protected_hardlinks:
+            description: "Restrict hard links to files that are not owned by the user."
+            type: "int"
+            choices:
+              - 0
+              - 1
+          fs.protected_symlinks:
+            description: "Restrict symbolic links to files that are not owned by the user."
+            type: "int"
+            choices:
+              - 0
+              - 1
+          fs.suid_dumpable:
+            description: "Set the core dump mode for setuid or otherwise protected/tainted binaries."
+            type: "int"
+            choices:
+              - 0
+              - 1
+              - 2
+          kernel.core_pattern:
+            description: "Specify a core dumpfile pattern name."
+            type: "str"
+          kernel.core_uses_pid:
+            description: "If 1, the core dump file name will include the PID of the process that created it."
+            type: "int"
+          kernel.dmesg_restrict:
+            description: "If 1, unprivileged users are prevented from using dmesg to view messages from the kernel’s log buffer."
+            type: "int"
+          kernel.kptr_restrict:
+            description: "Whether restrictions are placed on exposing kernel addresses via /proc and other interfaces."
+            type: "int"
+            choices:
+              - 0
+              - 1
+              - 2
+          kernel.panic:
+            description: "The value in this file determines the behaviour of the kernel on a panic."
+            type: "int"
+            choices:
+              - -1
+              - 0
+              - 60
+          kernel.panic_on_oops:
+            description: "If 1, Panic immediately. If the panic sysctl is also non-zero then the machine will be rebooted."
+            type: "int"
+          kernel.perf_event_paranoid:
+            description: "Controls use of the performance events system by unprivileged users."
+            type: "int"
+            default: 2
+            choices:
+              - -1
+              - 0
+              - 1
+              - 2
+          kernel.randomize_va_space:
+            description: "Select the type of process address space randomization that is used in the system."
+            type: "int"
+            choices:
+              - 0
+              - 1
+              - 2
+          kernel.sysrq:
+            description: "If 1, the magic SysRq key is enabled."
+            type: "int"
+          kernel.unprivileged_bpf_disabled:
+            description: "Controls whether BPF programs are disabled for unprivileged users."
+            type: "int"
+            choices:
+              - 0
+              - 1
+              - 2
+          kernel.unprivileged_userns_clone:
+            description: "Controls whether unprivileged users can create user namespaces."
+            type: "int"
+            choices:
+              - 0
+              - 1
+          kernel.yama.ptrace_scope:
+            description: "Select which processes can be debugged with ptrace."
+            type: "int"
+            default: 2
+            choices:
+              - 0
+              - 1
+              - 2
+              - 3
+          net.core.bpf_jit_harden:
+            description: "Level of hardening applied to the BPF JIT compiler."
+            type: "int"
+            choices:
+              - 0
+              - 1
+              - 2
+          user.max_user_namespaces:
+            description: "The maximum number of user namespaces that can be created by a user."
+            type: "int"
+      ipv4_sysctl_settings:
+        type: "dict"
+        default:
+          - net.ipv4.conf.all.accept_redirects: 0
+          - net.ipv4.conf.all.accept_source_route: 0
+          - net.ipv4.conf.all.log_martians: 1
+          - net.ipv4.conf.all.rp_filter: 1
+          - net.ipv4.conf.all.secure_redirects: 1
+          - net.ipv4.conf.all.send_redirects: 0
+          - net.ipv4.conf.all.shared_media: 1
+          - net.ipv4.conf.default.accept_redirects: 0
+          - net.ipv4.conf.default.accept_source_route: 0
+          - net.ipv4.conf.default.log_martians: 1
+          - net.ipv4.conf.default.rp_filter: 1
+          - net.ipv4.conf.default.secure_redirects: 1
+          - net.ipv4.conf.default.send_redirects: 0
+          - net.ipv4.conf.default.shared_media: 1
+          - net.ipv4.icmp_echo_ignore_broadcasts: 1
+          - net.ipv4.icmp_ignore_bogus_error_responses: 1
+          - net.ipv4.ip_forward: 0
+          - net.ipv4.tcp_challenge_ack_limit: 2147483647
+          - net.ipv4.tcp_invalid_ratelimit: 500
+          - net.ipv4.tcp_max_syn_backlog: 20480
+          - net.ipv4.tcp_rfc1337: 1
+          - net.ipv4.tcp_syn_retries: 5
+          - net.ipv4.tcp_synack_retries: 5
+          - net.ipv4.tcp_syncookies: 1
+          - net.ipv4.tcp_timestamps: 1
+        description: "IPv4 sysctl settings."
+        options:
+          net.ipv4.conf.all.accept_redirects:
+            description: "If 0, the system does not accept IPv4 redirects."
+            type: "int"
+          net.ipv4.conf.all.accept_source_route:
+            description: "If 0, deny IPv4 source routing."
+            type: "int"
+          net.ipv4.conf.all.log_martians:
+            description: "If 1, log packets with un-routable source addresses to the kernel log."
+            type: "int"
+          net.ipv4.conf.all.rp_filter:
+            description: "Set the reverse path filtering mode for all interfaces."
+            type: "int"
+            choices:
+              - 0
+              - 1
+              - 2
+          net.ipv4.conf.all.secure_redirects:
+            description: "If 1, accept ICMP redirect messages only to gateways listed in the interface's current gateway list. Overridden by shared_media."
+            type: "int"
+          net.ipv4.conf.all.send_redirects:
+            description: "If 0, the system does not send ICMP redirect messages."
+            type: "int"
+          net.ipv4.conf.all.shared_media:
+            description: "If 1, indicates that the media is shared with different subnets, overrides secure_redirects."
+            type: "int"
+          net.ipv4.conf.default.accept_redirects:
+            description: "If 0, the system does not accept IPv4 redirects on the default interface."
+            type: "int"
+          net.ipv4.conf.default.accept_source_route:
+            description: "If 0, deny IPv4 source routing on the default interface."
+            type: "int"
+          net.ipv4.conf.default.log_martians:
+            description: "If 1, log packets with un-routable source addresses to the kernel log on the default interface."
+            type: "int"
+          net.ipv4.conf.default.rp_filter:
+            description: "Set the reverse path filtering mode for the default interface."
+            type: "int"
+            choices:
+              - 0
+              - 1
+              - 2
+          net.ipv4.conf.default.secure_redirects:
+            description: "If 1, accept ICMP redirect messages only to gateways listed in the interface's current gateway list on the default interface. Overridden
+              by shared_media."
+            type: "int"
+          net.ipv4.conf.default.send_redirects:
+            description: "If 0, the system does not send ICMP redirect messages on the default interface."
+            type: "int"
+          net.ipv4.conf.default.shared_media:
+            description: "If 1, indicates that the media is shared with different subnets, overrides secure_redirects on the default interface."
+            type: "int"
+          net.ipv4.icmp_echo_ignore_broadcasts:
+            description: "If 1, the system ignores ICMP echo requests sent to broadcast addresses."
+            type: "int"
+          net.ipv4.icmp_ignore_bogus_error_responses:
+            description: "If 1, the system ignores bogus ICMP responses."
+            type: "int"
+          net.ipv4.ip_forward:
+            description: "If 1, the system forwards IPv4 packets between interfaces."
+            type: "int"
+          net.ipv4.tcp_challenge_ack_limit:
+            description: "Set the TCP challenge ACK limit."
+            type: "int"
+          net.ipv4.tcp_invalid_ratelimit:
+            description: "The maximal rate for sending duplicate acknowledgments in response to incoming TCP packets, in milliseconds."
+            type: "int"
+          net.ipv4.tcp_max_syn_backlog:
+            description: "The number of SYN requests the kernel can queue before it starts dropping them."
+            type: "int"
+          net.ipv4.tcp_rfc1337:
+            description: "If 1, the system will not accept TCP connections that are vulnerable to the TCP sequence number attack described in RFC 1337."
+            type: "int"
+          net.ipv4.tcp_syn_retries:
+            description: "Number of times initial SYNs for an active TCP connection attempt will be retransmitted. Should not be higher than 127."
+            type: "int"
+          net.ipv4.tcp_synack_retries:
+            description: "Number of times SYNACKs for a passive TCP connection attempt will be retransmitted. Should not be higher than 255."
+            type: "int"
+          net.ipv4.tcp_syncookies:
+            description: "If 1, the system will use TCP SYN cookies to protect against SYN flood attacks."
+            type: "int"
+          net.ipv4.tcp_timestamps:
+            description: "Enable timestamps as defined in RFC1323."
+            type: "int"
+            choices:
+              - 0
+              - 1
+              - 2
+      disable_ipv6:
+        description: "If True, disable IPv6 on the system."
+        type: "bool"
+        default: "False"
