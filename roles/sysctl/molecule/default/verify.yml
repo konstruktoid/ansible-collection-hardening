@@ -36,7 +36,7 @@
 
     - name: Set IPv6 fact
       ansible.builtin.set_fact:
-      system_has_ipv6: "{{ stat_ipv6.stat.exists }}"
+        system_has_ipv6: "{{ stat_ipv6.stat.exists }}"
 
     - name: Set sysctl configuration directory as fact
       block:
@@ -95,7 +95,7 @@
         - name: Verify IPv6 sysctl configuration
           ansible.builtin.shell: |
             set -o pipefail
-            /lib/systemd/systemd-sysctl --cat-config | grep "^{{ item }}$"
+            /lib/systemd/systemd-sysctl --cat-config | grep -F -- {{ item | quote }}
           args:
             executable: /bin/bash
           register: sysctl_ipv6_config
@@ -112,7 +112,7 @@
             PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
           ansible.builtin.shell: |
             set -o pipefail
-            sysctl -a | grep "^{{ item.key }}.*{{ item.value | int }}$"
+            sysctl -a | grep -F -- {{ (item.key ~ " = " ~ (item.value | int)) | quote }}
           args:
             executable: /bin/bash
           with_dict: "{{ ipv6_disable_sysctl_settings }}"
