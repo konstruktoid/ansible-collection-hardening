@@ -38,7 +38,7 @@ ipv4_sysctl_settings:
   net.ipv4.conf.default.log_martians: 1 # If 1, log packets with un-routable source addresses to the kernel log on the default interface.
   net.ipv4.conf.default.rp_filter: 1 # Set the reverse path filtering mode for the default interface.
   net.ipv4.conf.default.secure_redirects: 1 # If 1, accept messages only to gateways listed in the current list on the default interface. Overridden by shared_media.
-  net.ipv4.conf.default.send_redirects: 0 # net.ipv4.conf.default.send_redirects description
+  net.ipv4.conf.default.send_redirects: 0 # If 0, the system does not send ICMP redirect messages on the default interface.
   net.ipv4.conf.default.shared_media: 1 # If 1, indicates that the media is shared with different subnets, overrides secure_redirects on the default interface.
   net.ipv4.icmp_echo_ignore_broadcasts: 1 # If 1, the system ignores ICMP echo requests sent to broadcast addresses.
   net.ipv4.icmp_ignore_bogus_error_responses: 1 # If 1, the system ignores bogus ICMP responses.
