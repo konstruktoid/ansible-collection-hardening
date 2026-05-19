@@ -14,7 +14,7 @@ dev.tty.ldisc_autoload = {{ sysctl_dev_tty_ldisc_autoload | int }}
 {{ key }} = {{ value }}
 {% endfor %}
 
-{% if disable_ipv6 %}
+{% if disable_ipv6 and system_has_ipv6 %}
 ### Disabling IPv6
 {% for key, value in ipv6_disable_sysctl_settings.items() %}
 {{ key }} = {{ value }}

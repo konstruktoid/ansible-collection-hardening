@@ -28,6 +28,16 @@
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
 
+    - name: Stat IPv6 status
+      become: true
+      ansible.builtin.stat:
+        path: /proc/sys/net/ipv6
+      register: stat_ipv6
+
+    - name: Set IPv6 fact
+      ansible.builtin.set_fact:
+      system_has_ipv6: "{{ stat_ipv6.stat.exists }}"
+
     - name: Set sysctl configuration directory as fact
       block:
         - name: Stat /usr/lib/sysctl.d/ exists
