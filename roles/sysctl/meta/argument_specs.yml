@@ -340,7 +340,7 @@ argument_specs:
               by shared_media."
             type: "int"
           net.ipv4.conf.default.send_redirects:
-            description: "net.ipv4.conf.default.send_redirects description"
+            description: "If 0, the system does not send ICMP redirect messages on the default interface."
             type: "int"
           net.ipv4.conf.default.shared_media:
             description: "If 1, indicates that the media is shared with different subnets, overrides secure_redirects on the default interface."
