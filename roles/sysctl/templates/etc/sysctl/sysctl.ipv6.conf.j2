@@ -3,7 +3,15 @@
 
 ### IPV6 related settings
 {% if (system_has_ipv6 | bool) %}
-net.ipv6.conf.{{ ansible_facts.default_ipv4.interface | regex_replace("\\.", "/") }}.accept_ra_rtr_pref = {{ sysctl_net_ipv6_conf_accept_ra_rtr_pref | int }}
+{% set ipv6_default_interface = '' %}
+{% if ansible_facts.default_ipv6 is defined and ansible_facts.default_ipv6.interface is defined %}
+{% set ipv6_default_interface = ansible_facts.default_ipv6.interface %}
+{% elif ansible_facts.default_ipv4 is defined and ansible_facts.default_ipv4.interface is defined %}
+{% set ipv6_default_interface = ansible_facts.default_ipv4.interface %}
+{% endif %}
+{% if ipv6_default_interface %}
+net.ipv6.conf.{{ ipv6_default_interface | regex_replace("\\.", "/") }}.accept_ra_rtr_pref = {{ sysctl_net_ipv6_conf_accept_ra_rtr_pref | int }}
+{% endif %}
 {% for key, value in ipv6_sysctl_settings.items() %}
 {{ key }} = {{ value }}
 {% endfor %}
