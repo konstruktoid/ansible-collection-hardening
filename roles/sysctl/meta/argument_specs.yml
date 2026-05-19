@@ -17,7 +17,7 @@ argument_specs:
         type: "path"
         default: "etc/sysctl/sysctl.main.conf.j2"
       sysctl_net_ipv6_conf_accept_ra_rtr_pref:
-        description: "If 0, the system denies IPv6 router solicitations."
+        description: "If 0, the system does not accept IPv6 router preferences from router advertisements."
         type: "int"
         default: 0
       ipv6_disable_sysctl_settings:
