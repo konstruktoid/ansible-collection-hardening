@@ -9,7 +9,7 @@ Apply these rules to Ansible YAML and Jinja changes.
 ## Authoring priorities
 - Module-first implementation; avoid `shell`/`command` unless no safe module exists.
 - Declarative, idempotent tasks with descriptive names.
-- Explicit `owner`, `group`, and restrictive quoted octal string `mode` values (for example `mode: "0600"`) for managed files.
+- Explicit `owner`, `group`, and restrictive quoted octal string `mode` values (for example `mode: "0640"`) for managed files.
 - Restrictive defaults in vars/defaults/templates.
 - Handlers for config-driven restart/reload behavior.
 
