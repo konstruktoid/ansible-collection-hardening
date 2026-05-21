@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: umask
   author: konstruktoid
-  description: AlmaLinux, Debian and Ubuntu hardening. systemd edition.
+  description: Configure system-wide default UMASK settings for AlmaLinux, Debian, and Ubuntu via login.defs, shell profiles, and PAM.
   license: apache
   min_ansible_version: "2.18"
   platforms:
