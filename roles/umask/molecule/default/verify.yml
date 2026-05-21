@@ -28,14 +28,6 @@
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
 
-    - name: Set default umask permissions
-      ansible.builtin.set_fact:
-        umask_default: "0777"
-
-    - name: Calculate umask
-      ansible.builtin.set_fact:
-        umask_calc: "0{{ umask_default | int - umask_value | int }}"
-
     - name: Verify login.defs settings
       ansible.builtin.shell: grep -E "^UMASK.*{{ umask_value }}$" /etc/login.defs
       changed_when: false
