@@ -10,5 +10,5 @@ argument_specs:
     options:
       umask_value:
         description: "Sets the default umask value."
-        type: "int"
+        type: "str"
         default: "0077"
