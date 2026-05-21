@@ -5,7 +5,7 @@
     line: UMASK {{ umask_value }}
     mode: "0644"
     dest: /etc/login.defs
-    regexp: UMASK(\s+.*)
+    regexp: ^\s*UMASK(\s+.*)$
     owner: root
     group: root
 
