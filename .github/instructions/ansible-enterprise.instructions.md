@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*.yml,**/*.yaml,**/*.j2"
+applyTo: "**/roles/**/*.yml,**/roles/**/*.yaml,**/tasks/**/*.yml,**/tasks/**/*.yaml,**/handlers/**/*.yml,**/handlers/**/*.yaml,**/defaults/**/*.yml,**/defaults/**/*.yaml,**/vars/**/*.yml,**/vars/**/*.yaml,**/meta/**/*.yml,**/meta/**/*.yaml,**/playbooks/**/*.yml,**/playbooks/**/*.yaml,**/*.j2"
 ---
 
 # Enterprise Ansible Hardening Instructions
@@ -23,7 +23,7 @@ Treat these domains as high sensitivity and change conservatively:
 ## Compliance-aware behavior
 - Favor patterns aligned with CIS and STIG hardening intent and CMMC-oriented objectives.
 - Improve auditability, traceability, and enforcement consistency.
-- Mention likely control areas only when justified; do not invent exact control IDs.
+- Reference exact benchmark/control IDs only when verified in repository context; otherwise cite likely control areas and rationale.
 
 ## Review priorities
 1. Security regression or weakening of existing hardening intent
