@@ -129,13 +129,23 @@
     path: /etc/profile
     regexp: umask(\s+.*)
 
+- name: Stat /etc/profile.d
+  become: true
+  ansible.builtin.stat:
+    path: /etc/profile.d
+  register: umask_profile_d
+
 - name: Find all files in /etc/profile.d
+  become: true
   ansible.builtin.find:
     paths:
       - /etc/profile.d
     patterns:
       - "*"
   register: find_profiled_result
+  when:
+    - umask_profile_d.stat.exists
+    - umask_profile_d.stat.isdir
 
 - name: Set default profile umask for each file in /etc/profile.d
   become: true
@@ -144,7 +154,7 @@
     replace: umask {{ umask_value }}
     dest: "{{ item.path }}"
     mode: "0644"
-  loop: "{{ find_profiled_result.files }}"
+  loop: "{{ find_profiled_result.files | default([]) }}"
   loop_control:
     label: "{{ item.path }}"
 
