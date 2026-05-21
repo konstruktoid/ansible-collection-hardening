@@ -1,5 +1,5 @@
 ---
-applyTo: "**/roles/**/*.yml,**/roles/**/*.yaml,**/tasks/**/*.yml,**/tasks/**/*.yaml,**/handlers/**/*.yml,**/handlers/**/*.yaml,**/defaults/**/*.yml,**/defaults/**/*.yaml,**/vars/**/*.yml,**/vars/**/*.yaml,**/meta/**/*.yml,**/meta/**/*.yaml,**/playbooks/**/*.yml,**/playbooks/**/*.yaml,**/*.j2"
+applyTo: "**/{roles,tasks,handlers,defaults,vars,meta,playbooks}/**/*.{yml,yaml},**/*.j2"
 ---
 
 # Enterprise Ansible Hardening Instructions

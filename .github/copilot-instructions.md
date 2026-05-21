@@ -55,7 +55,7 @@ Prioritize findings on:
 - unsafe module choice,
 - exposure in network/service/authentication paths.
 
-For meaningful findings, provide: Finding, Risk (Critical/High/Medium/Low), Location, Recommendation, and safer example.
+For meaningful findings, provide: Finding, Risk (Critical/High/Medium/Low), Location, Recommendation, and safer example as a short code snippet.
 
 ## Change safety rules
 - Do not remove or weaken hardening behavior without explicit instruction.
