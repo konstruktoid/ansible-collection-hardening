@@ -29,5 +29,5 @@
         file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
 
     - name: Verify login.defs settings
-      ansible.builtin.shell: grep -F -- "UMASK {{ umask_value }}" /etc/login.defs
+      ansible.builtin.command: grep -F -- "UMASK {{ umask_value }}" /etc/login.defs
       changed_when: false

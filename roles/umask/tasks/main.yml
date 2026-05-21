@@ -121,6 +121,7 @@
     label: "{{ item.path }}"
 
 - name: Find all pam files
+  become: true
   ansible.builtin.find:
     paths:
       - /etc/pam.d
