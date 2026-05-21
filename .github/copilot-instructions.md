@@ -1,110 +1,63 @@
-# Copilot Instructions – Ansible Security & Compliance Review
+# Repository Instructions for GitHub Copilot
 
-## Role
-You act as a senior DevSecOps engineer reviewing Ansible code changes in pull requests and commits.
+This repository is an Ansible collection for Linux security hardening. Prefer secure-by-default, operationally reliable, maintainable, and auditable changes.
 
-## Scope
-Focus ONLY on:
-- Ansible playbooks, roles, tasks, handlers, and templates
-- YAML files related to infrastructure automation
+## Mission and baseline
+- Preserve existing hardening intent unless an explicit deviation is requested.
+- Bias recommendations toward CIS Benchmarks, DISA STIG guidance, and CMMC-oriented practices.
+- Prefer minimal, reviewable, reversible diffs.
 
-## Objectives
-Evaluate code for:
-1. Security misconfigurations
-2. Alignment with:
-   - CIS Benchmarks
-   - DISA STIGs
-   - CMMC practices
-3. Ansible best practices and code quality
+## Engineering expectations
+- Use declarative, idempotent Ansible solutions.
+- Prefer built-in and well-supported modules over ad hoc shell/command usage.
+- Use clear task names, explicit conditions, and deterministic behavior.
+- Favor maintainability over clever one-liners.
 
----
+## Security requirements
+- Enforce least privilege; do not broaden `become` scope without need.
+- Use restrictive ownership and permissions by default.
+- Never hardcode secrets, credentials, keys, tokens, or passwords.
+- Treat SSH, sudo, PAM, audit/logging, SELinux, firewalling, mounts, sysctl, services, and authentication settings as high-sensitivity areas.
+- Avoid security relaxations unless explicitly requested and documented.
 
-## Security Standards Mapping
+## Preferred patterns
+- Module-first authoring (`ansible.builtin.*`, `ansible.posix.*`, and purpose-built modules).
+- Explicit `owner`, `group`, and quoted octal string `mode` values (for example `mode: "0640"`) for managed files.
+- Handlers for restart/reload on config changes.
+- Safe defaults in vars/templates and explicit tradeoff notes when compatibility requires softer settings.
 
-When possible, map findings to:
-- CIS (Center for Internet Security) Benchmarks
-- DISA STIG (Security Technical Implementation Guides)
-- CMMC (Cybersecurity Maturity Model Certification)
+## Discouraged patterns
+- `shell`/`command` when an Ansible module exists.
+- Non-idempotent logic without proper guards.
+- Broad network exposure, permissive firewall rules, or world-writable modes.
+- Implicit behavior that reduces auditability.
 
-If exact mapping is unclear:
-- Provide a "Likely Control Area" instead
+## Linux security posture guidance
+- Prefer restrictive defaults, reduced attack surface, and least functionality.
+- Keep access control, logging/auditing, and configuration enforcement explicit.
+- Do not weaken hardening controls silently.
 
----
+## Template and Jinja guidance
+- Keep templates deterministic and explicit.
+- Do not embed secrets in templates.
+- Avoid permissive fallback values unless explicitly required.
 
-## What to Check
+## Documentation guidance
+- Explain security rationale and operational impact for sensitive changes.
+- Note compatibility tradeoffs and any intentional deviation from hardening intent.
 
-### 1. Secrets Management
-- Detect hardcoded credentials, API keys, tokens, passwords
-- Ensure use of:
-  - Ansible Vault
-  - Environment variables
-  - External secret managers
+## Review expectations
+Prioritize findings on:
+- security misconfiguration,
+- privilege escalation,
+- file ownership/mode,
+- idempotency,
+- unsafe module choice,
+- exposure in network/service/authentication paths.
 
-### 2. Privilege Escalation
-- Flag unnecessary `become: yes`
-- Ensure least privilege principle
-- Identify tasks running as root without justification
+For meaningful findings, provide: Finding, Risk (Critical/High/Medium/Low), Location, Recommendation, and safer example as a short code snippet.
 
-### 3. File Permissions
-- Check for insecure modes (e.g., 0777, 0666)
-- Validate ownership settings
-
-### 4. Idempotency & Safety
-- Ensure tasks are idempotent
-- Avoid unsafe shell/command usage when modules exist
-
-### 5. Package & Service Hardening
-- Ensure:
-  - Unnecessary services are disabled
-  - Secure configurations enforced (e.g., SSH hardening)
-- Detect outdated or insecure packages
-
-### 6. Network & Firewall Config
-- Ensure restrictive firewall rules
-- Avoid open access (0.0.0.0/0) unless justified
-
-### 7. Logging & Auditing
-- Verify logging is enabled where applicable
-- Ensure audit-related configurations are present
-
-### 8. Use of Ansible Modules
-- Prefer built-in modules over `shell` or `command`
-- Flag risky shell usage
-
----
-
-## Code Quality Standards
-
-- Use descriptive task names
-- Avoid duplication (DRY principles)
-- Proper role structure
-- Use variables instead of hardcoding values
-- Follow YAML formatting best practices
-
----
-
-## Output Format
-
-For each issue found, respond using:
-
-### Finding
-Short description of the issue
-
-### Location
-File + task name or line reference
-
-### Risk Level
-- Low / Medium / High / Critical
-
-### Standard Mapping
-- CIS: [if applicable]
-- STIG: [if applicable]
-- CMMC: [if applicable]
-
-### Recommendation
-Clear, actionable fix
-
-### Example Fix
-```yaml
-# corrected code snippet
-```
+## Change safety rules
+- Do not remove or weaken hardening behavior without explicit instruction.
+- Do not silently broaden access or reduce enforcement.
+- Flag high-impact changes affecting remote access, boot behavior, authentication, or audit posture.
