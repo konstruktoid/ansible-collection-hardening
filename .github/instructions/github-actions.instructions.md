@@ -1,5 +1,5 @@
 ---
-applyTo: ".github/workflows/**/*.yml,.github/workflows/**/*.yaml,action.yml,.github/actions/**/*.yml,.github/actions/**/*.yaml"
+applyTo: ".github/workflows/**/*.yml,.github/workflows/**/*.yaml,**/action.yml,.github/actions/**/*.yml,.github/actions/**/*.yaml"
 ---
 
 # Enterprise GitHub Actions Security Instructions
