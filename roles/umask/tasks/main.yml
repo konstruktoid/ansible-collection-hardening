@@ -29,7 +29,7 @@
   become: true
   ansible.builtin.lineinfile:
     line: umask {{ umask_value }}
-    mode: "0644"
+    mode: "0755"
     path: /etc/init.d/rc
     regexp: umask(\s+.*)
   when:
