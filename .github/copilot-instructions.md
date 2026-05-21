@@ -22,7 +22,7 @@ This repository is an Ansible collection for Linux security hardening. Prefer se
 
 ## Preferred patterns
 - Module-first authoring (`ansible.builtin.*`, `ansible.posix.*`, and purpose-built modules).
-- Explicit `owner`, `group`, and quoted octal `mode` for managed files.
+- Explicit `owner`, `group`, and quoted octal string `mode` values (for example `mode: "0640"`) for managed files.
 - Handlers for restart/reload on config changes.
 - Safe defaults in vars/templates and explicit tradeoff notes when compatibility requires softer settings.
 
