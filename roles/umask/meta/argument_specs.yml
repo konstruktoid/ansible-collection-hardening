@@ -4,7 +4,7 @@ argument_specs:
     short_description: "Configure default umask settings for user sessions."
     description:
       - "This role configures the default umask value for user sessions."
-      - "This module sets the default umask value for user sessions."
+      - "This role sets the default umask value for user sessions."
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:
