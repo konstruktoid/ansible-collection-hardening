@@ -1,5 +1,5 @@
 ---
-applyTo: "**/{roles,tasks,handlers,defaults,vars,meta,playbooks}/**/*.{yml,yaml},**/*.j2"
+applyTo: "**/*.{yml,yaml},**/*.j2"
 ---
 
 # Enterprise Ansible Hardening Instructions
