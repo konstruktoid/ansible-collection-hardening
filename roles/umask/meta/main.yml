@@ -1,0 +1,30 @@
+---
+galaxy_info:
+  role_name: umask
+  author: konstruktoid
+  description: Configure system-wide default UMASK settings for AlmaLinux, Debian, and Ubuntu via login.defs, shell profiles, and PAM.
+  license: apache
+  min_ansible_version: "2.18"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+    - name: EL
+      versions:
+        - "9"
+        - "10"
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+  galaxy_tags:
+    - almalinux
+    - centos
+    - cis
+    - debian
+    - disa
+    - hardening
+    - security
+    - system
+    - systemd
+    - ubuntu

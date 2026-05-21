@@ -1,0 +1,3 @@
+---
+# Sets the default umask value.
+umask_value: "0077"
