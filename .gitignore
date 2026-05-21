@@ -33,6 +33,7 @@ roles/*
 !roles/sudo
 !roles/sysctl
 !roles/tcpwrappers
+!roles/umask
 .ansible/
 .cache
 .env
