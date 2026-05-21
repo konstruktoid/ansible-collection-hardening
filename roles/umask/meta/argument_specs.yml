@@ -1,10 +1,10 @@
 ---
 argument_specs:
   main:
-    short_description: "Configure session timeout and umask settings for user sessions."
+    short_description: "Configure default umask settings for user sessions."
     description:
-      - "This module configures session timeout and umask settings for user sessions."
-      - "This modules sets the default umask value for user sessions."
+      - "This role configures the default umask value for user sessions."
+      - "This module sets the default umask value for user sessions."
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:
