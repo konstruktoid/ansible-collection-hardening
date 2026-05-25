@@ -1,0 +1,7 @@
+---
+# A list of NTP server host names or IP addresses to be used as the fallback NTP servers.
+fallback_ntp: ["ntp.netnod.se", "ntp.ubuntu.com"]
+# A list of NTP server host names or IP addresses to be used as the primary NTP servers.
+ntp: ["2.pool.ntp.org", "time.nist.gov"]
+# systemd timesyncd.conf template location.
+timesyncd_conf_template: "etc/systemd/timesyncd.conf.j2"

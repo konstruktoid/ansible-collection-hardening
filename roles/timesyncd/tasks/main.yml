@@ -1,0 +1,48 @@
+---
+- name: Install and configure systemd timesyncd
+  become: true
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+  block:
+    - name: Install systemd timesyncd
+      ansible.builtin.package:
+        name: systemd-timesyncd
+        state: present
+
+    - name: Configure systemd timesyncd
+      ansible.builtin.template:
+        src: "{{ timesyncd_conf_template }}"
+        dest: /etc/systemd/timesyncd.conf
+        backup: true
+        mode: "0644"
+        owner: root
+        group: root
+      register: timesyncd_config
+
+    - name: Restart timesyncd when configuration changes
+      ansible.builtin.systemd_service:
+        name: systemd-timesyncd
+        state: restarted
+      when: timesyncd_config.changed
+
+    - name: Start timesyncd
+      ansible.builtin.systemd_service:
+        name: systemd-timesyncd
+        enabled: true
+        masked: false
+        state: started
+
+    - name: Stat timedatectl show
+      ansible.builtin.command:
+        cmd: timedatectl show
+      register: timedatectl_show
+      changed_when: false
+      failed_when: timedatectl_show.rc != 0
+
+    - name: Run timedatectl set-ntp
+      ansible.builtin.command:
+        cmd: timedatectl set-ntp true
+      register: timedatectl_set_ntp
+      changed_when: timedatectl_set_ntp.rc == 0
+      when:
+        - timedatectl_show.stdout.find('NTP=yes') == -1
