@@ -32,13 +32,6 @@
         masked: false
         state: started
 
-    - name: Stat timesyncd status
-      ansible.builtin.command:
-        cmd: systemctl status systemd-timesyncd
-      register: timesyncd_status
-      changed_when: false
-      failed_when: timesyncd_status.rc != 0
-
     - name: Stat timedatectl show
       ansible.builtin.command:
         cmd: timedatectl show
@@ -53,4 +46,3 @@
       changed_when: timedatectl_set_ntp.rc == 0
       when:
         - timedatectl_show.stdout.find('NTP=yes') == -1
-        - timesyncd_status.rc == 0
