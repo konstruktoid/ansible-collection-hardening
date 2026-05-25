@@ -1,0 +1,9 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+# Managed by Ansible role {{ ansible_role_name }}
+
+[Time]
+NTP={{ ntp | join(' ') }}
+FallbackNTP={{ fallback_ntp | join(' ') }}
+{% if ansible_facts.systemd.version | int >= 236 %}
+RootDistanceMaxSec=1
+{% endif %}

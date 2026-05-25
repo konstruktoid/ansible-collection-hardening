@@ -1,0 +1,23 @@
+---
+argument_specs:
+  main:
+    short_description: "Timesyncd configuration."
+    description:
+      - "This role configures systemd timesyncd to use the specified NTP servers for time synchronization."
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      timesyncd_conf_template:
+        description: "systemd timesyncd.conf template location."
+        type: "path"
+        default: "etc/systemd/timesyncd.conf.j2"
+      fallback_ntp:
+        description: "A list of NTP server host names or IP addresses to be used as the fallback NTP servers."
+        type: "list"
+        elements: "str"
+        default: "['ntp.netnod.se', 'ntp.ubuntu.com']"
+      ntp:
+        description: "A list of NTP server host names or IP addresses to be used as the primary NTP servers."
+        type: "list"
+        elements: "str"
+        default: "['2.pool.ntp.org', 'time.nist.gov']"
