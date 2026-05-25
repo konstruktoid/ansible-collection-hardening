@@ -27,3 +27,34 @@
     - name: Include host vars
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Check whether timedatectl has NTP enabled
+      ansible.builtin.command: timedatectl show --property=NTP --value
+      register: timedatectl_ntp
+      changed_when: false
+
+    - name: Read timesyncd configuration
+      ansible.builtin.slurp:
+        src: /etc/systemd/timesyncd.conf
+      register: timesyncd_conf
+
+    - name: Assert timesyncd is configured and active
+      ansible.builtin.assert:
+        that:
+          - "'systemd-timesyncd.service' in ansible_facts.services"
+          - ansible_facts.services['systemd-timesyncd.service'].status == 'enabled'
+          - ansible_facts.services['systemd-timesyncd.service'].state == 'running'
+          - timedatectl_ntp.stdout | trim == 'yes'
+          - >-
+            (timesyncd_conf.content | b64decode) is search(
+            '(?m)^NTP={{ (timesyncd_ntp_servers | default([])) | join(" ") | regex_escape }}$')
+          - >-
+            (timesyncd_conf.content | b64decode) is search(
+            '(?m)^FallbackNTP={{ (timesyncd_fallback_ntp_servers | default([])) | join(" ") | regex_escape }}$')
+        fail_msg: >-
+          timesyncd verification failed: expected systemd-timesyncd to be enabled and
+          running, timedatectl to report NTP=yes, and /etc/systemd/timesyncd.conf to
+          contain the expected NTP/FallbackNTP values.
