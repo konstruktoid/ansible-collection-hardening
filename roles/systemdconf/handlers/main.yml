@@ -1,0 +1,10 @@
+---
+- name: Reload systemd
+  become: true
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+    daemon_reexec: true
+  # Re-exec is required for system.conf manager settings; per-user user.conf
+  # changes still require separate user-manager handling or a reboot/re-login.
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
