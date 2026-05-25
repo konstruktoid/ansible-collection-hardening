@@ -50,10 +50,10 @@
           - timedatectl_ntp.stdout | trim == 'yes'
           - >-
             (timesyncd_conf.content | b64decode) is search(
-            '(?m)^NTP={{ (timesyncd_ntp_servers | default([])) | join(" ") | regex_escape }}$')
+            '(?m)^NTP={{ (ntp | default([])) | join(" ") | regex_escape }}$')
           - >-
             (timesyncd_conf.content | b64decode) is search(
-            '(?m)^FallbackNTP={{ (timesyncd_fallback_ntp_servers | default([])) | join(" ") | regex_escape }}$')
+            '(?m)^FallbackNTP={{ (fallback_ntp | default([])) | join(" ") | regex_escape }}$')
         fail_msg: >-
           timesyncd verification failed: expected systemd-timesyncd to be enabled and
           running, timedatectl to report NTP=yes, and /etc/systemd/timesyncd.conf to
