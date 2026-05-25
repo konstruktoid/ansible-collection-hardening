@@ -17,8 +17,13 @@
         mode: "0644"
         owner: root
         group: root
-      notify:
-        - Reload systemd
+      register: timesyncd_config
+
+    - name: Restart timesyncd when configuration changes
+      ansible.builtin.systemd_service:
+        name: systemd-timesyncd
+        state: restarted
+      when: timesyncd_config.changed
 
     - name: Start timesyncd
       ansible.builtin.systemd_service:
