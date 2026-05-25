@@ -1,0 +1,24 @@
+---
+- name: Configure systemd system.conf
+  become: true
+  ansible.builtin.template:
+    src: "{{ system_conf_template }}"
+    dest: /etc/systemd/system.conf
+    backup: true
+    mode: "0644"
+    owner: root
+    group: root
+  notify:
+    - Reload systemd
+
+- name: Configure systemd user.conf
+  become: true
+  ansible.builtin.template:
+    src: "{{ user_conf_template }}"
+    dest: /etc/systemd/user.conf
+    backup: true
+    mode: "0644"
+    owner: root
+    group: root
+  notify:
+    - Reload systemd

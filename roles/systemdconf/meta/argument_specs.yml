@@ -1,0 +1,25 @@
+---
+argument_specs:
+  main:
+    short_description: "Ansible role to configure systemd system.conf and user.conf files."
+    description:
+      - "This role manages the systemd system.conf and user.conf files to set various system limits and configurations."
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      system_conf_template:
+        description: "systemd system.conf template location."
+        type: "path"
+        default: "etc/systemd/system.conf.j2"
+      user_conf_template:
+        description: "systemd user.conf template location."
+        type: "path"
+        default: "etc/systemd/user.conf.j2"
+      limit_nofile_hard:
+        description: "Maximum number of open files, hard resource limit"
+        type: "int"
+        default: 1024
+      limit_nproc_hard:
+        description: "Maximum number of processes, hard resource limit"
+        type: "int"
+        default: 1024

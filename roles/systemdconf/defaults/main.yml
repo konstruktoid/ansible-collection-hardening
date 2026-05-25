@@ -1,0 +1,12 @@
+---
+# Maximum number of open files, hard resource limit
+limit_nofile_hard: 1024
+
+# Maximum number of processes, hard resource limit
+limit_nproc_hard: 1024
+
+# systemd system.conf template location.
+system_conf_template: "etc/systemd/system.conf.j2"
+
+# systemd user.conf template location.
+user_conf_template: "etc/systemd/user.conf.j2"
