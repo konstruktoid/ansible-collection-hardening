@@ -1,0 +1,52 @@
+---
+argument_specs:
+  main:
+    short_description: "UFW (Uncomplicated Firewall) configuration module for Ansible."
+    description:
+      - "This module allows you to manage UFW rules on your servers."
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      ufw_admin_net:
+        description: "Only the network(s) defined in C(ufw_admin_net) are allowed to connect to C(ufw_ports)."
+        type: "list"
+        elements: "str"
+        default: "['192.168.0.0/24', '192.168.1.0/24']"
+      ufw_ports:
+        description: "Specifies the ports that are allowed for incoming connections."
+        type: "list"
+        elements: "int"
+        default: "[22]"
+      ufw_outgoing_traffic:
+        description: "Allowed outgoing ports and protocols."
+        type: "list"
+        elements: "str"
+        default:
+          - { "port": 22, "proto": "tcp" }
+          - 53
+          - { "port": 80, "proto": "tcp" }
+          - { "port": 123, "proto": "udp" }
+          - { "port": 443, "proto": "tcp" }
+          - 853
+          - { "port": 4460, "proto": "tcp" }
+      ufw_rate_limit:
+        description: "If True, rate limiting is enabled for incoming connections."
+        type: "bool"
+        default: "False"
+      disable_ipv6:
+        description: "If True, IPv6 is disabled."
+        type: "bool"
+        default: "False"
+      conntrack_sysctl_settings:
+        type: "dict"
+        default:
+          - net.netfilter.nf_conntrack_max: 2000000
+          - net.netfilter.nf_conntrack_tcp_loose: 0
+        description: "Connection tracking sysctl settings."
+        options:
+          net.netfilter.nf_conntrack_max:
+            description: "The maximum number of connections that the system’s connection tracking table can hold at any time."
+            type: "int"
+          net.netfilter.nf_conntrack_tcp_loose:
+            description: "If 0, the system will not allow TCP connections to be established without a SYN packet."
+            type: "int"
