@@ -20,7 +20,6 @@ argument_specs:
       ufw_outgoing_traffic:
         description: "Allowed outgoing ports and protocols."
         type: "list"
-        elements: "str"
         default:
           - { "port": 22, "proto": "tcp" }
           - 53
