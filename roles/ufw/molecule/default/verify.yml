@@ -73,8 +73,7 @@
           ansible.builtin.shell:
             cmd: |
               set -o pipefail
-              ufw show added | grep '^ufw' | grep -i -v "comment '.*ansible\smanaged'" | sed 's/ufw //g'
-          args:
+              ufw show added | grep '^ufw' | grep -F -i -v "comment 'ansible managed'" | sed 's/^ufw //g'
             executable: /bin/bash
           changed_when: false
           failed_when: ufw_not_managed.rc > 1
