@@ -94,10 +94,6 @@
 
 - name: Enable UFW and set default deny
   become: true
-  when: >
-    'deny (incoming)' not in ufw_status.stdout or
-    'deny (outgoing)' not in ufw_status.stdout or
-    'disabled (routed)' not in ufw_status.stdout
   block:
     - name: Allow incoming from administrator networks
       community.general.ufw:
