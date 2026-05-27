@@ -47,6 +47,7 @@
     reload: true
   when:
     - conntrackliberal.stat.exists
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
 
 - name: Debian family UFW installation
   become: true
