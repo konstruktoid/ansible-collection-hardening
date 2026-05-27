@@ -39,8 +39,8 @@ argument_specs:
       conntrack_sysctl_settings:
         type: "dict"
         default:
-          - net.netfilter.nf_conntrack_max: 2000000
-          - net.netfilter.nf_conntrack_tcp_loose: 0
+          net.netfilter.nf_conntrack_max: 2000000
+          net.netfilter.nf_conntrack_tcp_loose: 0
         description: "Connection tracking sysctl settings."
         options:
           net.netfilter.nf_conntrack_max:
