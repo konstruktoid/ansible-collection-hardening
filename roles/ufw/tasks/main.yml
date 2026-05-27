@@ -1,0 +1,225 @@
+---
+- name: Set sysctl configuration directory as fact
+  block:
+    - name: Stat /usr/lib/sysctl.d/ exists
+      ansible.builtin.stat:
+        path: /usr/lib/sysctl.d/
+      register: usr_lib_sysctl_d
+
+    - name: Set sysctl fact
+      ansible.builtin.set_fact:
+        usr_lib_sysctl_d_dir: "{{ true if usr_lib_sysctl_d.stat.exists else false }}"
+
+    - name: Determine sysctl configuration directory
+      ansible.builtin.set_fact:
+        sysctl_conf_dir: "{{ '/usr/lib/sysctl.d' if usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"
+
+- name: Install additional kernel modules
+  become: true
+  ansible.builtin.dnf:
+    name: kernel-modules-extra
+    state: present
+    update_cache: true
+  when:
+    - ansible_facts.os_family == "RedHat"
+
+- name: Add the nf_conntrack module
+  become: true
+  community.general.modprobe:
+    name: nf_conntrack
+    state: present
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+- name: Stat nf_conntrack_tcp_be_liberal
+  become: true
+  ansible.builtin.stat:
+    path: /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
+  register: conntrackliberal
+
+# https://github.com/ansible/ansible/issues/45446
+- name: Enable nf_conntrack_tcp_be_liberal to keep connections alive
+  become: true
+  ansible.posix.sysctl:
+    name: net.netfilter.nf_conntrack_tcp_be_liberal
+    value: "1"
+    state: present
+    sysctl_set: true
+    sysctl_file: "{{ sysctl_conf_dir }}/zz-ufw-hardening.conf"
+    reload: true
+  when:
+    - conntrackliberal.stat.exists
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+- name: Debian family UFW installation
+  become: true
+  ansible.builtin.apt:
+    name: ufw
+    state: present
+    install_recommends: false
+    update_cache: true
+  when:
+    - ansible_facts.os_family == "Debian"
+
+- name: RedHat family UFW installation
+  become: true
+  ansible.builtin.dnf:
+    name: ufw
+    state: present
+    update_cache: true
+  when:
+    - ansible_facts.os_family == "RedHat"
+
+- name: Get available physical interfaces
+  ansible.builtin.command:
+    cmd: find /sys/class/net -type l -not -lname '*virtual*' -printf '%f\n'
+  register: physical_interfaces
+  changed_when: false
+  failed_when: physical_interfaces.rc != 0
+
+- name: Set UFW IPT_SYSCTL
+  become: true
+  ansible.builtin.lineinfile:
+    regexp: ^IPT_SYSCTL=
+    line: IPT_SYSCTL={{ sysctl_conf_dir }}/zz-ufw-hardening.conf
+    dest: /etc/default/ufw
+    mode: "0640"
+    state: present
+    create: false
+    backrefs: true
+
+- name: Get UFW status
+  become: true
+  ansible.builtin.command:
+    cmd: ufw status verbose
+  changed_when: false
+  register: ufw_status
+
+- name: Enable UFW and set default deny
+  become: true
+  block:
+    - name: Allow incoming from administrator networks
+      community.general.ufw:
+        rule: "{{ 'limit' if ufw_rate_limit else 'allow' }}"
+        from_ip: "{{ item.0 }}"
+        to_port: "{{ item.1 | int }}"
+        proto: tcp
+        comment: ansible managed
+        state: enabled
+      loop: "{{ ufw_admin_net | product(ufw_ports) | list }}"
+
+    - name: Set default deny
+      community.general.ufw:
+        state: enabled
+        direction: "{{ item }}"
+        default: deny
+        log: true
+        logging: low
+        comment: ansible managed
+      loop:
+        - incoming
+        - outgoing
+
+    - name: Enable and start the UFW service
+      ansible.builtin.systemd_service:
+        name: ufw
+        enabled: true
+        state: started
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+- name: Stat UFW rules
+  become: true
+  ansible.builtin.shell:
+    cmd: |
+      set -o pipefail
+      ufw show added | grep '^ufw' | grep -F -i -v "comment 'ansible managed'" | sed 's/^ufw //g'
+  args:
+    executable: /bin/bash
+  changed_when: false
+  failed_when: ufw_not_managed.rc > 1
+  register: ufw_not_managed
+
+- name: Create UFW rules
+  become: true
+  block:
+    - name: Set rate limit on physical interfaces
+      community.general.ufw:
+        rule: limit
+        interface: "{{ item }}"
+        direction: in
+        comment: ansible managed
+      loop: "{{ physical_interfaces.stdout_lines }}"
+      when:
+        - ufw_rate_limit
+
+    - name: Allow outgoing specified ports
+      community.general.ufw:
+        rule: allow
+        to_port: "{{ item.port | default(item) | int }}"
+        proto: "{{ item.proto | default(omit) }}"
+        direction: out
+        comment: ansible managed
+      loop: "{{ ufw_outgoing_traffic }}"
+
+    - name: Deny IPv4 loopback network traffic
+      community.general.ufw:
+        rule: deny
+        from_ip: 127.0.0.0/8
+        comment: ansible managed
+
+    - name: Deny IPv6 loopback network traffic
+      when:
+        - not disable_ipv6
+      community.general.ufw:
+        rule: deny
+        from_ip: ::1
+        comment: ansible managed
+
+    - name: Allow loopback traffic in
+      community.general.ufw:
+        rule: allow
+        interface: lo
+        direction: in
+        comment: ansible managed
+
+    - name: Allow loopback traffic out
+      community.general.ufw:
+        rule: allow
+        interface: lo
+        direction: out
+    - name: Delete unmanaged UFW route rules
+      ansible.builtin.command:
+        cmd: "ufw route delete {{ item | regex_replace('^route ', '') }}"
+      args:
+        executable: /bin/bash
+      register: ufw_delete
+      changed_when: ufw_delete.rc == 0
+      failed_when: ufw_delete.rc != 0
+        - item.startswith('route ')
+      when:
+        - ufw_not_managed.stdout_lines | length > 0
+    - name: Delete unmanaged UFW rules
+      ansible.builtin.command:
+        cmd: "ufw delete {{ item }}"
+      register: ufw_delete
+      changed_when: ufw_delete.rc == 0
+      failed_when: ufw_delete.rc != 0
+      when:
+        - ufw_not_managed.stdout_lines | length > 0
+        - not item.startswith('route ')
+      loop: "{{ ufw_not_managed.stdout_lines }}"
+      loop: "{{ ufw_not_managed.stdout_lines }}"
+
+- name: Configure conntrack sysctl
+  become: true
+  environment:
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  ansible.posix.sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value | int }}"
+    state: present
+    sysctl_set: true
+    sysctl_file: "{{ sysctl_conf_dir }}/zz-ufw-hardening.conf"
+  with_dict: "{{ conntrack_sysctl_settings }}"
+  notify:
+    - Restart sysctl

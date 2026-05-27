@@ -1,0 +1,86 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for the host and reconnect
+          ansible.builtin.wait_for:
+            port: 22
+            host: "{{ (ansible_facts.ssh_host | default(ansible_facts.host)) | default(inventory_hostname) }}"
+            delay: 10
+            timeout: 120
+
+    - name: Include default vars
+      ansible.builtin.include_vars:
+        dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/"
+        extensions:
+          - yml
+
+    - name: Include host vars
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Verify UFW
+      become: true
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Get UFW status
+          become: true
+          ansible.builtin.command:
+            cmd: ufw status verbose
+          changed_when: false
+          register: ufw_status
+          failed_when: >
+            'deny (incoming)' not in ufw_status.stdout or
+            'deny (outgoing)' not in ufw_status.stdout or
+            'disabled (routed)' not in ufw_status.stdout
+
+        - name: Get UFW outgoing rules
+          ansible.builtin.shell: |
+            set -o pipefail
+            ufw status verbose | grep -E "([0-9]{1,5}(/tcp|/udp|\s))\s+ALLOW OUT.*# ansible managed$"
+          args:
+            executable: /bin/bash
+          register: ufw_outgoing_rules
+          changed_when: false
+
+        - name: Print UFW outgoing rules
+          ansible.builtin.debug:
+            msg: "{{ ufw_outgoing_rules.stdout }}"
+
+        - name: Assert UFW outgoing rules
+          ansible.builtin.assert:
+            that:
+              - "'22/tcp' in ufw_outgoing_rules.stdout"
+              - "'53' in ufw_outgoing_rules.stdout"
+              - "'80/tcp' in ufw_outgoing_rules.stdout"
+              - "'123/udp' in ufw_outgoing_rules.stdout"
+              - "'443/tcp' in ufw_outgoing_rules.stdout"
+              - "'853' in ufw_outgoing_rules.stdout"
+            fail_msg: "Expected UFW outgoing rules not found"
+
+        - name: Stat UFW rules
+          become: true
+          ansible.builtin.shell:
+            cmd: |
+              set -o pipefail
+              ufw show added | grep '^ufw' | grep -F -i -v "comment 'ansible managed'" | sed 's/^ufw //g'
+            executable: /bin/bash
+          changed_when: false
+          failed_when: ufw_not_managed.rc > 1
+          register: ufw_not_managed
+
+        - name: Assert UFW rules are managed
+          ansible.builtin.assert:
+            that:
+              - ufw_not_managed.stdout == ""
+            fail_msg: "There are UFW rules not managed by Ansible: {{ ufw_not_managed.stdout_lines }}"

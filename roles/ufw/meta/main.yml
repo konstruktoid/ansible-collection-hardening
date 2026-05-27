@@ -1,0 +1,23 @@
+---
+galaxy_info:
+  role_name: ufw
+  author: konstruktoid
+  description: "An Ansible role to manage UFW (Uncomplicated Firewall) rules."
+  license: apache
+  min_ansible_version: "2.18"
+  platforms:
+    - name: Debian
+      versions:
+        - bookworm
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+  galaxy_tags:
+    - cis
+    - debian
+    - disa
+    - hardening
+    - security
+    - ubuntu
+    - ufw
