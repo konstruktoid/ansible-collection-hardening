@@ -28,7 +28,8 @@
   community.general.modprobe:
     name: nf_conntrack
     state: present
-
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
 - name: Stat nf_conntrack_tcp_be_liberal
   become: true
   ansible.builtin.stat:
