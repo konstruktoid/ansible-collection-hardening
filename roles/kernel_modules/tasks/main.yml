@@ -40,9 +40,9 @@
       ansible.builtin.set_fact:
         usbguard_installed: "{{ 'usbguard' in ansible_facts.packages }}"
 
-    - name: Allow USB kernel modules if USBGuard is used
+    - name: Allow USB-prefixed kernel modules if USBGuard is used
       ansible.builtin.set_fact:
-        misc_modules_usbguard: "{{ misc_modules_blocklist | reject('search', 'usb') | list }}"
+        misc_modules_usbguard: "{{ misc_modules_blocklist | reject('match', '^usb-') | list }}"
       when:
         - usbguard_installed
 
