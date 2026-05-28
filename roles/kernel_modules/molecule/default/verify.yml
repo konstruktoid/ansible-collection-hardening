@@ -1,0 +1,57 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for the host and reconnect
+          ansible.builtin.wait_for:
+            port: 22
+            host: "{{ (ansible_facts.ssh_host | default(ansible_facts.host)) | default(inventory_hostname) }}"
+            delay: 10
+            timeout: 120
+
+    - name: Include default vars
+      ansible.builtin.include_vars:
+        dir: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/"
+        extensions:
+          - yml
+
+    - name: Include host vars
+      ansible.builtin.include_vars:
+        file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Kernel modules
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Index blacklisted kernel modules
+          environment:
+            PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          ansible.builtin.shell: |
+            set -o pipefail
+            modprobe -c | grep -o '^blacklist .*' | awk '{print $2}'
+          args:
+            executable: /bin/bash
+          changed_when: false
+          register: modprobe_blacklist
+
+        - name: Verify blocked blacklisted kernel modules
+          environment:
+            PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          ansible.builtin.shell: |
+            set -o pipefail
+            grep -F 'install {{ item }} /bin/true' /etc/modprobe.d/blacklist-blocked.conf
+          args:
+            executable: /bin/bash
+          register: modprobe_blockblacklisted
+          changed_when: false
+          with_items:
+            - "{{ modprobe_blacklist.stdout_lines | sort | unique }}"

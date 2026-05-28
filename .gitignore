@@ -14,6 +14,7 @@ roles/*
 !roles/issue
 !roles/journald
 !roles/kernel
+!roles/kernel_modules
 !roles/limits
 !roles/lock_root
 !roles/login_defs
