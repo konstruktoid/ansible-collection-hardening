@@ -9,30 +9,28 @@
   become: true
   block:
     - name: Blacklist kernel file system modules
-      ansible.builtin.lineinfile:
+      ansible.builtin.copy:
         dest: /etc/modprobe.d/disablefs.conf
-        line: blacklist {{ item }}
+        content: |
+          {% for module in fs_modules_blocklist | unique %}
+          blacklist {{ module }}
+          {% endfor %}
         mode: "0644"
         owner: root
         group: root
-        state: present
-        create: true
-      with_items:
-        - "{{ fs_modules_blocklist }}"
       notify:
         - Rebuild initramfs
 
     - name: Blacklist kernel network modules
-      ansible.builtin.lineinfile:
+      ansible.builtin.copy:
         dest: /etc/modprobe.d/disablenet.conf
-        line: blacklist {{ item }}
+        content: |
+          {% for module in net_modules_blocklist | unique %}
+          blacklist {{ module }}
+          {% endfor %}
         mode: "0644"
         owner: root
         group: root
-        state: present
-        create: true
-      with_items:
-        - "{{ net_modules_blocklist }}"
       notify:
         - Rebuild initramfs
 
@@ -51,16 +49,15 @@
         - usbguard_installed
 
     - name: Blacklist misc kernel modules
-      ansible.builtin.lineinfile:
+      ansible.builtin.copy:
         dest: /etc/modprobe.d/disablemod.conf
-        line: blacklist {{ item }}
+        content: |
+          {% for module in (misc_modules_usbguard if usbguard_installed else misc_modules_blocklist) | unique %}
+          blacklist {{ module }}
+          {% endfor %}
         mode: "0644"
         owner: root
         group: root
-        state: present
-        create: true
-      with_items:
-        - "{{ misc_modules_usbguard if usbguard_installed else misc_modules_blocklist }}"
       notify:
         - Rebuild initramfs
 
