@@ -28,21 +28,18 @@
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
 
-    - name: Kernel modules
+    - name: Gather installed package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Set fact if usbguard is installed
+      ansible.builtin.set_fact:
+        usbguard_installed: "{{ 'usbguard' in ansible_facts.packages }}"
+
+    - name: Verify blocked blacklisted kernel modules
       when:
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
       block:
-        - name: Index blacklisted kernel modules
-          environment:
-            PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-          ansible.builtin.shell: |
-            set -o pipefail
-            modprobe -c | grep -o '^blacklist .*' | awk '{print $2}'
-          args:
-            executable: /bin/bash
-          changed_when: false
-          register: modprobe_blacklist
-
         - name: Verify blocked blacklisted kernel modules
           environment:
             PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -51,7 +48,6 @@
             grep -F 'install {{ item }} /bin/true' /etc/modprobe.d/blacklist-blocked.conf
           args:
             executable: /bin/bash
-          register: modprobe_blockblacklisted
           changed_when: false
           with_items:
-            - "{{ modprobe_blacklist.stdout_lines | sort | unique }}"
+            - "{{ (fs_modules_blocklist + net_modules_blocklist + (misc_modules_usbguard if usbguard_installed else misc_modules_blocklist)) | sort | unique }}"
