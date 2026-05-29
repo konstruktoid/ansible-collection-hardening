@@ -64,7 +64,7 @@
       ansible.builtin.shell:
         cmd: |
           set -o pipefail
-          /usr/sbin/modprobe -c | grep -o '^blacklist .*' | awk '{print $2}'
+          modprobe -c | grep -o '^blacklist .*' | awk '{print $2}'
       args:
         executable: /bin/bash
       changed_when: false
