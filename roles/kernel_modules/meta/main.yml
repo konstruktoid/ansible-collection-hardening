@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: kernel_modules
   author: konstruktoid
-  description: AlmaLinux, Debian and Ubuntu hardening. systemd edition.
+  description: Kernel module blocklist/blacklist management for AlmaLinux, Debian and Ubuntu.
   license: apache
   min_ansible_version: "2.18"
   platforms:
