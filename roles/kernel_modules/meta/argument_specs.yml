@@ -1,0 +1,25 @@
+---
+argument_specs:
+  main:
+    short_description: "Kernel module blocklist and blacklist"
+    description:
+      - "This module provides a blocklist and blacklist for kernel modules."
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      fs_modules_blocklist:
+        description: "Filesystem kernel modules to block and blacklist."
+        type: "list"
+        elements: "str"
+        default: "['cramfs', 'freevxfs', 'hfs', 'hfsplus', 'jffs2', 'squashfs', 'udf']"
+      misc_modules_blocklist:
+        description: "Misc kernel modules to block and blacklist."
+        type: "list"
+        elements: "str"
+        default: "['algif_aead', 'bluetooth', 'bnep', 'btusb', 'can', 'cpia2', 'esp4', 'esp6', 'firewire-core', 'floppy', 'ksmbd', 'n_hdlc', 'net-pf-31', 'pcspkr',
+          'rxrpc', 'soundcore', 'thunderbolt', 'usb-midi', 'usb-storage', 'uvcvideo', 'v4l2_common']"
+      net_modules_blocklist:
+        description: "Network kernel modules to block and blacklist."
+        type: "list"
+        elements: "str"
+        default: "['atm', 'dccp', 'sctp', 'rds', 'tipc']"
