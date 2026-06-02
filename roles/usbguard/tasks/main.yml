@@ -15,6 +15,7 @@
         name: usbguard
         state: present
         install_recommends: false
+        update_cache: true
       when:
         - ansible_facts.os_family == "Debian"
 
@@ -22,6 +23,7 @@
       ansible.builtin.dnf:
         name: usbguard
         state: present
+        update_cache: true
       when:
         - ansible_facts.os_family == "RedHat"
 
@@ -29,9 +31,9 @@
       community.general.zypper:
         name: usbguard
         state: present
+        update_cache: true
       when:
         - ansible_facts.os_family == "Suse"
-
     - name: Configure RuleFile
       ansible.builtin.lineinfile:
         regexp: (^|^#)RuleFile
