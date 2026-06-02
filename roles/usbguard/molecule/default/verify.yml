@@ -27,3 +27,57 @@
     - name: Include host vars
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/inventory/host_vars/{{ ansible_facts.hostname }}"
+
+    - name: Stat USB device directory
+      ansible.builtin.stat:
+        path: /sys/bus/usb/devices
+      register: usb_devices
+
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: auto
+      when:
+        - usb_devices.stat.exists
+        - usb_devices.stat.isdir
+
+    - name: Assert usbguard package is installed when USB is present
+      ansible.builtin.assert:
+        that:
+          - "'usbguard' in ansible_facts.packages"
+      when:
+        - usb_devices.stat.exists
+        - usb_devices.stat.isdir
+
+    - name: Verify usbguard daemon configuration
+      become: true
+      ansible.builtin.lineinfile:
+        dest: "{{ usbguard_configuration_file }}"
+        line: "{{ item }}"
+        state: present
+      check_mode: true
+      register: usbguard_conf_check
+      failed_when: usbguard_conf_check is changed
+      loop:
+        - "RuleFile={{ usbguard_rulefile }}"
+        - "ImplicitPolicyTarget={{ usbguard_implicitpolicytarget }}"
+      when:
+        - usb_devices.stat.exists
+        - usb_devices.stat.isdir
+
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+        - usb_devices.stat.exists
+        - usb_devices.stat.isdir
+
+    - name: Assert usbguard service is enabled and running
+      ansible.builtin.assert:
+        that:
+          - "'usbguard.service' in ansible_facts.services"
+          - ansible_facts.services['usbguard.service'].status == 'enabled'
+          - ansible_facts.services['usbguard.service'].state == 'running'
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+        - usb_devices.stat.exists
+        - usb_devices.stat.isdir
