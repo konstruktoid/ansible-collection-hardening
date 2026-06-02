@@ -76,28 +76,24 @@
         state: present
     - name: Configure RestoreControllerDeviceState
       ansible.builtin.lineinfile:
-        regexp: (^|^#)RestoreControllerDeviceState
+        regexp: '^(#\s*)?RestoreControllerDeviceState'
         dest: "{{ usbguard_configuration_file }}"
-        line: RestoreControllerDeviceState={{ 'true' if usbguard_restorecontrollerdevicestate else 'false' }}
+        line: "RestoreControllerDeviceState={{ 'true' if (usbguard_restorecontrollerdevicestate | bool) else 'false' }}"
         state: present
-        backrefs: true
 
     - name: Configure DeviceManagerBackend
       ansible.builtin.lineinfile:
-        regexp: (^|^#)DeviceManagerBackend
+        regexp: '^(#\s*)?DeviceManagerBackend'
         dest: "{{ usbguard_configuration_file }}"
-        line: DeviceManagerBackend={{ usbguard_devicemanagerbackend }}
+        line: "DeviceManagerBackend={{ usbguard_devicemanagerbackend }}"
         state: present
-        backrefs: true
 
     - name: Configure IPCAllowedUsers
       ansible.builtin.lineinfile:
-        regexp: (^|^#)IPCAllowedUsers
+        regexp: '^(#\s*)?IPCAllowedUsers'
         dest: "{{ usbguard_configuration_file }}"
-        line: IPCAllowedUsers={{ usbguard_ipcallowedusers | join(' ') }}
+        line: "IPCAllowedUsers={{ usbguard_ipcallowedusers | join(' ') }}"
         state: present
-        backrefs: true
-
     - name: Configure IPCAllowedGroups
       ansible.builtin.lineinfile:
         regexp: (^|^#)IPCAllowedGroups
