@@ -1,0 +1,106 @@
+---
+argument_specs:
+  main:
+    short_description: "USBGuard daemon configuration."
+    description:
+      - "This module allows you to manage the configuration of the USBGuard daemon."
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      usbguard_configuration_file:
+        description: "USBGuard configuration file path."
+        type: "path"
+        default: "/etc/usbguard/usbguard-daemon.conf"
+      usbguard_rulefile:
+        description: "USBGuard rule file path."
+        type: "path"
+        default: "/etc/usbguard/rules.conf"
+      usbguard_auditbackend:
+        description: "USBGuard audit events log backend."
+        type: "str"
+        default: "LinuxAudit"
+        choices:
+          - "FileAudit"
+          - "LinuxAudit"
+      usbguard_auditfilepath:
+        description: "USBGuard audit events log file path."
+        type: "path"
+        default: "/var/log/usbguard/usbguard-audit.log"
+      usbguard_authorizeddefault:
+        description: "Default authorized controller devices."
+        type: "str"
+        default: "none"
+        choices:
+          - "all"
+          - "internal"
+          - "keep"
+          - "none"
+      usbguard_devicemanagerbackend:
+        description: "Which device manager backend implementation to use."
+        type: "str"
+        default: "uevent"
+        choices:
+          - "uevent"
+          - "umockdev"
+      usbguard_deviceruleswithport:
+        description: "Generate device specific rules including the 'via-port' attribute."
+        type: "bool"
+        default: "False"
+      usbguard_hidepii:
+        description: "Hide personally identifiable information such as device serial numbers and hashes of descriptors from audit entries."
+        type: "bool"
+        default: "False"
+      usbguard_implicitpolicytarget:
+        description: "How to treat USB devices that don’t match any rule in the policy."
+        type: "str"
+        default: "block"
+        choices:
+          - "allow"
+          - "block"
+          - "reject"
+      usbguard_inserteddevicepolicy:
+        description: "How to treat USB devices that are already connected after the daemon starts."
+        type: "str"
+        default: "apply-policy"
+        choices:
+          - "apply-policy"
+          - "block"
+          - "reject"
+      usbguard_ipcaccesscontrolfiles:
+        description: "The files at this location will be interpreted by the daemon as IPC access control definition files."
+        type: "path"
+        default: "/etc/usbguard/IPCAccessControl.d/"
+      usbguard_ipcallowedgroups:
+        description: "A list of groupnames that the daemon will accept IPC connections from."
+        type: "list"
+        elements: "str"
+        default: "['plugdev', 'root', 'wheel']"
+      usbguard_ipcallowedusers:
+        description: "A list of usernames that the daemon will accept IPC connections from."
+        type: "list"
+        elements: "str"
+        default: "['root']"
+      usbguard_presentcontrollerpolicy:
+        description: "How to treat USB controller devices that are already connected when the daemon starts."
+        type: "str"
+        default: "keep"
+        choices:
+          - "allow"
+          - "apply-policy"
+          - "block"
+          - "keep"
+          - "reject"
+      usbguard_presentdevicepolicy:
+        description: "How to treat USB devices that are already connected when the daemon starts."
+        type: "str"
+        default: "apply-policy"
+        choices:
+          - "allow"
+          - "apply-policy"
+          - "block"
+          - "keep"
+          - "reject"
+      usbguard_restorecontrollerdevicestate:
+        description: "Control whether the daemon will try to restore the attribute values to the state before modification on shutdown."
+        type: "bool"
+        default: "False"
