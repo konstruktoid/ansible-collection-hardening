@@ -1,0 +1,46 @@
+---
+# USBGuard audit events log backend.
+usbguard_auditbackend: "LinuxAudit"
+
+# USBGuard audit events log file path.
+usbguard_auditfilepath: "/var/log/usbguard/usbguard-audit.log"
+
+# Default authorized controller devices.
+usbguard_authorizeddefault: "none"
+
+# USBGuard configuration file path.
+usbguard_configuration_file: "/etc/usbguard/usbguard-daemon.conf"
+
+# Which device manager backend implementation to use.
+usbguard_devicemanagerbackend: "uevent"
+
+# Generate device specific rules including the 'via-port' attribute.
+usbguard_deviceruleswithport: false
+
+# Hide personally identifiable information such as device serial numbers and hashes of descriptors from audit entries.
+usbguard_hidepii: false
+
+# How to treat USB devices that don’t match any rule in the policy.
+usbguard_implicitpolicytarget: "block"
+
+# How to treat USB devices that are already connected after the daemon starts.
+usbguard_inserteddevicepolicy: "apply-policy"
+
+# The files at this location will be interpreted by the daemon as IPC access control definition files.
+usbguard_ipcaccesscontrolfiles: "/etc/usbguard/IPCAccessControl.d/"
+
+# A list of groupnames that the daemon will accept IPC connections from.
+usbguard_ipcallowedgroups: ["plugdev", "root", "wheel"]
+# A list of usernames that the daemon will accept IPC connections from.
+usbguard_ipcallowedusers: ["root"]
+# How to treat USB controller devices that are already connected when the daemon starts.
+usbguard_presentcontrollerpolicy: "keep"
+
+# How to treat USB devices that are already connected when the daemon starts.
+usbguard_presentdevicepolicy: "apply-policy"
+
+# Control whether the daemon will try to restore the attribute values to the state before modification on shutdown.
+usbguard_restorecontrollerdevicestate: false
+
+# USBGuard rule file path.
+usbguard_rulefile: "/etc/usbguard/rules.conf"
