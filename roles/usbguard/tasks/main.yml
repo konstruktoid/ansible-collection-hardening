@@ -36,28 +36,24 @@
         - ansible_facts.os_family == "Suse"
     - name: Configure RuleFile
       ansible.builtin.lineinfile:
-        regexp: (^|^#)RuleFile
+        regexp: '^(#\s*)?RuleFile'
         dest: "{{ usbguard_configuration_file }}"
-        line: RuleFile={{ usbguard_rulefile }}
+        line: "RuleFile={{ usbguard_rulefile }}"
         state: present
-        backrefs: true
 
     - name: Configure ImplicitPolicyTarget
       ansible.builtin.lineinfile:
-        regexp: (^|^#)ImplicitPolicyTarget
+        regexp: '^(#\s*)?ImplicitPolicyTarget'
         dest: "{{ usbguard_configuration_file }}"
-        line: ImplicitPolicyTarget={{ usbguard_implicitpolicytarget }}
+        line: "ImplicitPolicyTarget={{ usbguard_implicitpolicytarget }}"
         state: present
-        backrefs: true
 
     - name: Configure PresentDevicePolicy
       ansible.builtin.lineinfile:
-        regexp: (^|^#)PresentDevicePolicy
+        regexp: '^(#\s*)?PresentDevicePolicy'
         dest: "{{ usbguard_configuration_file }}"
-        line: PresentDevicePolicy={{ usbguard_presentdevicepolicy }}
+        line: "PresentDevicePolicy={{ usbguard_presentdevicepolicy }}"
         state: present
-        backrefs: true
-
     - name: Configure PresentControllerPolicy
       ansible.builtin.lineinfile:
         regexp: (^|^#)PresentControllerPolicy
