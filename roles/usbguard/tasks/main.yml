@@ -56,28 +56,24 @@
         state: present
     - name: Configure PresentControllerPolicy
       ansible.builtin.lineinfile:
-        regexp: (^|^#)PresentControllerPolicy
+        regexp: '^(#\s*)?PresentControllerPolicy'
         dest: "{{ usbguard_configuration_file }}"
-        line: PresentControllerPolicy={{ usbguard_presentcontrollerpolicy }}
+        line: "PresentControllerPolicy={{ usbguard_presentcontrollerpolicy }}"
         state: present
-        backrefs: true
 
     - name: Configure InsertedDevicePolicy
       ansible.builtin.lineinfile:
-        regexp: (^|^#)InsertedDevicePolicy
+        regexp: '^(#\s*)?InsertedDevicePolicy'
         dest: "{{ usbguard_configuration_file }}"
-        line: InsertedDevicePolicy={{ usbguard_inserteddevicepolicy }}
+        line: "InsertedDevicePolicy={{ usbguard_inserteddevicepolicy }}"
         state: present
-        backrefs: true
 
     - name: Configure AuthorizedDefault
       ansible.builtin.lineinfile:
-        regexp: (^|^#)AuthorizedDefault
+        regexp: '^(#\s*)?AuthorizedDefault'
         dest: "{{ usbguard_configuration_file }}"
-        line: AuthorizedDefault={{ usbguard_authorizeddefault }}
+        line: "AuthorizedDefault={{ usbguard_authorizeddefault }}"
         state: present
-        backrefs: true
-
     - name: Configure RestoreControllerDeviceState
       ansible.builtin.lineinfile:
         regexp: (^|^#)RestoreControllerDeviceState
