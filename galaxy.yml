@@ -9,9 +9,9 @@ description: >
   Ansible collection for Linux server hardening focused on systemd-based
   distributions including AlmaLinux, Debian, and Ubuntu.
 dependencies:
-  ansible.posix: ">=1.5.0"
-  community.crypto: ">=2.0.0"
-  community.general: ">=8.0.0"
+  ansible.posix: ">=2.2.0"
+  community.crypto: ">=3.2.1"
+  community.general: ">=13.0.1"
 license_file: 'LICENSE'
 tags:
   - almalinux

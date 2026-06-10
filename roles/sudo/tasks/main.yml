@@ -2,12 +2,6 @@
 - name: Configure sudo
   become: true
   block:
-    - name: Update apt cache
-      ansible.builtin.apt:
-        update_cache: true
-      when:
-        - ansible_facts.os_family == "Debian"
-
     - name: Ensure sudo is installed
       ansible.builtin.package:
         name: sudo

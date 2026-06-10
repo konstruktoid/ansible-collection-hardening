@@ -4,6 +4,7 @@
   ansible.builtin.package:
     name: postfix
     state: present
+    update_cache: true
 
 - name: Stat postfix main.cf
   ansible.builtin.stat:

@@ -146,32 +146,16 @@
 - name: Set rsyslog FileCreateMode
   become: true
   block:
-    - name: Remove FileCreateMode from rsyslog.conf
+    - name: Manage FileCreateMode in rsyslog.conf
       ansible.builtin.lineinfile:
-        regexp: ^\$FileCreateMode
-        dest: /etc/rsyslog.conf
-        state: absent
-        mode: "0640"
+        path: /etc/rsyslog.conf
+        regexp: '^\\$FileCreateMode'
+        line: "$FileCreateMode {{ rsyslog_filecreatemode }}"
+        state: "{{ 'absent' if rsyslogd.stat.exists else 'present' }}"
         owner: root
         group: root
-      when:
-        - rsyslogconf.stat.exists
-        - rsyslogd.stat.exists
-      notify:
-        - Validate rsyslogd
-
-    - name: Set FileCreateMode in rsyslog.conf
-      ansible.builtin.lineinfile:
-        regexp: ^\$FileCreateMode
-        line: $FileCreateMode {{ rsyslog_filecreatemode }}
-        dest: /etc/rsyslog.conf
-        state: present
         mode: "0640"
-        owner: root
-        group: root
-      when:
-        - rsyslogconf.stat.exists
-        - not rsyslogd.stat.exists
+      when: rsyslogconf.stat.exists
       notify:
         - Validate rsyslogd
 

@@ -1,0 +1,31 @@
+---
+- name: Verify systemd system.conf
+  become: true
+  ansible.builtin.lineinfile:
+    dest: /etc/systemd/system.conf
+    line: "{{ item }}"
+    state: present
+  check_mode: true
+  register: systemd_system_conf
+  failed_when: systemd_system_conf is changed
+  with_items:
+    - DumpCore=no
+    - CrashShell=no
+    - CtrlAltDelBurstAction=none
+    - DefaultLimitCORE=0
+    - DefaultLimitNOFILE={{ limit_nofile_hard }}
+    - DefaultLimitNPROC={{ limit_nproc_hard }}
+
+- name: Verify systemd user.conf
+  become: true
+  ansible.builtin.lineinfile:
+    dest: /etc/systemd/user.conf
+    line: "{{ item }}"
+    state: present
+  check_mode: true
+  register: systemd_user_conf
+  failed_when: systemd_user_conf is changed
+  with_items:
+    - DefaultLimitCORE=0
+    - DefaultLimitNOFILE={{ limit_nofile_hard }}
+    - DefaultLimitNPROC={{ limit_nproc_hard }}

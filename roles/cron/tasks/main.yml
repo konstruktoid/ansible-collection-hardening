@@ -24,7 +24,7 @@
     - name: Clean cron and at
       ansible.builtin.lineinfile:
         path: "{{ item.item }}"
-        regexp: '^(?!root$).*$'
+        regexp: "^(?!root$).*$"
         state: absent
       loop: "{{ cron_at_allow_files.results }}"
       when:

@@ -1,0 +1,51 @@
+---
+- name: Converge
+  hosts: all
+  any_errors_fatal: true
+  gather_facts: true
+  roles:
+    - role: konstruktoid.hardening.ufw
+      when: ansible_facts.os_family == "Debian"
+      vars:
+        ufw_admin_net: ["0.0.0.0/0"]
+    - role: konstruktoid.hardening.resolvedconf
+    - role: konstruktoid.hardening.package_management
+      vars:
+        system_upgrade: "{{ false if ansible_facts.distribution == 'Debian' else true }}"
+    - role: konstruktoid.hardening.apport
+    - role: konstruktoid.hardening.postfix
+    - role: konstruktoid.hardening.sysctl
+    - role: konstruktoid.hardening.kernel
+    - role: konstruktoid.hardening.mount
+    - role: konstruktoid.hardening.automatic_updates
+    - role: konstruktoid.hardening.systemdconf
+    - role: konstruktoid.hardening.journald
+    - role: konstruktoid.hardening.timesyncd
+    - role: konstruktoid.hardening.prelink
+    - role: konstruktoid.hardening.tcpwrappers
+    - role: konstruktoid.hardening.login_defs
+    - role: konstruktoid.hardening.limits
+    - role: konstruktoid.hardening.adduser
+    #    - role: konstruktoid.hardening.root_access
+    #    - role: konstruktoid.hardening.packages
+    #    - role: konstruktoid.hardening.ssh
+    #    - role: konstruktoid.hardening.delete_users
+    #    - role: konstruktoid.hardening.password_management
+    #    - role: konstruktoid.hardening.cron
+    #    - role: konstruktoid.hardening.ctrlaltdel
+    #    - role: konstruktoid.hardening.auditd
+    #    - role: konstruktoid.hardening.apparmor
+    #    - role: konstruktoid.hardening.disable_wireless
+    #    - role: konstruktoid.hardening.aide
+    #    - role: konstruktoid.hardening.compilers
+    #    - role: konstruktoid.hardening.umask
+    - role: konstruktoid.hardening.paths
+    #    - role: konstruktoid.hardening.logindconf
+    #    - role: konstruktoid.hardening.issue
+    #    - role: konstruktoid.hardening.lock_root
+    #    - role: konstruktoid.hardening.motd_news
+    #    - role: konstruktoid.hardening.sudo
+    #    - role: konstruktoid.hardening.netplan
+    - role: konstruktoid.hardening.usbguard
+    - role: konstruktoid.hardening.disable_ipv6
+    - role: konstruktoid.hardening.kernel_modules

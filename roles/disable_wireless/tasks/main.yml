@@ -35,8 +35,7 @@
             cmd: nmcli radio all off
           register: nmcli_radio_off
           when:
-            - (nmcli_radio_wifi.stdout | default('') | trim | lower) == 'enabled'
-              or (nmcli_radio_wwan.stdout | default('') | trim | lower) == 'enabled'
+            - (nmcli_radio_wifi.stdout | default('') | trim | lower) == 'enabled' or (nmcli_radio_wwan.stdout | default('') | trim | lower) == 'enabled'
 
         - name: Get kernel modules
           ansible.builtin.shell:

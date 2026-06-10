@@ -10,8 +10,8 @@
     - name: Remove non-standard root entries from access.conf
       ansible.builtin.replace:
         path: /etc/security/access.conf
-        regexp: '^(?:\+:root:(?!127\.0\.0\.1 ::1$)|-:root:(?!ALL$)).*\n?'
-        replace: ''
+        regexp: "^(?:\\+:root:(?!127\\.0\\.0\\.1 ::1$)|-:root:(?!ALL$)).*\\n?"
+        replace: ""
       when:
         - security_access_conf.stat.exists
 

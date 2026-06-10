@@ -1,2 +1,4 @@
-jmespath==1.1.0
-passlib==1.7.4
+ansible-core>=2.18.0
+jmespath~=1.1.0
+molecule~=26.4.0
+passlib~=1.7.4

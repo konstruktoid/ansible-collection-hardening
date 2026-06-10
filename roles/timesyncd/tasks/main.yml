@@ -4,6 +4,13 @@
   when:
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
   block:
+    - name: Install epel-release for RHEL-based systems
+      ansible.builtin.yum:
+        name: epel-release
+        state: present
+        update_cache: true
+      when: ansible_facts.os_family == "RedHat"
+
     - name: Install systemd timesyncd
       ansible.builtin.package:
         name: systemd-timesyncd
@@ -23,6 +30,7 @@
       ansible.builtin.systemd_service:
         name: systemd-timesyncd
         state: restarted
+        enabled: true
       when: timesyncd_config.changed
 
     - name: Start timesyncd
