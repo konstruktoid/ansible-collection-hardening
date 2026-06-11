@@ -1,7 +1,7 @@
 ---
 - name: Verify systemd resolved.conf
   become: true
-  ansible.builtin.shell:
+  ansible.builtin.command:
     cmd: grep -F "{{ item }}" /etc/systemd/resolved.conf
   register: systemd_resolved_conf
   changed_when: false

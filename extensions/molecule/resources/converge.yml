@@ -12,6 +12,9 @@
     - role: konstruktoid.hardening.package_management
       vars:
         system_upgrade: "{{ false if ansible_facts.distribution == 'Debian' else true }}"
+    - role: konstruktoid.hardening.ssh
+      vars:
+        sshd_allow_groups: ["vagrant", "sudo"]
     - role: konstruktoid.hardening.apport
     - role: konstruktoid.hardening.postfix
     - role: konstruktoid.hardening.sysctl
@@ -26,9 +29,8 @@
     - role: konstruktoid.hardening.login_defs
     - role: konstruktoid.hardening.limits
     - role: konstruktoid.hardening.adduser
-    #    - role: konstruktoid.hardening.root_access
+    - role: konstruktoid.hardening.root_access
     #    - role: konstruktoid.hardening.packages
-    #    - role: konstruktoid.hardening.ssh
     #    - role: konstruktoid.hardening.delete_users
     #    - role: konstruktoid.hardening.password_management
     #    - role: konstruktoid.hardening.cron

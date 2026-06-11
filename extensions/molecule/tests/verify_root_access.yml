@@ -1,0 +1,62 @@
+---
+- name: Stat access.conf
+  ansible.builtin.stat:
+    path: /etc/security/access.conf
+  register: security_access_conf
+
+- name: Verify access.conf root entries
+  when:
+    - security_access_conf.stat.exists
+  block:
+    - name: Get access.conf root entries
+      ansible.builtin.command:
+        cmd: grep '^[+-]:root:' /etc/security/access.conf
+      register: access_conf_root
+      changed_when: false
+      failed_when: access_conf_root.rc not in [0, 1]
+
+- name: Assert access.conf root entries are correct
+  ansible.builtin.assert:
+    that:
+      - access_conf_root.stdout_lines | length == 2
+      - access_conf_root.stdout_lines | difference(expected_root_entries) | length == 0
+      - expected_root_entries | difference(access_conf_root.stdout_lines) | length == 0
+    fail_msg: "access.conf does not contain exactly the expected root entries. Got: {{ access_conf_root.stdout_lines }}"
+  vars:
+    expected_root_entries:
+      - "+:root:127.0.0.1 ::1"
+      - "-:root:ALL"
+
+- name: Stat /etc/securetty
+  ansible.builtin.stat:
+    path: /etc/securetty
+  register: securetty_stat
+
+- name: Assert /etc/securetty
+  ansible.builtin.assert:
+    that:
+      - securetty_stat.stat.exists
+      - securetty_stat.stat.size == 0
+      - securetty_stat.stat.mode == "0000"
+      - securetty_stat.stat.uid == 0
+      - securetty_stat.stat.gid == 0
+    fail_msg: "/etc/securetty does not have the expected properties. Got: {{ securetty_stat.stat }}"
+
+- name: Verify debug-shell.service is masked
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+  block:
+    - name: Gather debug-shell.service unit info
+      ansible.builtin.systemd:
+        name: debug-shell.service
+      register: debug_shell_service
+      failed_when: false
+
+    - name: Assert debug-shell.service is masked
+      ansible.builtin.assert:
+        that:
+          - debug_shell_service.status.LoadState == "masked"
+        fail_msg: "debug-shell.service is not masked. LoadState: {{ debug_shell_service.status.LoadState }}"
+      when:
+        - debug_shell_service.status is defined
+        - debug_shell_service.status.LoadState is defined

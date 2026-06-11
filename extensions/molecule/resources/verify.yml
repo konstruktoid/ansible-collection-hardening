@@ -25,92 +25,102 @@
       delegate_to: localhost
 
     - name: Load all defaults/main.yml files
-      include_vars:
+      ansible.builtin.include_vars:
         file: "{{ item }}"
       loop: "{{ defaults_files.files | map(attribute='path') | select('search', '/defaults/main.yml') | list }}"
 
     - name: Verify ufw role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_ufw.yml
       when:
         - ansible_facts.os_family == "Debian"
 
     - name: Verify resolvedconf role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_resolvedconf.yml
 
     - name: Verify package_management role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_package_management.yml
 
+    - name: Verify ssh role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_ssh.yml
+      vars:
+        sshd_allow_groups: ["vagrant", "sudo"]
+
     - name: Verify apport role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_apport.yml
 
     - name: Verify postfix role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_postfix.yml
 
     - name: Verify sysctl role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_sysctl.yml
 
     - name: Verify kernel role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_kernel.yml
 
     - name: Verify mount role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_mount.yml
 
     - name: Verify automatic_updates role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_automatic_updates.yml
 
-    - name: Verify paths role
-      ansible.builtin.import_tasks:
-        file: ../tests/verify_paths.yml
-
-    - name: Verify kernel_modules role
-      ansible.builtin.import_tasks:
-        file: ../tests/verify_kernel_modules.yml
-
-    - name: Verify disable_ipv6 role
-      ansible.builtin.import_tasks:
-        file: ../tests/verify_disable_ipv6.yml
-
-    - name: Verify usbguard role
-      ansible.builtin.import_tasks:
-        file: ../tests/verify_usbguard.yml
-
     - name: Verify systemdconf role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_systemdconf.yml
 
     - name: Verify journald role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_journald.yml
 
     - name: Verify timesyncd role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_timesyncd.yml
 
     - name: Verify prelink role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_prelink.yml
 
     - name: Verify tcpwrappers role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_tcpwrappers.yml
 
     - name: Verify login_defs role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_login_defs.yml
 
     - name: Verify limits role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_limits.yml
 
     - name: Verify adduser role
-      ansible.builtin.import_tasks:
+      ansible.builtin.include_tasks:
         file: ../tests/verify_adduser.yml
+
+    - name: Verify root_access role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_root_access.yml
+
+    - name: Verify paths role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_paths.yml
+
+    - name: Verify usbguard role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_usbguard.yml
+
+    - name: Verify disable_ipv6 role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_disable_ipv6.yml
+
+    - name: Verify kernel_modules role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_kernel_modules.yml

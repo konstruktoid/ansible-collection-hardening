@@ -19,5 +19,5 @@
     executable: /bin/bash
   changed_when: false
   loop: >-
-    {{ ( fs_modules_blocklist | default([]) + net_modules_blocklist | default([]) + (misc_modules_usbguard | default([]) if usbguard_installed | default(false) else
+    {{ (fs_modules_blocklist | default([]) + net_modules_blocklist | default([]) + (misc_modules_usbguard | default([]) if usbguard_installed | default(false) else
     misc_modules_blocklist | default([]))) | sort | unique }}

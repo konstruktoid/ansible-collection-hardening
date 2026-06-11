@@ -1,4 +1,14 @@
 ---
+- name: Stat IPv6 status
+  become: true
+  ansible.builtin.stat:
+    path: /proc/sys/net/ipv6
+  register: stat_ipv6
+
+- name: Set IPv6 fact
+  ansible.builtin.set_fact:
+    system_has_ipv6: "{{ stat_ipv6.stat.exists }}"
+
 - name: Install epel-release on RedHat family
   become: true
   ansible.builtin.dnf:
@@ -181,6 +191,7 @@
 
     - name: Deny IPv6 loopback network traffic
       when:
+        - system_has_ipv6
         - not disable_ipv6
       community.general.ufw:
         rule: deny
