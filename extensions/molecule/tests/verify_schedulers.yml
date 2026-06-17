@@ -1,0 +1,96 @@
+---
+- name: Gather service facts
+  ansible.builtin.service_facts:
+
+- name: Assert that the atd service is masked
+  ansible.builtin.assert:
+    that:
+      - ansible_facts.services['atd.service'].status == "masked"
+      - ansible_facts.services['atd.service'].state == "stopped"
+  when:
+    - "'atd.service' in ansible_facts.services"
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+- name: Gather file stats for cron.allow
+  ansible.builtin.stat:
+    path: /etc/cron.allow
+  register: cron_allow
+
+- name: Gather file stats for cron.deny
+  ansible.builtin.stat:
+    path: /etc/cron.deny
+  register: cron_deny
+
+- name: Gather file stats for crontab
+  ansible.builtin.stat:
+    path: /etc/crontab
+  register: crontab_file
+
+- name: Assert crontab is secure
+  ansible.builtin.assert:
+    that:
+      - crontab_file.stat.exists
+      - crontab_file.stat.pw_name == "root"
+      - crontab_file.stat.gr_name == "root"
+      - crontab_file.stat.mode == "0600"
+    fail_msg: "crontab is not properly secured"
+
+- name: Assert cron.allow exists and is secure
+  ansible.builtin.assert:
+    that:
+      - cron_allow.stat.exists
+      - cron_allow.stat.pw_name == "root"
+      - cron_allow.stat.gr_name == "root"
+      - cron_allow.stat.mode == "0600"
+    fail_msg: "cron.allow is not properly secured"
+
+- name: Assert cron.deny is absent
+  ansible.builtin.assert:
+    that:
+      - not cron_deny.stat.exists
+    fail_msg: "cron.deny should not exist or must be empty"
+
+- name: Gather cron directories
+  ansible.builtin.stat:
+    path: "{{ item }}"
+  loop:
+    - /etc/cron.hourly
+    - /etc/cron.daily
+    - /etc/cron.weekly
+    - /etc/cron.monthly
+  register: cron_dirs
+
+- name: Assert cron directories permissions
+  ansible.builtin.assert:
+    that:
+      - item.stat.pw_name == "root"
+      - item.stat.gr_name == "root"
+      - item.stat.mode == "0700"
+  when:
+    - item.stat.exists
+  loop: "{{ cron_dirs.results }}"
+
+- name: Gather file stats for at.deny
+  ansible.builtin.stat:
+    path: /etc/at.deny
+  register: at_deny
+
+- name: Assert at.deny is absent
+  ansible.builtin.assert:
+    that:
+      - not at_deny.stat.exists
+    fail_msg: "at.deny should not exist"
+
+- name: Gather file stats for at.allow
+  ansible.builtin.stat:
+    path: /etc/at.allow
+  register: at_allow
+
+- name: Assert at.allow exists and is secure
+  ansible.builtin.assert:
+    that:
+      - at_allow.stat.exists
+      - at_allow.stat.pw_name == "root"
+      - at_allow.stat.gr_name == "root"
+      - at_allow.stat.mode == "0600"
+    fail_msg: "at.allow is not properly secured"

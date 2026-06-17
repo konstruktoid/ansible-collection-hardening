@@ -12,6 +12,7 @@
     - role: konstruktoid.hardening.package_management
       vars:
         system_upgrade: "{{ false if ansible_facts.distribution == 'Debian' else true }}"
+    - role: konstruktoid.hardening.packages
     - role: konstruktoid.hardening.ssh
       vars:
         sshd_allow_groups: ["vagrant", "sudo"]
@@ -30,24 +31,23 @@
     - role: konstruktoid.hardening.limits
     - role: konstruktoid.hardening.adduser
     - role: konstruktoid.hardening.root_access
-    #    - role: konstruktoid.hardening.packages
-    #    - role: konstruktoid.hardening.delete_users
-    #    - role: konstruktoid.hardening.password_management
-    #    - role: konstruktoid.hardening.cron
-    #    - role: konstruktoid.hardening.ctrlaltdel
-    #    - role: konstruktoid.hardening.auditd
-    #    - role: konstruktoid.hardening.apparmor
-    #    - role: konstruktoid.hardening.disable_wireless
-    #    - role: konstruktoid.hardening.aide
-    #    - role: konstruktoid.hardening.compilers
-    #    - role: konstruktoid.hardening.umask
+    - role: konstruktoid.hardening.delete_users
+    - role: konstruktoid.hardening.schedulers
+    - role: konstruktoid.hardening.ctrlaltdel
+    - role: konstruktoid.hardening.auditd
+    - role: konstruktoid.hardening.apparmor
+    - role: konstruktoid.hardening.disable_wireless
+    - role: konstruktoid.hardening.compilers
+    - role: konstruktoid.hardening.umask
     - role: konstruktoid.hardening.paths
     #    - role: konstruktoid.hardening.logindconf
     #    - role: konstruktoid.hardening.issue
-    #    - role: konstruktoid.hardening.lock_root
+    - role: konstruktoid.hardening.lock_root
     #    - role: konstruktoid.hardening.motd_news
     #    - role: konstruktoid.hardening.sudo
     #    - role: konstruktoid.hardening.netplan
     - role: konstruktoid.hardening.usbguard
     - role: konstruktoid.hardening.disable_ipv6
     - role: konstruktoid.hardening.kernel_modules
+    - role: konstruktoid.hardening.aide
+    - role: konstruktoid.hardening.password_management

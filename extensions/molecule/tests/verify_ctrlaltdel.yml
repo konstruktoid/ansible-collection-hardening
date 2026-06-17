@@ -1,0 +1,17 @@
+---
+- name: Verify Ctrl-Alt-Del
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+  block:
+    - name: Get Ctrl-Alt-Del target status
+      ansible.builtin.systemd_service:
+        name: ctrl-alt-del.target
+      register: ctrl_alt_del_target
+
+    - name: Assert Ctrl-Alt-Del target is masked
+      ansible.builtin.assert:
+        that:
+          - ctrl_alt_del_target.status.LoadState == "masked"
+          - ctrl_alt_del_target.status.ActiveState == "inactive"
+        fail_msg: "Ctrl-Alt-Del target is not properly masked. LoadState: {{ ctrl_alt_del_target.status.LoadState }}, ActiveState: {{ ctrl_alt_del_target.status.ActiveState
+          }}"

@@ -124,3 +124,51 @@
     - name: Verify kernel_modules role
       ansible.builtin.include_tasks:
         file: ../tests/verify_kernel_modules.yml
+
+    - name: Verify packages role
+      ansible.builtin.import_tasks:
+        file: ../tests/verify_packages.yml
+
+    - name: Verify delete_users role
+      ansible.builtin.import_tasks:
+        file: ../tests/verify_delete_users.yml
+
+    - name: Verify password_management role
+      ansible.builtin.import_tasks:
+        file: ../tests/verify_password_management.yml
+
+    - name: Verify schedulers role
+      ansible.builtin.import_tasks:
+        file: ../tests/verify_schedulers.yml
+
+    - name: Verify ctrlaltdel role
+      ansible.builtin.import_tasks:
+        file: ../tests/verify_ctrlaltdel.yml
+
+    - name: Verify auditd role
+      ansible.builtin.import_tasks:
+        file: ../tests/verify_auditd.yml
+
+    - name: Verify apparmor role
+      ansible.builtin.import_tasks:
+        file: ../tests/verify_apparmor.yml
+
+    - name: Verify disable_wireless role
+      ansible.builtin.import_tasks:
+        file: ../tests/verify_disable_wireless.yml
+
+    - name: Verify aide role
+      ansible.builtin.import_tasks:
+        file: ../tests/verify_aide.yml
+
+    - name: Verify compilers role
+      ansible.builtin.import_tasks:
+        file: ../tests/verify_compilers.yml
+
+    - name: Verify umask role
+      ansible.builtin.import_tasks:
+        file: ../tests/verify_umask.yml
+
+    - name: Verify lock_root role
+      ansible.builtin.import_tasks:
+        file: ../tests/verify_lock_root.yml

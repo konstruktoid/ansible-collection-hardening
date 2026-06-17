@@ -1,0 +1,13 @@
+---
+- name: Get root account entry
+  become: true
+  ansible.builtin.command: grep '^root:' /etc/shadow
+  register: root_shadow
+  changed_when: false
+
+- name: Assert root account is locked
+  ansible.builtin.assert:
+    that:
+      - root_shadow.stdout.split(':')[1] is match('^[!*]')
+    fail_msg: "Root account is not locked!"
+    success_msg: "Root account is locked."

@@ -1,6 +1,6 @@
 ---
 galaxy_info:
-  role_name: cron
+  role_name: schedulers
   author: konstruktoid
   description: Configure scheduled command services
   license: apache

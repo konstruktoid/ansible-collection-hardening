@@ -1,9 +1,5 @@
 git+https://github.com/ansible/ansible.git
 git+https://github.com/ansible-community/ansible-lint.git
-molecule-plugins[vagrant]@git+https://github.com/ansible-community/molecule-plugins.git
-molecule-plugins[docker]@git+https://github.com/ansible-community/molecule-plugins.git
-git+https://github.com/ansible-community/molecule-plugins.git
 git+https://github.com/ansible/molecule.git
-jmespath==1.1.0
-passlib==1.7.4
-tox==4.53.1
+jmespath~=1.1
+passlib~=1.7
