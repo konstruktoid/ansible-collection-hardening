@@ -1,6 +1,0 @@
-ansible-lint==26.4.0
-jmespath==1.1.0
-molecule==26.4.0
-molecule-plugins==25.8.12
-passlib==1.7.4
-tox==4.53.1

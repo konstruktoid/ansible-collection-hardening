@@ -6,5 +6,9 @@
     masked: true
     enabled: false
     state: stopped
+  register: apport_mask_result
+  failed_when:
+    - "'Could not find the requested service apport.service' not in apport_mask_result.msg"
+    - apport_mask_result is failed
   when:
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]

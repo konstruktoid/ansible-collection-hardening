@@ -1,0 +1,195 @@
+---
+- name: Verify
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Reboot and reconnect
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+      block:
+        - name: Reboot host
+          become: true
+          ansible.builtin.reboot:
+
+        - name: Wait for host connection
+          ansible.builtin.wait_for_connection:
+            delay: 10
+          timeout: 120
+
+    - name: Find all defaults/main.yml files
+      ansible.builtin.find:
+        paths: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/roles"
+        patterns: "main.yml"
+        recurse: true
+      register: defaults_files
+      delegate_to: localhost
+
+    - name: Load all defaults/main.yml files
+      ansible.builtin.include_vars:
+        file: "{{ item }}"
+      loop: "{{ defaults_files.files | map(attribute='path') | select('search', '/defaults/main.yml') | list }}"
+
+    - name: Verify ufw role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_ufw.yml
+      when: ansible_facts.os_family == "Debian"
+      vars:
+        ufw_admin_net: ["0.0.0.0/0"]
+
+    - name: Verify resolvedconf role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_resolvedconf.yml
+
+    - name: Verify package_management role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_package_management.yml
+
+    - name: Verify packages role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_packages.yml
+
+    - name: Verify ssh role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_ssh.yml
+      vars:
+        sshd_allow_groups: ["vagrant", "sudo"]
+
+    - name: Verify apport role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_apport.yml
+
+    - name: Verify postfix role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_postfix.yml
+
+    - name: Verify sysctl role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_sysctl.yml
+
+    - name: Verify kernel role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_kernel.yml
+
+    - name: Verify mount role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_mount.yml
+
+    - name: Verify automatic_updates role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_automatic_updates.yml
+
+    - name: Verify systemdconf role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_systemdconf.yml
+
+    - name: Verify journald role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_journald.yml
+
+    - name: Verify timesyncd role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_timesyncd.yml
+
+    - name: Verify prelink role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_prelink.yml
+
+    - name: Verify logindconf role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_logindconf.yml
+
+    - name: Verify netplan role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_netplan.yml
+
+    - name: Verify sudo role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_sudo.yml
+
+    - name: Verify tcpwrappers role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_tcpwrappers.yml
+
+    - name: Verify login_defs role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_login_defs.yml
+
+    - name: Verify limits role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_limits.yml
+
+    - name: Verify adduser role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_adduser.yml
+
+    - name: Verify root_access role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_root_access.yml
+
+    - name: Verify delete_users role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_delete_users.yml
+
+    - name: Verify schedulers role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_schedulers.yml
+
+    - name: Verify ctrlaltdel role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_ctrlaltdel.yml
+
+    - name: Verify auditd role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_auditd.yml
+
+    - name: Verify apparmor role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_apparmor.yml
+
+    - name: Verify disable_wireless role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_disable_wireless.yml
+
+    - name: Verify compilers role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_compilers.yml
+
+    - name: Verify umask role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_umask.yml
+
+    - name: Verify paths role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_paths.yml
+
+    - name: Verify issue role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_issue.yml
+
+    - name: Verify lock_root role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_lock_root.yml
+
+    - name: Verify motd_news role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_motd_news.yml
+
+    - name: Verify usbguard role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_usbguard.yml
+
+    - name: Verify disable_ipv6 role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_disable_ipv6.yml
+
+    - name: Verify kernel_modules role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_kernel_modules.yml
+
+    - name: Verify aide role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_aide.yml
+
+    - name: Verify password_management role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_password_management.yml

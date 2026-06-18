@@ -70,7 +70,8 @@ argument_specs:
         type: "int"
         default: 1
       sshd_client_alive_interval:
-        description: "Sets a timeout interval in seconds after which if no data has been received from the client, sshd will send a message channel to request a response from the client."
+        description: "Sets a timeout interval in seconds after which if no data has been received from the client, sshd will send a message channel to request a response
+          from the client."
         type: "int"
         default: 200
       sshd_compression:
@@ -111,10 +112,11 @@ argument_specs:
         description: "Specifies the host key algorithms that the server offers."
         type: "list"
         elements: "str"
-        default: "['ssh-ed25519-cert-v01@openssh.com', 'ssh-rsa-cert-v01@openssh.com', 'ssh-ed25519', 'ecdsa-sha2-nistp521-cert-v01@openssh.com', 'ecdsa-sha2-nistp384-cert-v01@openssh.com', 'ecdsa-sha2-nistp521',
-          'ecdsa-sha2-nistp384']"
+        default: "['ssh-ed25519-cert-v01@openssh.com', 'ssh-rsa-cert-v01@openssh.com', 'ssh-ed25519', 'ecdsa-sha2-nistp521-cert-v01@openssh.com', 'ecdsa-sha2-nistp384-cert-v01@openssh.com',
+          'ecdsa-sha2-nistp521', 'ecdsa-sha2-nistp384']"
       sshd_host_keys_files:
-        description: "Specifies a file containing a private host key used by SSH. If empty C(RSA), C(ECDSA), and C(ED25519) will be used, if supported by the installed sshd version."
+        description: "Specifies a file containing a private host key used by SSH. If empty C(RSA), C(ECDSA), and C(ED25519) will be used, if supported by the installed
+          sshd version."
         type: "list"
         elements: "str"
         default: "[]"
@@ -139,7 +141,8 @@ argument_specs:
         type: "bool"
         default: "True"
       sshd_ignore_user_known_hosts:
-        description: "Specifies whether sshd should ignore the user's ~/.ssh/known_hosts during HostbasedAuthentication and use only the system-wide known hosts file /etc/ssh/known_hosts."
+        description: "Specifies whether sshd should ignore the user's ~/.ssh/known_hosts during HostbasedAuthentication and use only the system-wide known hosts file
+          /etc/ssh/known_hosts."
         type: "bool"
         default: "True"
       sshd_kerberos_authentication:
@@ -180,20 +183,20 @@ argument_specs:
         elements: "str"
         default: "['hmac-sha2-512-etm@openssh.com', 'hmac-sha2-256-etm@openssh.com', 'hmac-sha2-512', 'hmac-sha2-256']"
       sshd_match_addresses:
-        description: "Add a conditional block for addresses. If all of the criteria on the Match line are satisfied, the rules/parameters defined override those set in the global section of the
-          config file, until either another Match line or the end of the file."
+        description: "Add a conditional block for addresses. If all of the criteria on the Match line are satisfied, the rules/parameters defined override those set
+          in the global section of the config file, until either another Match line or the end of the file."
         type: "list"
       sshd_match_groups:
-        description: "Add a conditional block for groups. If all of the criteria on the Match line are satisfied, the rules/parameters defined override those set in the global section of the config
-          file, until either another Match line or the end of the file."
+        description: "Add a conditional block for groups. If all of the criteria on the Match line are satisfied, the rules/parameters defined override those set
+          in the global section of the config file, until either another Match line or the end of the file."
         type: "list"
       sshd_match_local_ports:
-        description: "Add a conditional block for ports. If all of the criteria on the Match line are satisfied, the rules/parameters defined override those set in the global section of the config
-          file, until either another Match line or the end of the file."
+        description: "Add a conditional block for ports. If all of the criteria on the Match line are satisfied, the rules/parameters defined override those set in
+          the global section of the config file, until either another Match line or the end of the file."
         type: "list"
       sshd_match_users:
-        description: "Add a conditional block for users. If all of the criteria on the Match line are satisfied, the rules/parameters defined override those set in the global section of the config
-          file, until either another Match line or the end of the file."
+        description: "Add a conditional block for users. If all of the criteria on the Match line are satisfied, the rules/parameters defined override those set in
+          the global section of the config file, until either another Match line or the end of the file."
         type: "list"
       sshd_max_auth_tries:
         description: "Specifies the maximum number of authentication attempts permitted per connection."
@@ -245,8 +248,8 @@ argument_specs:
         type: "bool"
         default: "False"
       sshd_rekey_limit:
-        description: "Specifies the maximum amount of data that may be transmitted before the session key is renegotiated, optionally followed a maximum amount of time that may pass before the
-          session key is renegotiated."
+        description: "Specifies the maximum amount of data that may be transmitted before the session key is renegotiated, optionally followed a maximum amount of
+          time that may pass before the session key is renegotiated."
         type: "str"
         default: "512M 1h"
       sshd_required_ecdsa_size:
@@ -318,12 +321,13 @@ argument_specs:
         type: "str"
         default: "https://raw.githubusercontent.com/konstruktoid/ssh-moduli/main/moduli"
       sshd_use_dns:
-        description: "Specifies whether sshd should look up the remote host name, and to check that the resolved host name for the remote IP address maps back to the very same IP address."
+        description: "Specifies whether sshd should look up the remote host name, and to check that the resolved host name for the remote IP address maps back to
+          the very same IP address."
         type: "bool"
         default: "False"
       sshd_use_pam:
-        description: "If true, this will enable PAM authentication using KbdInteractiveAuthentication and PasswordAuthentication in addition to PAM account and session module processing for all
-          authentication types."
+        description: "If true, this will enable PAM authentication using KbdInteractiveAuthentication and PasswordAuthentication in addition to PAM account and session
+          module processing for all authentication types."
         type: "bool"
         default: "True"
       sshd_use_privilege_separation:

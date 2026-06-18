@@ -8,11 +8,9 @@ disable_ipv6: false
 
 # Only the network(s) defined in C(ufw_admin_net) are allowed to connect to C(ufw_ports).
 ufw_admin_net: ["192.168.0.0/24", "192.168.1.0/24"]
-
 # Specifies the port number that ufw should listen on for incoming connections.
 # This is typically used for SSH (port 22) or other services you want to allow access to.
 ufw_ports: [22]
-
 # Allowed outgoing ports and protocols.
 ufw_outgoing_traffic:
   - { "port": 22, "proto": "tcp" }

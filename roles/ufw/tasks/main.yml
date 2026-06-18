@@ -1,4 +1,23 @@
 ---
+- name: Stat IPv6 status
+  become: true
+  ansible.builtin.stat:
+    path: /proc/sys/net/ipv6
+  register: stat_ipv6
+
+- name: Set IPv6 fact
+  ansible.builtin.set_fact:
+    system_has_ipv6: "{{ stat_ipv6.stat.exists }}"
+
+- name: Install epel-release on RedHat family
+  become: true
+  ansible.builtin.dnf:
+    name: epel-release
+    state: present
+    update_cache: true
+  when:
+    - ansible_facts.os_family == "RedHat"
+
 - name: Set sysctl configuration directory as fact
   block:
     - name: Stat /usr/lib/sysctl.d/ exists
@@ -17,9 +36,12 @@
 - name: Install additional kernel modules
   become: true
   ansible.builtin.dnf:
-    name: kernel-modules-extra
+    name: "{{ item }}"
     state: present
     update_cache: true
+  loop:
+    - kernel-modules-extra-{{ ansible_facts.kernel }}
+    - kernel-modules-extra
   when:
     - ansible_facts.os_family == "RedHat"
 
@@ -169,6 +191,7 @@
 
     - name: Deny IPv6 loopback network traffic
       when:
+        - system_has_ipv6
         - not disable_ipv6
       community.general.ufw:
         rule: deny
@@ -187,27 +210,24 @@
         rule: allow
         interface: lo
         direction: out
-    - name: Delete unmanaged UFW route rules
-      ansible.builtin.command:
-        cmd: "ufw route delete {{ item | regex_replace('^route ', '') }}"
+        comment: ansible managed
+
+    - name: Delete unmanaged UFW rules
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          if [[ "{{ item }}" == route* ]]; then
+            ufw route delete {{ item | regex_replace('^route ', '') }}
+          else
+            ufw delete {{ item }}
+          fi
       args:
         executable: /bin/bash
       register: ufw_delete
       changed_when: ufw_delete.rc == 0
       failed_when: ufw_delete.rc != 0
-        - item.startswith('route ')
       when:
         - ufw_not_managed.stdout_lines | length > 0
-    - name: Delete unmanaged UFW rules
-      ansible.builtin.command:
-        cmd: "ufw delete {{ item }}"
-      register: ufw_delete
-      changed_when: ufw_delete.rc == 0
-      failed_when: ufw_delete.rc != 0
-      when:
-        - ufw_not_managed.stdout_lines | length > 0
-        - not item.startswith('route ')
-      loop: "{{ ufw_not_managed.stdout_lines }}"
       loop: "{{ ufw_not_managed.stdout_lines }}"
 
 - name: Configure conntrack sysctl

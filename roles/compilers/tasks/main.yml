@@ -41,7 +41,8 @@
     index_var: compiler_file_index
   when:
     - ansible_facts.os_family == 'Debian'
-    - dpkg_statoverride_current.results[compiler_file_index].rc != 0 or dpkg_statoverride_current.results[compiler_file_index].stdout != 'root root 750 ' ~ item.path
+    - dpkg_statoverride_current.results[compiler_file_index].rc != 0 or dpkg_statoverride_current.results[compiler_file_index].stdout != 'root root 750 ' ~
+      item.path
 
 - name: Ensure DNF post-transaction-actions plugin is installed
   become: true

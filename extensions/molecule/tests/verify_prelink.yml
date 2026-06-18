@@ -1,0 +1,8 @@
+---
+- name: Test if prelink is available
+  ansible.builtin.command:
+    cmd: prelink --version
+  register: prelink_version
+  changed_when: false
+  failed_when:
+    - prelink_version.rc == 0

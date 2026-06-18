@@ -30,7 +30,8 @@ argument_specs:
             description: "Add minutes to the reboot time, set using C(reboot_from_time)."
             type: "int"
           custom_origins:
-            description: "Add custom origins to unattended upgrades through a list. For Debian it's \"origin=<ORIGIN>,archive=<ARCHIVE>\". For Ubuntu it is \"<ORIGIN>:<ARCHIVE>\"." # noqa: yaml[line-length]
+            description: "Add custom origins to unattended upgrades through a list. For Debian it's \"origin=<ORIGIN>,archive=<ARCHIVE>\". For Ubuntu it is \"<ORIGIN>:<ARCHIVE>\"\
+              ." # noqa: yaml[line-length]
             type: "list"
             elements: "str"
       unattended_upgrades_template:

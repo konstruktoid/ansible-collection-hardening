@@ -1,0 +1,13 @@
+---
+- name: Gather package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Intersect installed packages with blocklist
+  ansible.builtin.set_fact:
+    blocked_installed_packages: "{{ ansible_facts.packages.keys() | intersect(packages_blocklist) }}"
+
+- name: Assert package removal
+  ansible.builtin.assert:
+    that:
+      - blocked_installed_packages | length == 0

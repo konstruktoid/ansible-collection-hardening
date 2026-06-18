@@ -242,7 +242,6 @@
 - name: Get all local user accounts
   ansible.builtin.getent:
     database: passwd
-  register: local_users
 
 - name: Add local usernames to password list
   become: true
@@ -257,4 +256,4 @@
   notify:
     - Update Debian cracklib
     - Update RedHat cracklib
-  loop: "{{ local_users.ansible_facts.getent_passwd | list }}"
+  loop: "{{ ansible_facts.getent_passwd | list | unique }}"

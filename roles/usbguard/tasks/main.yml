@@ -36,61 +36,61 @@
         - ansible_facts.os_family == "Suse"
     - name: Configure RuleFile
       ansible.builtin.lineinfile:
-        regexp: '^(#\s*)?RuleFile'
+        regexp: "^(#\\s*)?RuleFile"
         dest: "{{ usbguard_configuration_file }}"
         line: "RuleFile={{ usbguard_rulefile }}"
         state: present
 
     - name: Configure ImplicitPolicyTarget
       ansible.builtin.lineinfile:
-        regexp: '^(#\s*)?ImplicitPolicyTarget'
+        regexp: "^(#\\s*)?ImplicitPolicyTarget"
         dest: "{{ usbguard_configuration_file }}"
         line: "ImplicitPolicyTarget={{ usbguard_implicitpolicytarget }}"
         state: present
 
     - name: Configure PresentDevicePolicy
       ansible.builtin.lineinfile:
-        regexp: '^(#\s*)?PresentDevicePolicy'
+        regexp: "^(#\\s*)?PresentDevicePolicy"
         dest: "{{ usbguard_configuration_file }}"
         line: "PresentDevicePolicy={{ usbguard_presentdevicepolicy }}"
         state: present
     - name: Configure PresentControllerPolicy
       ansible.builtin.lineinfile:
-        regexp: '^(#\s*)?PresentControllerPolicy'
+        regexp: "^(#\\s*)?PresentControllerPolicy"
         dest: "{{ usbguard_configuration_file }}"
         line: "PresentControllerPolicy={{ usbguard_presentcontrollerpolicy }}"
         state: present
 
     - name: Configure InsertedDevicePolicy
       ansible.builtin.lineinfile:
-        regexp: '^(#\s*)?InsertedDevicePolicy'
+        regexp: "^(#\\s*)?InsertedDevicePolicy"
         dest: "{{ usbguard_configuration_file }}"
         line: "InsertedDevicePolicy={{ usbguard_inserteddevicepolicy }}"
         state: present
 
     - name: Configure AuthorizedDefault
       ansible.builtin.lineinfile:
-        regexp: '^(#\s*)?AuthorizedDefault'
+        regexp: "^(#\\s*)?AuthorizedDefault"
         dest: "{{ usbguard_configuration_file }}"
         line: "AuthorizedDefault={{ usbguard_authorizeddefault }}"
         state: present
     - name: Configure RestoreControllerDeviceState
       ansible.builtin.lineinfile:
-        regexp: '^(#\s*)?RestoreControllerDeviceState'
+        regexp: "^(#\\s*)?RestoreControllerDeviceState"
         dest: "{{ usbguard_configuration_file }}"
         line: "RestoreControllerDeviceState={{ 'true' if (usbguard_restorecontrollerdevicestate | bool) else 'false' }}"
         state: present
 
     - name: Configure DeviceManagerBackend
       ansible.builtin.lineinfile:
-        regexp: '^(#\s*)?DeviceManagerBackend'
+        regexp: "^(#\\s*)?DeviceManagerBackend"
         dest: "{{ usbguard_configuration_file }}"
         line: "DeviceManagerBackend={{ usbguard_devicemanagerbackend }}"
         state: present
 
     - name: Configure IPCAllowedUsers
       ansible.builtin.lineinfile:
-        regexp: '^(#\s*)?IPCAllowedUsers'
+        regexp: "^(#\\s*)?IPCAllowedUsers"
         dest: "{{ usbguard_configuration_file }}"
         line: "IPCAllowedUsers={{ usbguard_ipcallowedusers | join(' ') }}"
         state: present

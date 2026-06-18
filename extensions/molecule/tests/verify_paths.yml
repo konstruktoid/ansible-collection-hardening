@@ -1,0 +1,41 @@
+---
+- name: Stat /etc/profile.d/initpath.sh
+  ansible.builtin.stat:
+    path: /etc/profile.d/initpath.sh
+  register: initpath_stat
+
+- name: Assert initpath.sh
+  ansible.builtin.assert:
+    that:
+      - initpath_stat.stat.exists
+      - initpath_stat.stat.pw_name == 'root'
+      - initpath_stat.stat.gr_name == 'root'
+      - initpath_stat.stat.mode == '0644'
+
+- name: Capture effective PATH for root
+  ansible.builtin.command: echo "${PATH}"
+  become: true
+  become_user: root
+  become_flags: "-i"
+  changed_when: false
+  register: root_path_output
+
+- name: Assert root PATH
+  ansible.builtin.assert:
+    that:
+      - "'/usr/local/sbin' in root_path_output.stdout"
+      - "'/usr/sbin' in root_path_output.stdout"
+
+- name: Capture effective PATH for the Ansible connection user
+  ansible.builtin.command: echo "${PATH}"
+  become: true
+  become_user: "{{ ansible_user }}"
+  become_flags: "-i"
+  changed_when: false
+  register: user_path_output
+
+- name: Assert unprivileged user PATH
+  ansible.builtin.assert:
+    that:
+      - "'/usr/local/bin' in user_path_output.stdout"
+      - "'/usr/local/sbin' not in user_path_output.stdout"

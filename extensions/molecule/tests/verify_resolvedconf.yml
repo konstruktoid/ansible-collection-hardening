@@ -1,0 +1,15 @@
+---
+- name: Verify systemd resolved.conf
+  become: true
+  ansible.builtin.command:
+    cmd: grep -F "{{ item }}" /etc/systemd/resolved.conf
+  register: systemd_resolved_conf
+  changed_when: false
+  failed_when: systemd_resolved_conf.rc != 0
+  with_items:
+    - DNS={{ dns | join(' ') }}
+    - FallbackDNS={{ fallback_dns | join(' ') }}
+    - DNSSEC={{ dnssec }}
+    - DNSOverTLS={{ dns_over_tls }}
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]

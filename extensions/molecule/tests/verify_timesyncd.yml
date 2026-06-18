@@ -1,0 +1,24 @@
+---
+- name: Verify systemd timesyncd configuration
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+  block:
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    - name: Assert timesyncd is configured and active
+      ansible.builtin.assert:
+        that:
+          - "'systemd-timesyncd.service' in ansible_facts.services"
+          - ansible_facts.services['systemd-timesyncd.service'].status == 'enabled'
+
+    - name: Verify systemd timesyncd.conf
+      become: true
+      ansible.builtin.shell:
+        cmd: grep "^{{ item }}$" /etc/systemd/timesyncd.conf
+      register: systemd_timesyncd_conf
+      changed_when: false
+      failed_when: systemd_timesyncd_conf.rc != 0
+      with_items:
+        - NTP={{ ntp | join(' ') }}
+        - FallbackNTP={{ fallback_ntp | join(' ') }}

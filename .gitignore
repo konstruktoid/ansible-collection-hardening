@@ -1,4 +1,6 @@
 .ansible/
+ansible.cfg
+ansible_collections
 .cache
 .env
 .env.yml
@@ -7,4 +9,3 @@
 .vagrant
 .venv
 .yamllint
-ansible.cfg

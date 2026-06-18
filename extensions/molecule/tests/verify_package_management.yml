@@ -1,0 +1,51 @@
+---
+- name: Verify apt hardening configuration
+  when:
+    - ansible_facts.os_family == "Debian"
+  block:
+    - name: Stat apt hardening configuration file
+      become: true
+      ansible.builtin.stat:
+        path: /etc/apt/apt.conf.d/99-hardening
+      register: package_management_apt_hardening_configuration
+
+    - name: Assert apt hardening configuration file exists
+      ansible.builtin.assert:
+        that:
+          - package_management_apt_hardening_configuration.stat.exists
+          - package_management_apt_hardening_configuration.stat.mode == "0644"
+
+    - name: Verify apt hardening settings
+      become: true
+      ansible.builtin.shell:
+        cmd: grep -Fx '{{ item }}' /etc/apt/apt.conf.d/99-hardening
+      args:
+        executable: /bin/bash
+      changed_when: false
+      loop:
+        - 'Acquire::AllowDowngradeToInsecureRepositories "false";'
+        - 'Acquire::AllowInsecureRepositories "false";'
+        - 'Acquire::http::AllowRedirect "false";'
+        - 'APT::Get::AllowUnauthenticated "false";'
+        - 'APT::Get::AutomaticRemove "true";'
+        - 'APT::Install-Recommends "false";'
+        - 'APT::Install-Suggests "false";'
+        - 'APT::Periodic::AutocleanInterval "7";'
+        - 'APT::Sandbox::Seccomp "1";'
+        - 'Unattended-Upgrade::Remove-Unused-Dependencies "true";'
+        - 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";'
+
+- name: Verify yum.conf hardening settings
+  become: true
+  ansible.builtin.shell:
+    cmd: grep -oE '^{{ item }}' /etc/yum.conf
+  args:
+    executable: /bin/bash
+  changed_when: false
+  when:
+    - ansible_facts.os_family == "RedHat"
+  loop:
+    - "gpgcheck=1"
+    - "localpkg_gpgcheck=1"
+    - "repo_gpgcheck=1"
+    - "clean_requirements_on_remove=1"

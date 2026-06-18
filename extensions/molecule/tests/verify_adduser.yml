@@ -1,0 +1,32 @@
+---
+- name: Verify /etc/default/useradd settings
+  ansible.builtin.command:
+    cmd: grep -vE '^#|^$' /etc/default/useradd
+  register: useradd_output
+  changed_when: false
+
+- name: Print /etc/default/useradd settings
+  ansible.builtin.debug:
+    var: useradd_output.stdout_lines
+
+- name: Assert /etc/default/useradd settings
+  ansible.builtin.assert:
+    that:
+      - useradd_output.stdout is search('INACTIVE=30')
+      - useradd_output.stdout is search('SHELL=/bin/false')
+
+- name: Verify /etc/adduser.conf settings
+  ansible.builtin.command:
+    cmd: grep -vE '^#|^$' /etc/adduser.conf
+  register: adduser_output
+  changed_when: false
+
+- name: Print /etc/adduser.conf settings
+  ansible.builtin.debug:
+    var: adduser_output.stdout_lines
+
+- name: Assert /etc/adduser.conf settings
+  ansible.builtin.assert:
+    that:
+      - adduser_output.stdout is search('USERGROUPS=yes')
+      - adduser_output.stdout is search('SETGID_HOME=no')

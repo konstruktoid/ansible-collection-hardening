@@ -4,9 +4,9 @@
   when:
     - ansible_facts.os_family == "Debian"
   block:
-    - name: Configure apt
+    - name: Configure APT
       ansible.builtin.lineinfile:
-        dest: /etc/apt/apt.conf.d/98-hardening-ubuntu
+        dest: /etc/apt/apt.conf.d/99-hardening
         owner: root
         group: root
         mode: "0644"

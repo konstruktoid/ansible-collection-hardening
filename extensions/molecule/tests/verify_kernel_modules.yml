@@ -1,0 +1,23 @@
+---
+- name: Gather installed package facts
+  ansible.builtin.package_facts:
+    manager: auto
+
+- name: Set fact if usbguard is installed
+  ansible.builtin.set_fact:
+    usbguard_installed: "{{ 'usbguard' in ansible_facts.packages }}"
+
+- name: Verify blocked blacklisted kernel modules
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+  environment:
+    PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  ansible.builtin.shell: |
+    set -o pipefail
+    grep -F 'install {{ item }} /bin/true' /etc/modprobe.d/blacklist-blocked.conf
+  args:
+    executable: /bin/bash
+  changed_when: false
+  loop: >-
+    {{ (fs_modules_blocklist | default([]) + net_modules_blocklist | default([]) + (misc_modules_usbguard | default([]) if usbguard_installed | default(false) else
+    misc_modules_blocklist | default([]))) | sort | unique }}
