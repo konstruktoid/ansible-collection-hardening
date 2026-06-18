@@ -26,6 +26,9 @@
     - role: konstruktoid.hardening.journald
     - role: konstruktoid.hardening.timesyncd
     - role: konstruktoid.hardening.prelink
+    - role: konstruktoid.hardening.logindconf
+    - role: konstruktoid.hardening.netplan
+    - role: konstruktoid.hardening.sudo
     - role: konstruktoid.hardening.tcpwrappers
     - role: konstruktoid.hardening.login_defs
     - role: konstruktoid.hardening.limits
@@ -40,12 +43,9 @@
     - role: konstruktoid.hardening.compilers
     - role: konstruktoid.hardening.umask
     - role: konstruktoid.hardening.paths
-    #    - role: konstruktoid.hardening.logindconf
-    #    - role: konstruktoid.hardening.issue
+    - role: konstruktoid.hardening.issue
     - role: konstruktoid.hardening.lock_root
-    #    - role: konstruktoid.hardening.motd_news
-    #    - role: konstruktoid.hardening.sudo
-    #    - role: konstruktoid.hardening.netplan
+    - role: konstruktoid.hardening.motd_news
     - role: konstruktoid.hardening.usbguard
     - role: konstruktoid.hardening.disable_ipv6
     - role: konstruktoid.hardening.kernel_modules

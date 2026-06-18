@@ -1,0 +1,33 @@
+---
+- name: Verify logind settings
+  ansible.builtin.shell: |
+    set -o pipefail
+    systemd-analyze cat-config systemd/logind.conf | grep "^{{ item }}"
+  args:
+    executable: /bin/bash
+  register: logind_conf
+  changed_when: false
+  failed_when: logind_conf.rc != 0
+  with_items:
+    - KillUserProcesses={{ 'true' if logind.killuserprocesses else 'false' }}
+    - KillExcludeUsers={{ logind.killexcludeusers | join(' ') }}
+    - IdleAction={{ logind.idleaction }}
+    - IdleActionSec={{ logind.idleactionsec }}
+    - RemoveIPC={{ 'true' if logind.removeipc else 'false' }}
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+- name: Verify StopIdleSessionSec setting
+  ansible.builtin.shell: |
+    set -o pipefail
+    systemd-analyze cat-config systemd/logind.conf | grep "^{{ item }}"
+  args:
+    executable: /bin/bash
+  register: stopidlesession
+  changed_when: false
+  failed_when: stopidlesession.rc != 0
+  with_items:
+    - StopIdleSessionSec={{ session_timeout }}
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+    - ansible_facts.systemd.version | int >= 252
