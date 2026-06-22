@@ -103,16 +103,20 @@
     owner: root
     group: root
 
-- name: Configure cron.daily logrotate
+- name: Configure logrotate timers
   become: true
   ansible.builtin.copy:
-    dest: /etc/cron.daily/logrotate
+    src: "{{ item }}"
+    dest: "/etc/systemd/system/{{ item }}"
+    mode: "0644"
     owner: root
     group: root
-    mode: "0750"
-    content: |
-      #!/bin/sh
-      /usr/sbin/logrotate /etc/logrotate.conf
+  loop:
+    - daily-logrotate.service
+    - daily-logrotate.timer
+  notify:
+    - Reload systemd
+    - Start daily-logrotate.timer
 
 - name: Ensure rsyslog is installed on Debian-based systems
   become: true
