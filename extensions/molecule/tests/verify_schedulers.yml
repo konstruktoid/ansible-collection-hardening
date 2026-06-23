@@ -26,10 +26,7 @@
     path: /etc/crontab
   register: crontab_file
 
-- name: Debug cron file stats
-  ansible.builtin.debug:
-    var: crontab_file.stat
-
+# Debug output removed to keep Molecule verify output clean
 - name: Assert crontab is secure
   ansible.builtin.assert:
     that:
