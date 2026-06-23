@@ -25,18 +25,10 @@
         - Run apt-get clean
         - Run apt-get autoremove
 
-- name: Stat yum.conf
-  when:
-    - ansible_facts.os_family == "RedHat"
-  ansible.builtin.stat:
-    path: /etc/yum.conf
-  register: yum_conf
-
 - name: Dnf configuration
   become: true
   when:
     - ansible_facts.os_family == "RedHat"
-    - yum_conf.stat.exists
   block:
     - name: Link dnf.conf
       ansible.builtin.file:
@@ -56,7 +48,7 @@
         dest: /etc/yum.conf
         mode: "0644"
         state: present
-        create: false
+        create: true
         backrefs: true
 
     - name: Set yum.conf clean_requirements
