@@ -35,6 +35,13 @@
         - 'Unattended-Upgrade::Remove-Unused-Dependencies "true";'
         - 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";'
 
+- name: Stat yum.conf
+  when:
+    - ansible_facts.os_family == "RedHat"
+  ansible.builtin.stat:
+    path: /etc/yum.conf
+  register: yum_conf
+
 - name: Verify yum.conf hardening settings
   become: true
   ansible.builtin.shell:
@@ -44,6 +51,7 @@
   changed_when: false
   when:
     - ansible_facts.os_family == "RedHat"
+    - yum_conf.stat.exists
   loop:
     - "gpgcheck=1"
     - "localpkg_gpgcheck=1"

@@ -14,3 +14,19 @@
   register: validate_rsyslogd
   changed_when: false
   failed_when: validate_rsyslogd.rc != 0
+
+- name: Reload systemd
+  become: true
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+- name: Start daily-logrotate.timer
+  become: true
+  ansible.builtin.systemd_service:
+    name: daily-logrotate.timer
+    enabled: true
+    state: started
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]

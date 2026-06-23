@@ -33,9 +33,13 @@
   become_flags: "-i"
   changed_when: false
   register: user_path_output
+  when:
+    - ansible_user is defined
 
 - name: Assert unprivileged user PATH
   ansible.builtin.assert:
     that:
       - "'/usr/local/bin' in user_path_output.stdout"
       - "'/usr/local/sbin' not in user_path_output.stdout"
+  when:
+    - ansible_user is defined

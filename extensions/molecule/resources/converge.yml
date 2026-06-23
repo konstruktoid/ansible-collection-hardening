@@ -5,7 +5,9 @@
   gather_facts: true
   roles:
     - role: konstruktoid.hardening.ufw
-      when: ansible_facts.os_family == "Debian"
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+        - ansible_facts.os_family == "Debian"
       vars:
         ufw_admin_net: ["0.0.0.0/0"]
     - role: konstruktoid.hardening.resolvedconf

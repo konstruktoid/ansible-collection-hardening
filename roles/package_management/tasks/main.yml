@@ -48,7 +48,7 @@
         dest: /etc/yum.conf
         mode: "0644"
         state: present
-        create: false
+        create: true
         backrefs: true
 
     - name: Set yum.conf clean_requirements

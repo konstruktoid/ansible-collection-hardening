@@ -24,3 +24,13 @@
   failed_when: rsyslog_filecreate.rc != 0
   when:
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+- name: Ensure daily-logrotate.timer is enabled and active
+  ansible.builtin.systemd:
+    name: daily-logrotate.timer
+    state: started
+    enabled: true
+  register: logrotate_timer
+  failed_when: logrotate_timer.changed
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]

@@ -51,8 +51,8 @@
         state: stopped
       register: mask_atd
       when:
-        - "'atd' in ansible_facts.services"
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+        - "'atd' in ansible_facts.services"
 
     - name: Set cron permissions
       ansible.builtin.file:
