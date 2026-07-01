@@ -26,6 +26,7 @@ provisioner:
   name: ansible
   playbooks:
     converge: "../resources/converge.yml"
+    prepare: "../resources/prepare.yml"
     verify: "../resources/verify.yml"
   config_options:
     defaults:
