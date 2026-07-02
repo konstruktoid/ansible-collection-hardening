@@ -49,8 +49,14 @@
     /lib/systemd/systemd-sysctl --cat-config | grep -F -- {{ (item.key ~ " = " ~ item.value) | quote }}
   args:
     executable: /bin/bash
-  with_dict: "{{ sysctl_settings | dict2items | rejectattr('key', 'search', 'nf_conntrack') | rejectattr('key', 'search', 'unprivileged_userns_clone') | items2dict
-    }}"
+  with_dict: >-
+    {{
+      sysctl_settings
+      | dict2items
+      | rejectattr('key', 'search', 'nf_conntrack')
+      | rejectattr('key', 'search', 'unprivileged_userns_clone')
+      | items2dict
+    }}
   register: sysctl_file_config
   changed_when: false
   failed_when: sysctl_file_config.rc != 0
@@ -64,8 +70,14 @@
     sysctl -a | grep -F -- {{ (item.key ~ " = " ~ item.value) | quote }}
   args:
     executable: /bin/bash
-  with_dict: "{{ sysctl_settings | dict2items | rejectattr('key', 'search', 'nf_conntrack') | rejectattr('key', 'search', 'unprivileged_userns_clone') | items2dict
-    }}"
+  with_dict: >-
+    {{
+      sysctl_settings
+      | dict2items
+      | rejectattr('key', 'search', 'nf_conntrack')
+      | rejectattr('key', 'search', 'unprivileged_userns_clone')
+      | items2dict
+    }}
   register: sysctl_runtime_config
   changed_when: false
   failed_when: sysctl_runtime_config.rc != 0

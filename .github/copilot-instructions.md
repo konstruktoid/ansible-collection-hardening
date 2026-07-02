@@ -22,9 +22,13 @@ This repository is an Ansible collection for Linux security hardening. Prefer se
 
 ## Preferred patterns
 - Module-first authoring (`ansible.builtin.*`, `ansible.posix.*`, and purpose-built modules).
+- Always use the fully-qualified collection name (FQCN) for every module, with no exceptions in this codebase.
 - Explicit `owner`, `group`, and quoted octal string `mode` values (for example `mode: "0640"`) for managed files.
+- Double-quoted YAML strings; use single quotes only when the value itself contains a double quote.
+- Role-scoped variable names prefixed with the role name (for example `umask_value`, `rsyslog_filecreatemode`) in `defaults/main.yml`.
 - Handlers for restart/reload on config changes.
 - Safe defaults in vars/templates and explicit tradeoff notes when compatibility requires softer settings.
+- Keep `meta/main.yml` `galaxy_info.platforms` accurate for any role whose tasks gain or drop OS-specific logic.
 
 ## Discouraged patterns
 - `shell`/`command` when an Ansible module exists.
@@ -41,6 +45,11 @@ This repository is an Ansible collection for Linux security hardening. Prefer se
 - Keep templates deterministic and explicit.
 - Do not embed secrets in templates.
 - Avoid permissive fallback values unless explicitly required.
+
+## Testing and validation
+- Changes must pass `ansible-lint` at `profile: production` (see `.ansible-lint`); do not add new entries to `.ansible-lint-ignore` to silence findings introduced by new work.
+- Validate role changes with `molecule test` (via `tox`, see `tox.ini`) where a role has a `molecule/` scenario.
+- Prefer fixing lint/test failures over suppressing them; treat suppression as a last resort requiring justification.
 
 ## Documentation guidance
 - Explain security rationale and operational impact for sensitive changes.

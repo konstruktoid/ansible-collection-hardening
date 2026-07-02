@@ -37,6 +37,8 @@
   ansible.builtin.command:
     cmd: dpkg-statoverride --update --force-all --add root root 0750 "{{ item.path }}"
   loop: "{{ compiler.files }}"
+  register: dpkg_statoverride_update
+  changed_when: dpkg_statoverride_update.rc == 0
   loop_control:
     index_var: compiler_file_index
   when:

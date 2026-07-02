@@ -33,6 +33,8 @@
   become: true
   ansible.builtin.command:
     cmd: prelink -ua
+  register: prelink_run
+  changed_when: prelink_run.rc == 0
   when:
     - prelink_version.rc == 0
     - sysconfig_prelink.stat.exists or etc_prelink.stat.exists

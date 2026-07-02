@@ -125,15 +125,15 @@
   ansible.builtin.find:
     paths: /etc/pam.d
     file_type: file
-    contains: 'pam_umask\.so'
+    contains: "pam_umask\\.so"
   register: pam_files
 
 - name: Ensure pam_umask has the desired umask
   become: true
   ansible.builtin.lineinfile:
     path: "{{ item.path }}"
-    regexp: '^(.*pam_umask\.so).*$'
-    line: '\1 umask={{ umask_value }}'
+    regexp: "^(.*pam_umask\\.so).*$"
+    line: "\\1 umask={{ umask_value }}"
     backrefs: true
   loop: "{{ pam_files.files }}"
   loop_control:

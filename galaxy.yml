@@ -4,15 +4,16 @@ name: hardening
 version: 0.0.1
 readme: README.md
 authors:
-  - 'Thomas Sjögren (@konstruktoid)'
+  - "Thomas Sjögren (@konstruktoid)"
 description: >
   Ansible collection for Linux server hardening focused on systemd-based
   distributions including AlmaLinux, Debian, and Ubuntu.
+repository: https://github.com/konstruktoid/ansible-collection-hardening
 dependencies:
   ansible.posix: ">=2.2.0"
   community.crypto: ">=3.2.1"
   community.general: ">=13.0.1"
-license_file: 'LICENSE'
+license_file: "LICENSE"
 tags:
   - almalinux
   - audit
@@ -25,6 +26,8 @@ tags:
   - ubuntu
 build_ignore:
   - .ansible/
+  - ansible.cfg
+  - ansible_collections
   - .cache
   - .env
   - .env.yml
@@ -32,6 +35,6 @@ build_ignore:
   - .nox
   - .tox
   - .vagrant
+  - Vagrantfile
   - .venv
   - .yamllint
-  - ansible.cfg

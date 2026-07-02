@@ -8,10 +8,13 @@ Apply these rules to Ansible YAML and Jinja changes.
 
 ## Authoring priorities
 - Module-first implementation; avoid `shell`/`command` unless no safe module exists.
+- Always use the fully-qualified collection name (FQCN, for example `ansible.builtin.lineinfile`) for every module call.
 - Declarative, idempotent tasks with descriptive names.
 - Explicit `owner`, `group`, and restrictive quoted octal string `mode` values (for example `mode: "0640"`) for managed files.
+- Double-quoted YAML strings; role-scoped variables prefixed with the role name (for example `umask_value`).
 - Restrictive defaults in vars/defaults/templates.
 - Handlers for config-driven restart/reload behavior.
+- Any change to a role's tasks must keep that role's `meta/main.yml` `galaxy_info.platforms` accurate.
 
 ## Conservative security handling
 Treat these domains as high sensitivity and change conservatively:

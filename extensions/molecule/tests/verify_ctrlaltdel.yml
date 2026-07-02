@@ -13,5 +13,7 @@
         that:
           - ctrl_alt_del_target.status.LoadState == "masked"
           - ctrl_alt_del_target.status.ActiveState == "inactive"
-        fail_msg: "Ctrl-Alt-Del target is not properly masked. LoadState: {{ ctrl_alt_del_target.status.LoadState }}, ActiveState: {{ ctrl_alt_del_target.status.ActiveState
-          }}"
+        fail_msg: >-
+          Ctrl-Alt-Del target is not properly masked.
+          LoadState: {{ ctrl_alt_del_target.status.LoadState }},
+          ActiveState: {{ ctrl_alt_del_target.status.ActiveState }}

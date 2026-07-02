@@ -34,6 +34,7 @@
           ansible.builtin.command:
             cmd: nmcli radio all off
           register: nmcli_radio_off
+          changed_when: nmcli_radio_off.rc == 0
           when:
             - (nmcli_radio_wifi.stdout | default('') | trim | lower) == 'enabled' or (nmcli_radio_wwan.stdout | default('') | trim | lower) == 'enabled'
 

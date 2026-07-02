@@ -5,7 +5,7 @@
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
   block:
     - name: Install epel-release for RHEL-based systems
-      ansible.builtin.yum:
+      ansible.builtin.dnf:
         name: epel-release
         state: present
         update_cache: true
@@ -24,14 +24,8 @@
         mode: "0644"
         owner: root
         group: root
-      register: timesyncd_config
-
-    - name: Restart timesyncd when configuration changes
-      ansible.builtin.systemd_service:
-        name: systemd-timesyncd
-        state: restarted
-        enabled: true
-      when: timesyncd_config.changed
+      notify:
+        - Restart systemd-timesyncd
 
     - name: Start timesyncd
       ansible.builtin.systemd_service:
