@@ -7,5 +7,6 @@ ansible_collections
 .nox
 .tox
 .vagrant
+Vagrantfile
 .venv
 .yamllint
