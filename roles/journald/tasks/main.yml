@@ -153,7 +153,7 @@
     - name: Manage FileCreateMode in rsyslog.conf
       ansible.builtin.lineinfile:
         path: /etc/rsyslog.conf
-        regexp: "^\\\\$FileCreateMode"
+        regexp: "^\\$FileCreateMode"
         line: "$FileCreateMode {{ rsyslog_filecreatemode }}"
         state: "{{ 'absent' if rsyslogd.stat.exists else 'present' }}"
         owner: root
