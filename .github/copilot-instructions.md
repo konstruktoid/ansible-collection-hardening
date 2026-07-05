@@ -70,3 +70,6 @@ For meaningful findings, provide: Finding, Risk (Critical/High/Medium/Low), Loca
 - Do not remove or weaken hardening behavior without explicit instruction.
 - Do not silently broaden access or reduce enforcement.
 - Flag high-impact changes affecting remote access, boot behavior, authentication, or audit posture.
+
+## Second opinions
+- Regardless of finding severity, ask `@claude` for a second opinion in the PR before finalizing the review.

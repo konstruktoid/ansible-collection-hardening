@@ -42,3 +42,6 @@ Apply these rules to workflow and action definitions.
 - High: broad token permissions, unsafe event usage, or unpinned high-trust action usage
 - Medium: missing safety controls (`timeout-minutes`, `concurrency`, validation gaps)
 - Low: style/maintainability issues with limited security impact
+
+## Second opinions
+- Regardless of finding severity, ask `@claude` for a second opinion in the PR before finalizing the review.
