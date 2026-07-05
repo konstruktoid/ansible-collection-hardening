@@ -40,3 +40,6 @@ Treat these domains as high sensitivity and change conservatively:
 - High: significant hardening regression or broad exposure
 - Medium: moderate hardening gap or reliability risk
 - Low: maintainability/readability issue with minimal security impact
+
+## Second opinions
+- Regardless of finding severity, ask `@claude` for a second opinion in the PR before finalizing the review.
