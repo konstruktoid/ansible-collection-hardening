@@ -111,7 +111,7 @@ Defined in `roles/ssh/defaults/main.yml`.
 7. Stat sysconfig sshd configuration
 8. Remove sshd system crypto policy
 9. Get sshd Include config
-10. Check if sshd_config.d exits
+10. Check if sshd_config.d exists
 11. Clear pre-existing custom configurations in /etc/ssh/sshd_config.d
 12. Search pre-existing custom configurations in /etc/ssh/sshd_config.d
 13. Clear pre-existing custom configurations in /etc/ssh/sshd_config.d
