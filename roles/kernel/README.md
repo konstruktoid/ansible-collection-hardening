@@ -1,6 +1,6 @@
 # kernel
 
-Hardens kernel runtime behavior via sysctl and boot-time parameters: restricts virtual syscalls (vsyscall), enables page poisoning, kernel page-table isolation, SLUB debug poisoning, and kernel lockdown mode, using GRUB or grubby depending on the platform.
+Hardens kernel runtime behavior via sysctl and boot-time parameters: configures virtual syscalls (vsyscall), enables page poisoning, kernel page-table isolation, SLUB debug poisoning, and kernel lockdown mode, using GRUB or grubby depending on the platform.
 
 ## Requirements
 
