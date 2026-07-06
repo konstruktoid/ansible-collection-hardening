@@ -36,7 +36,7 @@ Defined in `roles/aide/defaults/main.yml`.
 7. Configure AIDE checksums
 8. Get AIDE include config
 9. Set AIDE include directory as fact
-10. Check if AIDE include directory exits
+10. Check if AIDE include directory exists
 11. Add auditd tools
 12. Add AIDE dir exclusions
 13. Add auditd tools in include directory
