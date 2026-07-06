@@ -11,12 +11,15 @@ argument_specs:
         description: "Only the network(s) defined in C(ufw_admin_net) are allowed to connect to C(ufw_ports)."
         type: "list"
         elements: "str"
-        default: "['192.168.0.0/24', '192.168.1.0/24']"
+        default:
+          - "192.168.0.0/24"
+          - "192.168.1.0/24"
       ufw_ports:
         description: "Specifies the ports that are allowed for incoming connections."
         type: "list"
         elements: "int"
-        default: "[22]"
+        default:
+          - 22
       ufw_outgoing_traffic:
         description: "Allowed outgoing ports and protocols."
         type: "list"
@@ -31,11 +34,11 @@ argument_specs:
       ufw_rate_limit:
         description: "If True, rate limiting is enabled for incoming connections."
         type: "bool"
-        default: "False"
+        default: false
       disable_ipv6:
         description: "If True, IPv6 is disabled."
         type: "bool"
-        default: "False"
+        default: false
       conntrack_sysctl_settings:
         type: "dict"
         default:

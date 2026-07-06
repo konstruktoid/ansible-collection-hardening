@@ -7,6 +7,10 @@ argument_specs:
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:
+      ssh_config_template:
+        description: "OpenSSH ssh_config template location."
+        type: "path"
+        default: "etc/ssh/ssh_config.j2"
       sshd_accept_env:
         description: "Specifies what environment variables sent by the client will be copied into the session."
         type: "str"
@@ -15,16 +19,19 @@ argument_specs:
         description: "Only the network(s) defined in C(sshd_admin_net) are allowed to connect to C(sshd_ports)."
         type: "list"
         elements: "str"
-        default: "['192.168.0.0/24', '192.168.1.0/24']"
+        default:
+          - "192.168.0.0/24"
+          - "192.168.1.0/24"
       sshd_allow_agent_forwarding:
         description: "Specifies whether ssh-agent forwarding is permitted."
         type: "bool"
-        default: "False"
+        default: false
       sshd_allow_groups:
         description: "If specified, login is allowed only for users whose primary group or supplementary group list matches one of the patterns."
         type: "list"
         elements: "str"
-        default: "['sudo']"
+        default:
+          - "sudo"
       sshd_allow_tcp_forwarding:
         description: "Specifies whether TCP forwarding is permitted."
         type: "str"
@@ -55,16 +62,23 @@ argument_specs:
         description: "Specifies which algorithms are allowed for signing of certificates by certificate authorities."
         type: "list"
         elements: "str"
-        default: "['ecdsa-sha2-nistp384', 'ecdsa-sha2-nistp521', 'ssh-ed25519', 'rsa-sha2-512']"
+        default:
+          - "ecdsa-sha2-nistp384"
+          - "ecdsa-sha2-nistp521"
+          - "ssh-ed25519"
+          - "rsa-sha2-512"
       sshd_kbd_interactive_authentication:
         description: "Specifies whether to allow keyboard-interactive authentication."
         type: "bool"
-        default: "False"
+        default: false
       sshd_ciphers:
         description: "Specifies the ciphers allowed. Multiple ciphers must be comma-separated."
         type: "list"
         elements: "str"
-        default: "['chacha20-poly1305@openssh.com', 'aes256-gcm@openssh.com', 'aes256-ctr']"
+        default:
+          - "chacha20-poly1305@openssh.com"
+          - "aes256-gcm@openssh.com"
+          - "aes256-ctr"
       sshd_client_alive_count_max:
         description: "Sets the number of client alive messages which may be sent without sshd receiving any messages back from the client."
         type: "int"
@@ -77,49 +91,59 @@ argument_specs:
       sshd_compression:
         description: "Specifies whether compression is enabled."
         type: "bool"
-        default: "False"
+        default: false
       sshd_config_d_force_clear:
         description: "Clear pre-existing custom configurations in /etc/ssh/sshd_config.d"
         type: "bool"
-        default: "False"
+        default: false
       sshd_config_force_replace:
         description: "Force replace configuration file C(/etc/ssh/sshd_config)."
         type: "bool"
-        default: "False"
+        default: false
+      sshd_config_template:
+        description: "OpenSSH sshd_config template location."
+        type: "path"
+        default: "etc/ssh/sshd_config.j2"
       sshd_debian_banner:
         description: "Specifies whether the distribution-specified extra version suffix is included during initial protocol handshake."
         type: "bool"
-        default: "False"
+        default: false
       sshd_deny_groups:
         description: "Login is disallowed for users whose primary group or supplementary group list matches one of the patterns."
         type: "list"
         elements: "str"
-        default: "[]"
+        default: []
       sshd_deny_users:
         description: "Login is disallowed for users whose user name matches one of the patterns."
         type: "list"
         elements: "str"
-        default: "[]"
+        default: []
       sshd_gateway_ports:
         description: "Specifies whether remote hosts are allowed to connect to ports forwarded for the client."
         type: "bool"
-        default: "False"
+        default: false
       sshd_gssapi_authentication:
         description: "Specifies whether user authentication based on GSSAPI is allowed."
         type: "bool"
-        default: "False"
+        default: false
       sshd_host_key_algorithms:
         description: "Specifies the host key algorithms that the server offers."
         type: "list"
         elements: "str"
-        default: "['ssh-ed25519-cert-v01@openssh.com', 'rsa-sha2-512-cert-v01@openssh.com', 'ssh-ed25519', 'ecdsa-sha2-nistp521-cert-v01@openssh.com', 'ecdsa-sha2-nistp384-cert-v01@openssh.com',
-          'ecdsa-sha2-nistp521', 'ecdsa-sha2-nistp384']"
+        default:
+          - "ssh-ed25519-cert-v01@openssh.com"
+          - "rsa-sha2-512-cert-v01@openssh.com"
+          - "ssh-ed25519"
+          - "ecdsa-sha2-nistp521-cert-v01@openssh.com"
+          - "ecdsa-sha2-nistp384-cert-v01@openssh.com"
+          - "ecdsa-sha2-nistp521"
+          - "ecdsa-sha2-nistp384"
       sshd_host_keys_files:
         description: "Specifies a file containing a private host key used by SSH. If empty C(RSA), C(ECDSA), and C(ED25519) will be used, if supported by the installed
           sshd version."
         type: "list"
         elements: "str"
-        default: "[]"
+        default: []
       sshd_host_keys_group:
         description: "Owner group of the host keys."
         type: "str"
@@ -135,30 +159,37 @@ argument_specs:
       sshd_hostbased_authentication:
         description: "Specifies whether rhosts or /etc/hosts.equiv authentication together with successful public key client host authentication is allowed."
         type: "bool"
-        default: "False"
+        default: false
       sshd_ignore_rhosts:
         description: "Specifies that .rhosts and .shosts files will not be used in HostbasedAuthentication."
         type: "bool"
-        default: "True"
+        default: true
       sshd_ignore_user_known_hosts:
         description: "Specifies whether sshd should ignore the user's ~/.ssh/known_hosts during HostbasedAuthentication and use only the system-wide known hosts file
           /etc/ssh/known_hosts."
         type: "bool"
-        default: "True"
+        default: true
       sshd_kerberos_authentication:
         description: "Specifies whether the password provided by the user for PasswordAuthentication will be validated through the Kerberos KDC."
         type: "bool"
-        default: "False"
+        default: false
       sshd_kex_algorithms:
         description: "Specifies the available KEX (Key Exchange) algorithms."
         type: "list"
         elements: "str"
-        default: "['mlkem768x25519-sha256', 'sntrup761x25519-sha512', 'curve25519-sha256', 'curve25519-sha256@libssh.org', 'ecdh-sha2-nistp521', 'ecdh-sha2-nistp384']"
+        default:
+          - "mlkem768x25519-sha256"
+          - "sntrup761x25519-sha512"
+          - "curve25519-sha256"
+          - "curve25519-sha256@libssh.org"
+          - "ecdh-sha2-nistp521"
+          - "ecdh-sha2-nistp384"
       sshd_listen:
         description: "Specifies the addresses sshd should listen on."
         type: "list"
         elements: "str"
-        default: "['0.0.0.0']"
+        default:
+          - "0.0.0.0"
       sshd_log_level:
         description: "Gives the verbosity level that is used when logging messages from sshd."
         type: "str"
@@ -181,7 +212,11 @@ argument_specs:
         description: "Specifies the available MAC (Message Authentication Code) algorithms."
         type: "list"
         elements: "str"
-        default: "['hmac-sha2-512-etm@openssh.com', 'hmac-sha2-256-etm@openssh.com', 'hmac-sha2-512', 'hmac-sha2-256']"
+        default:
+          - "hmac-sha2-512-etm@openssh.com"
+          - "hmac-sha2-256-etm@openssh.com"
+          - "hmac-sha2-512"
+          - "hmac-sha2-256"
       sshd_match_addresses:
         description: "Add a conditional block for addresses. If all of the criteria on the Match line are satisfied, the rules/parameters defined override those set
           in the global section of the config file, until either another Match line or the end of the file."
@@ -213,40 +248,41 @@ argument_specs:
       sshd_password_authentication:
         description: "Specifies whether password authentication is allowed."
         type: "bool"
-        default: "False"
+        default: false
       sshd_permit_empty_passwords:
         description: "Specifies whether the server allows login to accounts with empty password strings."
         type: "bool"
-        default: "False"
+        default: false
       sshd_permit_root_login:
         description: "Specifies whether root can log in using ssh, if True then the option is set to prohibit-password."
         type: "bool"
-        default: "False"
+        default: false
       sshd_permit_tunnel:
         description: "Specifies whether tun device forwarding is allowed."
         type: "bool"
-        default: "False"
+        default: false
       sshd_permit_user_environment:
         description: "Specifies whether user environment variables are processed by sshd."
         type: "bool"
-        default: "False"
+        default: false
       sshd_ports:
         description: "Specifies the port number that sshd listens on."
         type: "list"
         elements: "int"
-        default: "[22]"
+        default:
+          - 22
       sshd_print_last_log:
         description: "Specifies whether sshd should print the last user login when a user logs in interactively."
         type: "bool"
-        default: "True"
+        default: true
       sshd_print_motd:
         description: "Specifies whether sshd should print /etc/motd when a user logs in interactively."
         type: "bool"
-        default: "False"
+        default: false
       sshd_print_pam_motd:
         description: "Specifies whether pam_motd should be enabled for sshd."
         type: "bool"
-        default: "False"
+        default: false
       sshd_rekey_limit:
         description: "Specifies the maximum amount of data that may be transmitted before the session key is renegotiated, optionally followed a maximum amount of
           time that may pass before the session key is renegotiated."
@@ -263,11 +299,11 @@ argument_specs:
       sshd_sftp_enabled:
         description: "Specifies whether the SFTP subsystem should be enabled."
         type: "bool"
-        default: "True"
+        default: true
       sshd_sftp_chroot:
         description: "Specifies whether the SFTP subsystem should chroot users."
         type: "bool"
-        default: "True"
+        default: true
       sshd_sftp_chroot_dir:
         description: "Specifies the pathname of a directory to chroot to after authentication."
         type: "str"
@@ -283,7 +319,7 @@ argument_specs:
       sshd_strict_modes:
         description: "Specifies whether sshd should check file modes and ownership of the user's files and home directory before accepting login."
         type: "bool"
-        default: "True"
+        default: true
       sshd_syslog_facility:
         description: "Gives the facility code that is used when logging messages from sshd."
         type: "str"
@@ -303,7 +339,11 @@ argument_specs:
       sshd_tcp_keep_alive:
         description: "Specifies whether the system should send TCP keepalive messages to the other side."
         type: "bool"
-        default: "False"
+        default: false
+      sshd_tmpfiles_template:
+        description: "OpenSSH tmpfiles template location."
+        type: "path"
+        default: "usr/lib/tmpfiles.d/ssh.conf.j2"
       sshd_trusted_user_ca_keys_base64:
         description: "Public keys of trusted certificate authoritites in base64 format."
         type: "str"
@@ -315,7 +355,7 @@ argument_specs:
       sshd_update_moduli:
         description: "Specifies whether the moduli file should be updated."
         type: "bool"
-        default: "False"
+        default: false
       sshd_update_moduli_url:
         description: "Specifies the URL to download the moduli file from."
         type: "str"
@@ -324,12 +364,12 @@ argument_specs:
         description: "Specifies whether sshd should look up the remote host name, and to check that the resolved host name for the remote IP address maps back to
           the very same IP address."
         type: "bool"
-        default: "False"
+        default: false
       sshd_use_pam:
         description: "If true, this will enable PAM authentication using KbdInteractiveAuthentication and PasswordAuthentication in addition to PAM account and session
           module processing for all authentication types."
         type: "bool"
-        default: "True"
+        default: true
       sshd_use_privilege_separation:
         description: "Specifies whether sshd separates privileges by creating an unprivileged child process to deal with incoming network traffic."
         type: "str"
@@ -341,8 +381,8 @@ argument_specs:
       sshd_x11_forwarding:
         description: "Specifies whether X11 forwarding is permitted."
         type: "bool"
-        default: "False"
-      set_crypto_policies:
-        description: "Set cryptographic policies to the specified value. This is only applicable on RHEL-based distributions that support crypto policies."
+        default: false
+      use_crypto_policies:
+        description: "If true, the role will use the system's crypto policy to determine which algorithms to use for ssh and sshd configuration."
         type: "bool"
-        default: "True"
+        default: true

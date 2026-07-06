@@ -5,7 +5,6 @@ Ansible role to manage USBGuard, a software for implementing USB device authoriz
 ## Requirements
 
 - Ansible-core >= 2.18
-- `community.general` collection
 
 ## Supported platforms
 
@@ -46,29 +45,28 @@ Defined in `roles/usbguard/defaults/main.yml`.
 2. Install and configure USBGuard
 3. Debian family USBGuard installation
 4. RedHat family USBGuard package installation
-5. Suse family USBGuard package installation
-6. Configure RuleFile
-7. Configure ImplicitPolicyTarget
-8. Configure PresentDevicePolicy
-9. Configure PresentControllerPolicy
-10. Configure InsertedDevicePolicy
-11. Configure AuthorizedDefault
-12. Configure RestoreControllerDeviceState
-13. Configure DeviceManagerBackend
-14. Configure IPCAllowedUsers
-15. Configure IPCAllowedGroups
-16. Configure IPCAccessControlFiles
-17. Configure DeviceRulesWithPort
-18. Configure AuditBackend
-19. Configure AuditFilePath
-20. Configure HidePII
-21. Manage USBGuard service
-22. Start and enable USBGuard
-23. List all USBGuard rules
-24. Generate USBGuard policy
-25. Write policy and restart USBGuard
-26. Write policy
-27. Restart USBGuard
+5. Configure RuleFile
+6. Configure ImplicitPolicyTarget
+7. Configure PresentDevicePolicy
+8. Configure PresentControllerPolicy
+9. Configure InsertedDevicePolicy
+10. Configure AuthorizedDefault
+11. Configure RestoreControllerDeviceState
+12. Configure DeviceManagerBackend
+13. Configure IPCAllowedUsers
+14. Configure IPCAllowedGroups
+15. Configure IPCAccessControlFiles
+16. Configure DeviceRulesWithPort
+17. Configure AuditBackend
+18. Configure AuditFilePath
+19. Configure HidePII
+20. Manage USBGuard service
+21. Start and enable USBGuard
+22. List all USBGuard rules
+23. Generate USBGuard policy
+24. Write policy and restart USBGuard
+25. Write policy
+26. Restart USBGuard
 
 ## Example playbook
 

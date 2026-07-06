@@ -26,4 +26,4 @@ argument_specs:
       system_upgrade:
         description: "If True, then the installed packages will be upgraded to the latest version using C(apt) or C(dnf)."
         type: "bool"
-        default: "True"
+        default: true

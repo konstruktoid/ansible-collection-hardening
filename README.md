@@ -1,4 +1,4 @@
-# konstruktoid.hardening
+# Ansible collection for Server Hardening
 
 Ansible collection for hardening systemd-based Linux servers: AlmaLinux, Debian,
 and Ubuntu. It applies CIS Benchmark- and DISA STIG-aligned security controls
@@ -19,7 +19,7 @@ Some roles require the following additional collections:
 | --- | --- | --- |
 | `ansible.posix` | 2.2.0 | mount, ufw |
 | `community.crypto` | 3.2.1 | ssh |
-| `community.general` | 13.0.1 | automatic_updates, disable_wireless, ssh, ufw, usbguard |
+| `community.general` | 13.0.1 | automatic_updates, disable_wireless, ssh, ufw |
 
 Install them with:
 
