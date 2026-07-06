@@ -137,7 +137,7 @@ Defined in `roles/ssh/defaults/main.yml`.
 33. Stat sshd host keys
 34. Set sshd host key permissions
 35. Configure ssh
-36. Check if ssh_config.d exits
+36. Check if ssh_config.d exists
 37. Configure ssh client
 
 ## Handlers
