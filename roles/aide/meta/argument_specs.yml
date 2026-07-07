@@ -15,4 +15,9 @@ argument_specs:
         description: "AIDE directories to exclude from checks."
         type: "list"
         elements: "str"
-        default: "['/var/lib/docker', '/var/lib/lxcfs', '/var/lib/private/systemd', '/var/log/audit', '/var/log/journal']"
+        default:
+          - "/var/lib/docker"
+          - "/var/lib/lxcfs"
+          - "/var/lib/private/systemd"
+          - "/var/log/audit"
+          - "/var/log/journal"

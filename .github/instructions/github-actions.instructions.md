@@ -44,4 +44,4 @@ Apply these rules to workflow and action definitions.
 - Low: style/maintainability issues with limited security impact
 
 ## Second opinions
-- Regardless of finding severity, ask `@claude` for a second opinion in the PR before finalizing the review.
+- Regardless of finding severity, ask @claude for a second opinion in the PR before finalizing the review.

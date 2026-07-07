@@ -10,7 +10,7 @@ argument_specs:
       auditd_apply_audit_rules:
         description: "If True, the role applies the auditd rules from the included template file."
         type: "bool"
-        default: "True"
+        default: true
       auditd_action_mail_acct:
         description: "This option should contain a valid email address or alias."
         type: "str"
@@ -75,7 +75,7 @@ argument_specs:
       auditd_ignore_errors:
         description: "If True, the audit daemon will ignore errors when reading rules from a file."
         type: "bool"
-        default: "False"
+        default: false
       auditd_max_log_file:
         description: "This keyword specifies the maximum file size in megabytes. When this limit is reached, it will trigger a configurable action."
         type: "int"
@@ -127,3 +127,7 @@ argument_specs:
         description: "Enable auditd in the GRUB command line."
         type: "str"
         default: "audit=1"
+      hardening_rules_template:
+        description: "auditd rules template location."
+        type: "path"
+        default: "etc/audit/rules.d/hardening.rules.j2"

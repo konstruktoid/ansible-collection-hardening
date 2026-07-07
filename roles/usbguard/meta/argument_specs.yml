@@ -45,11 +45,11 @@ argument_specs:
       usbguard_deviceruleswithport:
         description: "Generate device specific rules including the 'via-port' attribute."
         type: "bool"
-        default: "False"
+        default: false
       usbguard_hidepii:
         description: "Hide personally identifiable information such as device serial numbers and hashes of descriptors from audit entries."
         type: "bool"
-        default: "False"
+        default: false
       usbguard_implicitpolicytarget:
         description: "How to treat USB devices that don’t match any rule in the policy."
         type: "str"
@@ -74,12 +74,16 @@ argument_specs:
         description: "A list of groupnames that the daemon will accept IPC connections from."
         type: "list"
         elements: "str"
-        default: "['plugdev', 'root', 'wheel']"
+        default:
+          - "plugdev"
+          - "root"
+          - "wheel"
       usbguard_ipcallowedusers:
         description: "A list of usernames that the daemon will accept IPC connections from."
         type: "list"
         elements: "str"
-        default: "['root']"
+        default:
+          - "root"
       usbguard_presentcontrollerpolicy:
         description: "How to treat USB controller devices that are already connected when the daemon starts."
         type: "str"
@@ -103,4 +107,4 @@ argument_specs:
       usbguard_restorecontrollerdevicestate:
         description: "Control whether the daemon will try to restore the attribute values to the state before modification on shutdown."
         type: "bool"
-        default: "False"
+        default: false

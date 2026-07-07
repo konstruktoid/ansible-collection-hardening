@@ -35,11 +35,11 @@ argument_specs:
       manage_faillock:
         description: "If True, enable and manage faillock."
         type: "bool"
-        default: "True"
+        default: true
       manage_pwquality:
         description: "If True, enable and manage pwquality."
         type: "bool"
-        default: "True"
+        default: true
       faillock:
         type: "dict"
         default:
@@ -181,11 +181,11 @@ argument_specs:
       set_crypto_policy:
         description: "If True, set crypto policy when config exists."
         type: "bool"
-        default: "True"
+        default: true
       manage_pam:
         description: "If True, manage PAM configuration files."
         type: "bool"
-        default: "True"
+        default: true
       password_remember:
         description: "The number of previous passwords to remember and not allow the user to reuse."
         type: "int"

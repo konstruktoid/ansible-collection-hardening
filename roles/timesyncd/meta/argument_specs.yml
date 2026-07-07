@@ -15,9 +15,13 @@ argument_specs:
         description: "A list of NTP server host names or IP addresses to be used as the fallback NTP servers."
         type: "list"
         elements: "str"
-        default: "['ntp.netnod.se', 'ntp.ubuntu.com']"
+        default:
+          - "ntp.netnod.se"
+          - "ntp.ubuntu.com"
       ntp:
         description: "A list of NTP server host names or IP addresses to be used as the primary NTP servers."
         type: "list"
         elements: "str"
-        default: "['2.pool.ntp.org', 'time.nist.gov']"
+        default:
+          - "2.pool.ntp.org"
+          - "time.nist.gov"

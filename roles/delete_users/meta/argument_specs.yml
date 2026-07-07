@@ -11,4 +11,11 @@ argument_specs:
         description: "List of users to delete."
         type: "list"
         elements: "str"
-        default: "['games', 'gnats', 'irc', 'list', 'news', 'sync', 'uucp']"
+        default:
+          - "games"
+          - "gnats"
+          - "irc"
+          - "list"
+          - "news"
+          - "sync"
+          - "uucp"

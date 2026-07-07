@@ -14,11 +14,11 @@ argument_specs:
       journald_compress:
         description: "If True, journal files will be compressed."
         type: "bool"
-        default: "True"
+        default: true
       journald_forwardtosyslog:
         description: "If True, forward journal messages to syslog."
         type: "bool"
-        default: "False"
+        default: false
       journald_storage:
         description: "Controls where to store journal data."
         type: "str"

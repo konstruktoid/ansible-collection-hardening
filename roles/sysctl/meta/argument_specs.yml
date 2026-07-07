@@ -121,7 +121,7 @@ argument_specs:
       usr_lib_sysctl_d_dir:
         description: "If True, use C(/usr/lib/sysctl.d) as the sysctl configuration directory, otherwise use C(/etc/sysctl.d)."
         type: "bool"
-        default: "False"
+        default: false
       sysctl_conf_dir:
         description: "Sets the sysctl configuration directory."
         type: "str"
@@ -385,4 +385,4 @@ argument_specs:
       disable_ipv6:
         description: "If True, disable IPv6 on the system."
         type: "bool"
-        default: "False"
+        default: false

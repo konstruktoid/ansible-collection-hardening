@@ -10,4 +10,4 @@ argument_specs:
       disable_apport:
         description: "If True, disable the C(Apport) crash reporting system."
         type: "bool"
-        default: "True"
+        default: true

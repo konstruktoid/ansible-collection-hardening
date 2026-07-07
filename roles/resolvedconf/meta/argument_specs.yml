@@ -15,12 +15,16 @@ argument_specs:
         description: "A list of addresses to use as system DNS servers."
         type: "list"
         elements: "str"
-        default: "['1.1.1.2', '9.9.9.9']"
+        default:
+          - "1.1.1.2"
+          - "9.9.9.9"
       fallback_dns:
         description: "A list of addresses to use as the fallback DNS servers."
         type: "list"
         elements: "str"
-        default: "['1.0.0.2', '149.112.112.112']"
+        default:
+          - "1.0.0.2"
+          - "149.112.112.112"
       dnssec:
         description: "Set the DNSSEC mode for systemd-resolved."
         type: "str"

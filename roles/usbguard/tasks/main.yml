@@ -9,6 +9,7 @@
   when:
     - usb_devices.stat.exists
     - usb_devices.stat.isdir
+    - ansible_facts.os_family in ["Debian", "RedHat"]
   block:
     - name: Debian family USBGuard installation
       ansible.builtin.apt:
@@ -27,13 +28,6 @@
       when:
         - ansible_facts.os_family == "RedHat"
 
-    - name: Suse family USBGuard package installation
-      community.general.zypper:
-        name: usbguard
-        state: present
-        update_cache: true
-      when:
-        - ansible_facts.os_family == "Suse"
     - name: Configure RuleFile
       ansible.builtin.lineinfile:
         regexp: "^(#\\s*)?RuleFile"

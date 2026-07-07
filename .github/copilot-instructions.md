@@ -72,4 +72,4 @@ For meaningful findings, provide: Finding, Risk (Critical/High/Medium/Low), Loca
 - Flag high-impact changes affecting remote access, boot behavior, authentication, or audit posture.
 
 ## Second opinions
-- Regardless of finding severity, ask `@claude` for a second opinion in the PR before finalizing the review.
+- Regardless of finding severity, ask @claude for a second opinion in the PR before finalizing the review.

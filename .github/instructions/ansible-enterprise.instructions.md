@@ -42,4 +42,4 @@ Treat these domains as high sensitivity and change conservatively:
 - Low: maintainability/readability issue with minimal security impact
 
 ## Second opinions
-- Regardless of finding severity, ask `@claude` for a second opinion in the PR before finalizing the review.
+- Regardless of finding severity, ask @claude for a second opinion in the PR before finalizing the review.
