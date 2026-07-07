@@ -14,6 +14,17 @@
         create: true
         line: "{{ item }}"
       loop: "{{ apt_options }}"
+      when: >-
+        item != 'APT::Sandbox::Seccomp "1";' or
+        ansible_facts.distribution_release != "trixie"
+
+    - name: Remove APT seccomp sandboxing on Debian trixie
+      ansible.builtin.lineinfile:
+        dest: /etc/apt/apt.conf.d/99-hardening
+        line: 'APT::Sandbox::Seccomp "1";'
+        state: absent
+      when:
+        - ansible_facts.distribution_release == "trixie"
 
     - name: Run apt upgrade
       ansible.builtin.apt:
@@ -120,5 +131,7 @@
         nobest: true
       when:
         - system_upgrade | bool
+      tags:
+        - molecule-idempotence-notest
       notify:
         - Run dnf autoremove

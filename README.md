@@ -122,8 +122,15 @@ role. See each role's `README.md` for its variables and example usage.
   `extensions/molecule/tests/`.
 - `tox -e docker` runs `ansible-lint` followed by `molecule test -s docker`.
 - `tox -e devel` and `tox -e upstream` run the same suite against the
-  non-container `default` molecule driver and against unpinned upstream
+  `default` scenario and against unpinned upstream
   `ansible-core`/`ansible-lint`, respectively.
+- The `default` scenario (`extensions/molecule/default`) boots the same three
+  platforms as genericcloud qcow2 images directly under
+  `qemu-system-x86_64`, instead of containers. It requires
+  `qemu-system-x86_64`, `qemu-img`, `genisoimage`, and OVMF UEFI firmware
+  installed on the host.
+- `molecule test -s vagrant` runs the same suite against Vagrant/VirtualBox
+  VMs (`extensions/molecule/vagrant`) and requires `vagrant` and VirtualBox.
 
 ## Security
 
