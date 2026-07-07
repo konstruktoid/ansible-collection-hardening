@@ -31,30 +31,9 @@
         - 'APT::Install-Recommends "false";'
         - 'APT::Install-Suggests "false";'
         - 'APT::Periodic::AutocleanInterval "7";'
+        - 'APT::Sandbox::Seccomp "1";'
         - 'Unattended-Upgrade::Remove-Unused-Dependencies "true";'
         - 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";'
-
-    - name: Verify apt seccomp sandboxing is enabled
-      become: true
-      ansible.builtin.shell:
-        cmd: grep -Fx 'APT::Sandbox::Seccomp "1";' /etc/apt/apt.conf.d/99-hardening
-      args:
-        executable: /bin/bash
-      changed_when: false
-      when:
-        - ansible_facts.distribution_release != "trixie"
-
-    - name: Verify apt seccomp sandboxing is disabled on trixie
-      become: true
-      ansible.builtin.shell:
-        cmd: grep -Fxc 'APT::Sandbox::Seccomp "1";' /etc/apt/apt.conf.d/99-hardening
-      args:
-        executable: /bin/bash
-      changed_when: false
-      failed_when: package_management_trixie_seccomp.stdout | trim != "0"
-      register: package_management_trixie_seccomp
-      when:
-        - ansible_facts.distribution_release == "trixie"
 
 - name: Stat yum.conf
   when:
