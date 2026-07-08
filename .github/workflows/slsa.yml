@@ -2,7 +2,7 @@
 name: SLSA
 on:
   release:
-    types: [published, released]
+    types: [published]
 
 permissions: {}
 
