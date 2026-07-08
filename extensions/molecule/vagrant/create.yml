@@ -40,10 +40,10 @@
           {{
             instance_conf | default([]) + [{
               'instance': item.item.name,
-              'address': item.stdout | regex_search('HostName (.+)', '\1') | first,
-              'user': item.stdout | regex_search('User (.+)', '\1') | first,
-              'port': item.stdout | regex_search('Port (.+)', '\1') | first,
-              'identity_file': item.stdout | regex_search('IdentityFile (.+)', '\1') | first
+              'address': item.stdout_lines | regex_search('HostName (.+)', '\\1') | first,
+              'user': item.stdout_lines | regex_search('User (.+)', '\\1') | first,
+              'port': item.stdout_lines | regex_search('Port (.+)', '\\1') | first,
+              'identity_file': item.stdout_lines | regex_search('IdentityFile (.+)', '\\1') | first
             }]
           }}
       loop: "{{ ssh_configs.results }}"
