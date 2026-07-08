@@ -5,24 +5,19 @@ driver:
   name: default
 platforms:
   - name: almalinux10
-    image_url: "https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/AlmaLinux-10-GenericCloud-latest.x86_64.qcow2"
-    ssh_user: almalinux
-    ssh_user_group: wheel
-    ssh_port: 22201
+    box: almalinux/10-kitten-x86_64_v2
     memory: 2048
     cpus: 1
   - name: resolute
-    image_url: "https://cloud-images.ubuntu.com/resolute/current/resolute-server-cloudimg-amd64.img"
-    ssh_user: ubuntu
-    ssh_user_group: sudo
-    ssh_port: 22202
+    box: bento/ubuntu-26.04
     memory: 1024
     cpus: 1
+    provider_raw_config_args:
+      - customize ["modifyvm", :id, "--cableconnected1", "on"]
+      - customize ['modifyvm', :id, '--uart1', '0x3F8', '4']
+      - customize ['modifyvm', :id, '--uartmode1', 'file', File::NULL]
   - name: trixie
-    image_url: "https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64.qcow2"
-    ssh_user: debian
-    ssh_user_group: sudo
-    ssh_port: 22203
+    box: bento/debian-13
     memory: 1024
     cpus: 1
 provisioner:
@@ -49,7 +44,7 @@ provisioner:
 verifier:
   name: ansible
 scenario:
-  name: default
+  name: vagrant
   create_sequence:
     - dependency
     - create

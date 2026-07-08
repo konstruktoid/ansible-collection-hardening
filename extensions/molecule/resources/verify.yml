@@ -52,7 +52,7 @@
       ansible.builtin.include_tasks:
         file: ../tests/verify_ssh.yml
       vars:
-        sshd_allow_groups: ["vagrant", "sudo"]
+        sshd_allow_groups: ["vagrant", "sudo", "wheel"]
 
     - name: Verify apport role
       ansible.builtin.include_tasks:

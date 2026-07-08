@@ -17,7 +17,7 @@
     - role: konstruktoid.hardening.packages
     - role: konstruktoid.hardening.ssh
       vars:
-        sshd_allow_groups: ["vagrant", "sudo"]
+        sshd_allow_groups: ["vagrant", "sudo", "wheel"]
     - role: konstruktoid.hardening.apport
     - role: konstruktoid.hardening.postfix
     - role: konstruktoid.hardening.sysctl

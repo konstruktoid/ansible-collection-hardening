@@ -27,8 +27,16 @@ Test/lint dependencies: `pip install -r requirements.txt` (pins `ansible-core`, 
   idempotence, then runs verifiers.
 - `molecule converge -s docker` / `molecule verify -s docker` — iterate on a single stage instead
   of the full destroy/create/idempotence/verify sequence.
-- `tox -e devel` / `tox -e upstream` — same loop against the `default` (non-docker) molecule
-  driver, or against unpinned upstream `ansible-core`/`ansible-lint`.
+- `tox -e devel` / `tox -e upstream` — same loop against the `default` scenario, or against
+  unpinned upstream `ansible-core`/`ansible-lint`.
+- `molecule test` (from `extensions/molecule/default`, or `molecule test -s default` from the
+  repo root) — the `default` scenario. It boots AlmaLinux 10, Ubuntu resolute, and Debian trixie
+  genericcloud images directly with `qemu-system-x86_64` (UEFI/OVMF, cloud-init NoCloud seed ISOs
+  built with `genisoimage`), instead of containers. Requires `qemu-system-x86_64`, `qemu-img`,
+  `genisoimage`, and OVMF firmware (`/usr/share/OVMF/OVMF_{CODE,VARS}_4M.fd`) on the host; base
+  images are cached under `~/.cache/molecule-qemu/images`.
+- `molecule test -s vagrant` — same suite against VirtualBox VMs via Vagrant
+  (`extensions/molecule/vagrant`); requires `vagrant` and VirtualBox installed locally.
 
 There is no per-role test setup: all roles are exercised together via
 `extensions/molecule/resources/converge.yml`, and verified via
@@ -44,8 +52,16 @@ There is no per-role test setup: all roles are exercised together via
   etc. directly against system files, not templates.
 - `roles/<name>/meta/main.yml` declares `galaxy_info.platforms` per role — keep this in sync with
   any OS-conditional logic added to that role's tasks.
-- `extensions/molecule/` holds the single molecule setup shared by all roles:
-  - `docker/molecule.yml` — platform matrix (containers) and test sequence.
+- `extensions/molecule/` holds the single molecule setup shared by all roles, with three
+  scenarios that differ only in how instances are provisioned (all three converge/verify the
+  same roles via `resources/`):
+  - `default/` — `driver: name: default` with hand-rolled `create.yml`/`destroy.yml` that boot
+    genericcloud qcow2 images directly via `qemu-system-x86_64` and register them into a dynamic
+    molecule inventory.
+  - `docker/` — `molecule.yml` platform matrix of containers, plus `create.yml`/`destroy.yml`
+    using `community.docker.docker_container`.
+  - `vagrant/` — Vagrant/VirtualBox VMs, with `Vagrantfile.j2` rendered per-run from the
+    platform matrix and `create.yml`/`destroy.yml` driving `vagrant up`/`vagrant destroy`.
   - `resources/converge.yml` — applies every role to the test hosts in a fixed order, with
     scenario-only variable overrides (e.g. `sshd_allow_groups`, `ufw_admin_net`).
   - `resources/prepare.yml` / `resources/verify.yml` — pre-test setup and the entrypoint that
