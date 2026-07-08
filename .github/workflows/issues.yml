@@ -1,0 +1,25 @@
+---
+name: Issue assignment
+
+on:
+  issues:
+    types: [opened]
+
+permissions: {}
+
+jobs:
+  auto-assign:
+    permissions:
+      issues: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920  # v2.20.0
+        with:
+          egress-policy: audit
+
+      - name: 'auto-assign issue'
+        uses: pozil/auto-assign-issue@af6beea6bdf1e8eb373f061c5bc168681fc6d011  # v4.0.1
+        with:
+          assignees: konstruktoid
