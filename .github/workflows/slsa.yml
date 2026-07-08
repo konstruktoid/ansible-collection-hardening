@@ -1,9 +1,6 @@
 ---
 name: SLSA
 on:
-  push:
-    tags:
-      - '*'
   release:
     types: [published, released]
 
