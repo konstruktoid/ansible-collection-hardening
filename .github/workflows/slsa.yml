@@ -35,7 +35,7 @@ jobs:
 
       - name: Build artifacts
         run: |
-          find roles/ -type f -exec sha256sum {} +; > ${REPOSITORY_NAME}.sha256
+          find roles/ -type f -exec sha256sum {} + > "${REPOSITORY_NAME}.sha256"
 
       - name: Generate hashes
         shell: bash
