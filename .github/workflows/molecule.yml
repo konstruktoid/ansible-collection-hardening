@@ -1,0 +1,66 @@
+---
+name: Molecule testing workflow
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "30 5 * * */3"
+  workflow_dispatch:
+permissions: {}
+concurrency:
+  group: molecule-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  tox-docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920  # v2.20.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          uv tool install tox --with tox-uv
+
+      - name: Test stable releases
+        run: |
+          tox run -e docker
+
+  tox-docker-upstream:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920  # v2.20.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          uv tool install tox --with tox-uv
+
+      - name: Test upstream code
+        run: |
+          tox run -e docker-upstream
