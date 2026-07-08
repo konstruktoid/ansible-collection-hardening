@@ -36,8 +36,10 @@ jobs:
           persist-credentials: false
 
       - name: Build artifacts
+        shell: bash
         run: |
-          find roles/ -type f -exec sha256sum {} + > "${REPOSITORY_NAME}.sha256"
+          set -euo pipefail
+          LC_ALL=C find roles/ -type f -print0 | sort -z | xargs -0 sha256sum > "${REPOSITORY_NAME}.sha256"
 
       - name: Generate hashes
         shell: bash
