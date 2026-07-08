@@ -31,6 +31,6 @@ jobs:
           python3 -m pip install --user -U jmespath passlib
 
       - name: Lint Ansible Playbook
-        uses: ansible/ansible-lint@main
+        uses: ansible/ansible-lint@262624cd0ab22a4221293216856c59671ce7aa5e  # v26.6.0
         with:
           requirements_file: "requirements.yml"
