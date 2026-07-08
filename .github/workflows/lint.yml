@@ -32,3 +32,5 @@ jobs:
 
       - name: Lint Ansible Playbook
         uses: ansible/ansible-lint@main
+        with:
+          requirements_file: "requirements.yml"
