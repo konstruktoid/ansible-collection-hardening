@@ -12,7 +12,6 @@ jobs:
   claude-review:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: ${{ github.actor != 'Copilot' }}
     permissions:
       contents: write
       pull-requests: read
