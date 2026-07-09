@@ -69,11 +69,12 @@ molecule converge -s default
 Each platform in `extensions/molecule/default/molecule.yml` forwards its own
 local SSH port (`ssh_port: 22201` for `almalinux10`, `22202` for `resolute`,
 `22203` for `trixie`) to the guest's `sshd`, with a per-run ephemeral key
-under `~/.ansible/tmp/molecule.<hash>.default/ssh_key`. An MCP client can
+written to Molecule's ephemeral directory as `ssh_key` (see
+`extensions/molecule/default/create.yml`). An MCP client can
 inventory a host directly, with no `~/.ssh/config` entry required:
 
-> Inventory 127.0.0.1, port 22201, user almalinux, identity_file
-> `~/.ansible/tmp/molecule.<hash>.default/ssh_key`. Check installed
+> Inventory 127.0.0.1, port 22201, user almalinux, identity_file `ssh_key`
+> from the Molecule ephemeral directory. Check installed
 > packages, find CVEs, suggest a fix in Ansible if possible, and identify
 > the compliance controls it maps to.
 
