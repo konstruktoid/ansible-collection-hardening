@@ -9,6 +9,9 @@ domains.
 Conversion of [ansible-role-hardening](https://github.com/konstruktoid/ansible-role-hardening)
 to collection format.
 
+See [OVERVIEW.md](OVERVIEW.md) for a high-level overview of the repository's
+purpose, components, and scope.
+
 ## Requirements
 
 - ansible-core >= 2.18.0
