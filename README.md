@@ -12,6 +12,12 @@ to collection format.
 See [OVERVIEW.md](OVERVIEW.md) for a high-level overview of the repository's
 purpose, components, and scope.
 
+See [PRESCRYB.md](PRESCRYB.md) for how to use
+[`prescryb`](https://github.com/konstruktoid/prescryb), a companion MCP
+server, to scan a hardened host for outstanding CVEs and compliance gaps
+and get Ansible remediation suggestions referencing this collection's
+roles.
+
 ## Requirements
 
 - ansible-core >= 2.18.0
