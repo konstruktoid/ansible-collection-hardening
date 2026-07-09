@@ -23,6 +23,7 @@ tags:
   - linux
   - rhel
   - security
+  - systemd
   - ubuntu
 build_ignore:
   - .ansible/
