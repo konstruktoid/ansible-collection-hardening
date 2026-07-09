@@ -1,0 +1,6 @@
+ansible-core>=2.18
+ansible-lint~=26.4
+jmespath~=1.1
+molecule~=26.4
+passlib~=1.7
+requests~=2.34
