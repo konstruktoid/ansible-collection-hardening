@@ -1,6 +1,6 @@
 # Change Log
 
-## 0.1.1
+## 0.1.1 (2026-07-10)
 
 - Fix versioning.
 
