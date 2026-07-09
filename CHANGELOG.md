@@ -1,5 +1,9 @@
 # Change Log
 
-## 0.0.1 (2026-03-25)
+## 0.1.1
+
+- Fix versioning.
+
+## 0.1.0 (2026-07-09)
 
 - Initial release of the project.
