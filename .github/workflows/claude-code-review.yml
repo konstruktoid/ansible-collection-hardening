@@ -1,6 +1,5 @@
 ---
 name: Claude Code Review
-
 on:
   pull_request:
     types: [opened, synchronize, ready_for_review, reopened]
@@ -9,20 +8,64 @@ concurrency:
   group: claude-review-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
-  claude-review:
+  check-actor:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
     permissions:
-      contents: write
-      pull-requests: read
-      issues: read
-      id-token: write
-
+      contents: read
+    outputs:
+      has_write: ${{ steps.check.outputs.has_write }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920  # v2.20.0
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+            *.actions.githubusercontent.com:443
+
+      - name: Check actor has write access
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          set -euo pipefail
+          permission=$(gh api "repos/${REPO}/collaborators/${ACTOR}/permission" --jq .permission)
+          if [ "${permission}" = "admin" ] || [ "${permission}" = "write" ]; then
+            echo "has_write=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_write=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  claude-review:
+    needs: check-actor
+    if: needs.check-actor.outputs.has_write == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920  # v2.20.0
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            api.anthropic.com:443
+            api.github.com:443
+            claude.ai:443
+            downloads.claude.ai:443
+            github.com:443
+            http-intake.logs.us5.datadoghq.com:443
+            release-assets.githubusercontent.com:443
+            registry.npmjs.org:443
+            *.actions.githubusercontent.com:443
+            *.blob.core.windows.net:443
 
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
