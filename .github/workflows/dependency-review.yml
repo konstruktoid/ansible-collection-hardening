@@ -18,6 +18,7 @@ jobs:
           egress-policy: block
           allowed-endpoints: >
             api.github.com:443
+            api.securityscorecards.dev:443
             github.com:443
             *.actions.githubusercontent.com:443
             *.blob.core.windows.net:443
