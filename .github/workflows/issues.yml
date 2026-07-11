@@ -1,12 +1,9 @@
 ---
 name: Issue assignment
-
 on:
   issues:
     types: [opened]
-
 permissions: {}
-
 jobs:
   auto-assign:
     permissions:

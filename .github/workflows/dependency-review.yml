@@ -1,21 +1,10 @@
 ---
-# Dependency Review Action
-#
-# This Action will scan dependency manifest files that change as part of a Pull Request,
-# surfacing known-vulnerable versions of the packages declared or updated in the PR.
-# Once installed, if the workflow run is marked as required,
-# PRs introducing known-vulnerable packages will be blocked from merging.
-#
-# Source repository: https://github.com/actions/dependency-review-action
 name: 'Dependency Review'
 on: [pull_request]
-
 permissions: {}
-
 concurrency:
   group: dependency-review-${{ github.event.pull_request.number }}
   cancel-in-progress: true
-
 jobs:
   dependency-review:
     runs-on: ubuntu-latest
@@ -26,7 +15,12 @@ jobs:
       - name: Harden Runner
         uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920  # v2.20.0
         with:
-          egress-policy: audit
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+            *.actions.githubusercontent.com:443
+            *.blob.core.windows.net:443
 
       - name: 'Checkout Repository'
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
