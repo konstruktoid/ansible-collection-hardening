@@ -8,7 +8,41 @@ concurrency:
   group: claude-review-${{ github.event.pull_request.number }}
   cancel-in-progress: true
 jobs:
+  check-actor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      has_write: ${{ steps.check.outputs.has_write }}
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920  # v2.20.0
+        with:
+          egress-policy: block
+          allowed-endpoints: >
+            api.github.com:443
+            github.com:443
+            *.actions.githubusercontent.com:443
+
+      - name: Check actor has write access
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          set -euo pipefail
+          permission=$(gh api "repos/${REPO}/collaborators/${ACTOR}/permission" --jq .permission)
+          if [ "${permission}" = "admin" ] || [ "${permission}" = "write" ]; then
+            echo "has_write=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_write=false" >> "$GITHUB_OUTPUT"
+          fi
+
   claude-review:
+    needs: check-actor
+    if: needs.check-actor.outputs.has_write == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
