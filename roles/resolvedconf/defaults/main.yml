@@ -9,5 +9,13 @@ dnssec: "allow-downgrade"
 
 # A list of addresses to use as the fallback DNS servers.
 fallback_dns: ["1.0.0.2", "149.112.112.112"]
+
+# Enable or disable Link-Local Multicast Name Resolution.
+llmnr: "no"
+
+# Enable or disable multicast DNS resolution, on by default per-link since
+# systemd v253.
+multicast_dns: "no"
+
 # Systemd resolved.conf template location.
 resolved_conf_template: "etc/systemd/resolved.conf.j2"

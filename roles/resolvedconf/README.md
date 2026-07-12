@@ -24,6 +24,8 @@ Defined in `roles/resolvedconf/defaults/main.yml`.
 | `dns_over_tls` | `"opportunistic"` | Set the DNS over TLS mode for systemd-resolved. |
 | `dnssec` | `"allow-downgrade"` | Set the DNSSEC mode for systemd-resolved. |
 | `fallback_dns` | `["1.0.0.2", "149.112.112.112"]` | A list of addresses to use as the fallback DNS servers. |
+| `llmnr` | `"no"` | Enable or disable Link-Local Multicast Name Resolution. |
+| `multicast_dns` | `"no"` | Enable or disable multicast DNS resolution, on by default per-link since systemd v253. |
 | `resolved_conf_template` | `"etc/systemd/resolved.conf.j2"` | Systemd resolved.conf template location. |
 
 ## Tasks

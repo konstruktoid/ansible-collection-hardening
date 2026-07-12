@@ -41,3 +41,19 @@ argument_specs:
           - "opportunistic"
           - "False"
           - "True"
+      llmnr:
+        description: "Enable or disable Link-Local Multicast Name Resolution."
+        type: "str"
+        default: "no"
+        choices:
+          - "no"
+          - "yes"
+          - "resolve"
+      multicast_dns:
+        description: "Enable or disable multicast DNS resolution."
+        type: "str"
+        default: "no"
+        choices:
+          - "no"
+          - "yes"
+          - "resolve"
