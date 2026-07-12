@@ -13,3 +13,14 @@
     - DNSOverTLS={{ dns_over_tls }}
   when:
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+- name: Verify systemd resolved.conf LLMNR and MulticastDNS settings
+  become: true
+  ansible.builtin.command:
+    cmd: grep -F "{{ item }}" /etc/systemd/resolved.conf
+  register: systemd_resolved_conf_mdns
+  changed_when: false
+  failed_when: systemd_resolved_conf_mdns.rc != 0
+  with_items:
+    - LLMNR={{ llmnr }}
+    - MulticastDNS={{ multicast_dns }}
