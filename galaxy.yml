@@ -35,7 +35,5 @@ build_ignore:
   - .github/
   - .nox
   - .tox
-  - .vagrant
-  - Vagrantfile
   - .venv
   - .yamllint

@@ -4,25 +4,25 @@ dependency:
 driver:
   name: default
 platforms:
-  - name: almalinux10
-    box: almalinux/10-kitten-x86_64_v2
-    memory: 2048
-    cpus: 1
-  - name: resolute
-    box: bento/ubuntu-26.04
+  - name: forky
+    image_url: "https://cloud.debian.org/images/cloud/forky/daily/latest/debian-14-generic-amd64-daily.qcow2"
+    ssh_user: debian
+    ssh_user_group: sudo
+    ssh_port: 22301
     memory: 1024
     cpus: 1
-    provider_raw_config_args:
-      - customize ["modifyvm", :id, "--cableconnected1", "on"]
-      - customize ['modifyvm', :id, '--uart1', '0x3F8', '4']
-      - customize ['modifyvm', :id, '--uartmode1', 'file', File::NULL]
-  - name: trixie
-    box: bento/debian-13
+  - name: stonking
+    image_url: "https://cloud-images.ubuntu.com/stonking/current/stonking-server-cloudimg-amd64.img"
+    ssh_user: ubuntu
+    ssh_user_group: sudo
+    ssh_port: 22302
     memory: 1024
     cpus: 1
 provisioner:
   name: ansible
   playbooks:
+    create: "../resources/create_qemu.yml"
+    destroy: "../resources/destroy_qemu.yml"
     converge: "../resources/converge.yml"
     prepare: "../resources/prepare.yml"
     verify: "../resources/verify.yml"
@@ -38,13 +38,12 @@ provisioner:
       molecule:
         ansible_become: true
     host_vars:
-      almalinux10:
-      resolute:
-      trixie:
+      forky:
+      stonking:
 verifier:
   name: ansible
 scenario:
-  name: vagrant
+  name: os-devel
   create_sequence:
     - dependency
     - create
