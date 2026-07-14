@@ -37,6 +37,12 @@ Test/lint dependencies: `pip install -r requirements.txt` (pins `ansible-core`, 
   images are cached under `~/.cache/molecule-qemu/images`.
 - `molecule test -s vagrant` — same suite against VirtualBox VMs via Vagrant
   (`extensions/molecule/vagrant`); requires `vagrant` and VirtualBox installed locally.
+- `tox -e os-devel` / `molecule test -s os-devel` (`extensions/molecule/os-devel`, qemu-booted like
+  the `default` scenario) — tests against upcoming/development OS releases: Debian 14 "forky" and
+  Ubuntu 26.10 "stonking", using their daily/current cloud images. Kept separate from the stable
+  `docker`/`default`/`vagrant` scenarios since these releases are still moving targets, and is
+  local-development-only (no CI workflow) since it needs the same qemu/OVMF host setup as
+  `default`.
 
 There is no per-role test setup: all roles are exercised together via
 `extensions/molecule/resources/converge.yml`, and verified via
