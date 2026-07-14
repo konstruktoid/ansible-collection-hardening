@@ -28,6 +28,8 @@ platforms:
 provisioner:
   name: ansible
   playbooks:
+    create: "../resources/create_qemu.yml"
+    destroy: "../resources/destroy_qemu.yml"
     converge: "../resources/converge.yml"
     prepare: "../resources/prepare.yml"
     verify: "../resources/verify.yml"

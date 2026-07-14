@@ -61,17 +61,21 @@ There is no per-role test setup: all roles are exercised together via
 - `extensions/molecule/` holds the single molecule setup shared by all roles, with three
   scenarios that differ only in how instances are provisioned (all three converge/verify the
   same roles via `resources/`):
-  - `default/` — `driver: name: default` with hand-rolled `create.yml`/`destroy.yml` that boot
-    genericcloud qcow2 images directly via `qemu-system-x86_64` and register them into a dynamic
-    molecule inventory.
-  - `docker/` — `molecule.yml` platform matrix of containers, plus `create.yml`/`destroy.yml`
-    using `community.docker.docker_container`.
+  - `default/` and `os-devel/` — both use `driver: name: default` and point their
+    `provisioner.playbooks.create`/`destroy` at the shared `resources/create_qemu.yml` and
+    `resources/destroy_qemu.yml`, which boot genericcloud qcow2 images directly via
+    `qemu-system-x86_64` and register them into a dynamic molecule inventory. Only their
+    `molecule.yml` platform matrices differ (stable vs. devel images).
+  - `docker/` — `molecule.yml` platform matrix of containers, plus its own `create.yml`/
+    `destroy.yml` using `community.docker.docker_container`.
   - `vagrant/` — Vagrant/VirtualBox VMs, with `Vagrantfile.j2` rendered per-run from the
-    platform matrix and `create.yml`/`destroy.yml` driving `vagrant up`/`vagrant destroy`.
+    platform matrix and its own `create.yml`/`destroy.yml` driving `vagrant up`/`vagrant destroy`.
   - `resources/converge.yml` — applies every role to the test hosts in a fixed order, with
     scenario-only variable overrides (e.g. `sshd_allow_groups`, `ufw_admin_net`).
   - `resources/prepare.yml` / `resources/verify.yml` — pre-test setup and the entrypoint that
     includes per-role `tests/verify_<role>.yml` files.
+  - `resources/create_qemu.yml` / `resources/destroy_qemu.yml` — shared QEMU provisioning logic
+    for the `default` and `os-devel` scenarios (see above).
 - `meta/runtime.yml` sets `requires_ansible`; `galaxy.yml` declares collection metadata,
   dependencies (`ansible.posix`, `community.crypto`, `community.general`), and `build_ignore`.
 - `.github/copilot-instructions.md` and `.github/instructions/*.instructions.md` are the
