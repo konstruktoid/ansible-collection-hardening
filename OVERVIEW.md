@@ -47,12 +47,12 @@ files directly rather than rendering templates, which keeps the relationship
 between a task and the resulting file change direct and auditable.
 
 The **test harness** is a shared framework used by every role rather than a
-per-role testing setup. It provides three interchangeable provisioning
-scenarios, using containers, directly booted virtual machine images, or
-Vagrant-managed virtual machines, that all converge and verify the same set
-of roles through common configuration and verification files. This shared
-approach ensures that all roles are exercised together under realistic,
-consistent conditions rather than in isolation.
+per-role testing setup. It provides interchangeable provisioning scenarios,
+using containers or directly booted virtual machine images, that all
+converge and verify the same set of roles through common configuration and
+verification files. This shared approach ensures that all roles are
+exercised together under realistic, consistent conditions rather than in
+isolation.
 
 **Collection metadata** declares the collection's namespace and name, the
 minimum supported `ansible-core` version, and its dependencies on other

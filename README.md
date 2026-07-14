@@ -138,8 +138,6 @@ role. See each role's `README.md` for its variables and example usage.
   `qemu-system-x86_64`, instead of containers. It requires
   `qemu-system-x86_64`, `qemu-img`, `genisoimage`, and OVMF UEFI firmware
   installed on the host.
-- `molecule test -s vagrant` runs the same suite against Vagrant/VirtualBox
-  VMs (`extensions/molecule/vagrant`) and requires `vagrant` and VirtualBox.
 - `tox -e os-devel` / `molecule test -s os-devel`
   (`extensions/molecule/os-devel`) tests against upcoming/development OS
   releases (Debian forky, Ubuntu stonking) using their daily/current cloud
