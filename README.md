@@ -26,9 +26,9 @@ Some roles require the following additional collections:
 
 | Collection | Minimum version | Required by |
 | --- | --- | --- |
-| `ansible.posix` | 2.2.0 | mount, ufw |
+| `ansible.posix` | 2.2.0 | firewalld, mount, ufw |
 | `community.crypto` | 3.2.1 | ssh |
-| `community.general` | 13.0.1 | automatic_updates, disable_wireless, ssh, ufw |
+| `community.general` | 13.0.1 | automatic_updates, disable_wireless, firewalld, ssh, ufw |
 
 Install them with:
 
@@ -92,6 +92,7 @@ role. See each role's `README.md` for its variables and example usage.
 | [`delete_users`](roles/delete_users/README.md) | Delete listed users. | Debian, AlmaLinux/EL, Ubuntu |
 | [`disable_ipv6`](roles/disable_ipv6/README.md) | Disable IPv6 by configuring the `net.ipv6.conf.*.disable_ipv6` sysctl keys and the GRUB kernel command line. | Debian, AlmaLinux/EL, Ubuntu |
 | [`disable_wireless`](roles/disable_wireless/README.md) | Disable wireless interfaces and wireless kernel modules on AlmaLinux, Debian, and Ubuntu systems. | Debian, AlmaLinux/EL, Ubuntu |
+| [`firewalld`](roles/firewalld/README.md) | An Ansible role to manage firewalld default-deny zone rules. | AlmaLinux/EL |
 | [`issue`](roles/issue/README.md) | Role to update /etc/issue and /etc/motd files using Jinja2 templates. | Debian, AlmaLinux/EL, Ubuntu |
 | [`journald`](roles/journald/README.md) | Configures systemd-journald storage, rotation, and file permissions; installs and configures rsyslog and logrotate for log forwarding and rotation; disables systemd-journal-remote. | Debian, AlmaLinux/EL, Ubuntu |
 | [`kernel`](roles/kernel/README.md) | Hardens kernel runtime behavior via sysctl and boot-time parameters: restricts virtual syscalls (vsyscall), enables page poisoning, kernel page-table isolation, SLUB debug poisoning, and kernel lockdown mode, using GRUB or grubby depending on the platform. | Debian, AlmaLinux/EL, Ubuntu |

@@ -1,0 +1,57 @@
+---
+argument_specs:
+  main:
+    short_description: "firewalld configuration module for Ansible."
+    description:
+      - "This module allows you to manage firewalld default-deny zone rules on AlmaLinux/EL servers."
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      firewalld_zone:
+        description: "The firewalld zone to set as default-deny and apply C(firewalld_admin_net)/C(firewalld_ports) to."
+        type: "str"
+        default: "public"
+      firewalld_admin_net:
+        description: "Only the network(s) defined in C(firewalld_admin_net) are allowed to connect to C(firewalld_ports)."
+        type: "list"
+        elements: "str"
+        default:
+          - "192.168.0.0/24"
+          - "192.168.1.0/24"
+      firewalld_ports:
+        description: "Specifies the port number(s) that firewalld should accept incoming connections on."
+        type: "list"
+        elements: "int"
+        default:
+          - 22
+      firewalld_log_denied:
+        description: "firewall-cmd --set-log-denied value."
+        type: "str"
+        default: "unicast"
+        choices:
+          - "all"
+          - "unicast"
+          - "broadcast"
+          - "multicast"
+          - "off"
+      firewalld_rate_limit:
+        description: "If True, rate limiting is enabled for incoming administrator connections."
+        type: "bool"
+        default: false
+      firewalld_rate_limit_value:
+        description: "The firewalld rich rule C(limit value) applied when C(firewalld_rate_limit) is True."
+        type: "str"
+        default: "6/m"
+      firewalld_conntrack_sysctl_settings:
+        type: "dict"
+        default:
+          net.netfilter.nf_conntrack_max: 2000000
+          net.netfilter.nf_conntrack_tcp_loose: 0
+        description: "Connection tracking sysctl settings."
+        options:
+          net.netfilter.nf_conntrack_max:
+            description: "The maximum number of connections that the system’s connection tracking table can hold at any time."
+            type: "int"
+          net.netfilter.nf_conntrack_tcp_loose:
+            description: "If 0, the system will not allow TCP connections to be established without a SYN packet."
+            type: "int"

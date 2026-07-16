@@ -36,6 +36,13 @@
       vars:
         ufw_admin_net: ["0.0.0.0/0"]
 
+    - name: Verify firewalld role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_firewalld.yml
+      when: ansible_facts.os_family == "RedHat"
+      vars:
+        firewalld_admin_net: ["0.0.0.0/0"]
+
     - name: Verify resolvedconf role
       ansible.builtin.include_tasks:
         file: ../tests/verify_resolvedconf.yml
