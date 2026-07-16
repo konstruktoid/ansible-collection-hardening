@@ -1,0 +1,100 @@
+---
+- name: Verify firewalld
+  become: true
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+  block:
+    - name: Get firewalld state
+      ansible.builtin.command:
+        cmd: firewall-cmd --state
+      changed_when: false
+      failed_when: firewalld_state.stdout != "running"
+      register: firewalld_state
+
+    - name: Get firewalld default zone target
+      ansible.builtin.command:
+        cmd: firewall-cmd --permanent --zone={{ firewalld_zone }} --get-target
+      changed_when: false
+      register: firewalld_zone_target
+
+    - name: Assert firewalld default zone target is DROP
+      ansible.builtin.assert:
+        that:
+          - "'DROP' in firewalld_zone_target.stdout"
+        fail_msg: "Expected the {{ firewalld_zone }} zone target to be DROP"
+
+    - name: Get firewalld rich rules
+      ansible.builtin.command:
+        cmd: firewall-cmd --zone={{ firewalld_zone }} --list-rich-rules
+      changed_when: false
+      register: firewalld_rich_rules
+
+    - name: Print firewalld rich rules
+      ansible.builtin.debug:
+        msg: "{{ firewalld_rich_rules.stdout }}"
+
+    - name: Assert firewalld admin rich rule is present
+      ansible.builtin.assert:
+        that:
+          - "'source address=\"' + firewalld_admin_net[0] + '\"' in firewalld_rich_rules.stdout"
+          - "'port port=\"' + firewalld_ports[0] | string + '\" protocol=\"tcp\"' in firewalld_rich_rules.stdout"
+          - "'accept' in firewalld_rich_rules.stdout"
+        fail_msg: "Expected firewalld admin rich rule not found"
+
+    - name: Assert rate limiting matches firewalld_rate_limit
+      ansible.builtin.assert:
+        that:
+          - "('limit value=\"' + firewalld_rate_limit_value + '\"' in firewalld_rich_rules.stdout) == firewalld_rate_limit"
+        fail_msg: >-
+          Expected the admin rich rule to include a rate limit only when
+          firewalld_rate_limit is true.
+
+    - name: Get firewalld zone services
+      ansible.builtin.command:
+        cmd: firewall-cmd --zone={{ firewalld_zone }} --list-services
+      changed_when: false
+      register: firewalld_zone_services
+
+    - name: Assert no default zone services bypass the admin rich rule
+      ansible.builtin.assert:
+        that:
+          - firewalld_zone_services.stdout | trim == ""
+        fail_msg: >-
+          Zone services {{ firewalld_zone_services.stdout }} are still enabled;
+          they would accept traffic regardless of the DROP target and admin
+          rich rule.
+
+    - name: Get firewalld log-denied setting
+      ansible.builtin.command:
+        cmd: firewall-cmd --get-log-denied
+      changed_when: false
+      register: firewalld_get_log_denied
+
+    - name: Assert firewalld log-denied matches firewalld_log_denied
+      ansible.builtin.assert:
+        that:
+          - firewalld_get_log_denied.stdout == firewalld_log_denied
+        fail_msg: >-
+          Expected log-denied to be {{ firewalld_log_denied }}, got
+          {{ firewalld_get_log_denied.stdout }}.
+
+    - name: Get conntrack sysctl values
+      ansible.builtin.command:
+        cmd: sysctl -n {{ item.key }}
+      changed_when: false
+      loop: "{{ firewalld_conntrack_sysctl_settings | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+      register: firewalld_conntrack_sysctl_values
+
+    - name: Assert conntrack sysctl values match firewalld_conntrack_sysctl_settings
+      ansible.builtin.assert:
+        that:
+          - item.stdout | trim == (firewalld_conntrack_sysctl_settings[item.item.key] | string)
+        fail_msg: >-
+          Expected {{ item.item.key }} to be
+          {{ firewalld_conntrack_sysctl_settings[item.item.key] }}, got
+          {{ item.stdout }}.
+      loop: "{{ firewalld_conntrack_sysctl_values.results }}"
+      loop_control:
+        label: "{{ item.item.key }}"

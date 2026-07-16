@@ -1,0 +1,135 @@
+---
+- name: Set sysctl configuration directory as fact
+  block:
+    - name: Stat /usr/lib/sysctl.d/ exists
+      ansible.builtin.stat:
+        path: /usr/lib/sysctl.d/
+      register: firewalld_usr_lib_sysctl_d
+
+    - name: Set sysctl fact
+      ansible.builtin.set_fact:
+        firewalld_usr_lib_sysctl_d_dir: "{{ true if firewalld_usr_lib_sysctl_d.stat.exists else false }}"
+
+    - name: Determine sysctl configuration directory
+      ansible.builtin.set_fact:
+        firewalld_sysctl_conf_dir: "{{ '/usr/lib/sysctl.d' if firewalld_usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"
+
+- name: Configure and enable firewalld
+  become: true
+  when:
+    - ansible_facts.os_family == "RedHat"
+  block:
+    - name: Install firewalld packages
+      ansible.builtin.dnf:
+        name:
+          - firewalld
+          - python3-firewall
+        state: present
+        update_cache: true
+
+    - name: Add the nf_conntrack module
+      community.general.modprobe:
+        name: nf_conntrack
+        state: present
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Stat nf_conntrack_tcp_be_liberal
+      ansible.builtin.stat:
+        path: /proc/sys/net/netfilter/nf_conntrack_tcp_be_liberal
+      register: firewalld_conntrackliberal
+
+    - name: Enable nf_conntrack_tcp_be_liberal to keep connections alive
+      ansible.posix.sysctl:
+        name: net.netfilter.nf_conntrack_tcp_be_liberal
+        value: "1"
+        state: present
+        sysctl_set: true
+        sysctl_file: "{{ firewalld_sysctl_conf_dir }}/zz-firewalld-hardening.conf"
+        reload: true
+      when:
+        - firewalld_conntrackliberal.stat.exists
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Enable and start the firewalld service
+      ansible.builtin.systemd_service:
+        name: firewalld
+        enabled: true
+        state: started
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Get zone services enabled by default
+      ansible.builtin.command:
+        cmd: firewall-cmd --permanent --zone={{ firewalld_zone }} --list-services
+      changed_when: false
+      register: firewalld_zone_services
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Remove default zone services so only explicit rules control access
+      ansible.posix.firewalld:
+        zone: "{{ firewalld_zone }}"
+        service: "{{ item }}"
+        permanent: true
+        offline: true
+        state: disabled
+      loop: "{{ firewalld_zone_services.stdout.split() }}"
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+        - firewalld_zone_services.stdout | length > 0
+      notify:
+        - Reload firewalld
+
+    - name: Get current log-denied setting
+      ansible.builtin.command:
+        cmd: firewall-cmd --get-log-denied
+      changed_when: false
+      register: firewalld_get_log_denied
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Set log-denied packets
+      ansible.builtin.command:
+        cmd: firewall-cmd --set-log-denied={{ firewalld_log_denied }}
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+        - firewalld_get_log_denied.stdout != firewalld_log_denied
+      changed_when: true
+
+    - name: Allow incoming from administrator networks
+      ansible.posix.firewalld:
+        zone: "{{ firewalld_zone }}"
+        rich_rule: >-
+          rule family="{{ 'ipv6' if ':' in item.0 else 'ipv4' }}"
+          source address="{{ item.0 }}"
+          port port="{{ item.1 }}" protocol="tcp"
+          {{ 'limit value="' + firewalld_rate_limit_value + '" ' if firewalld_rate_limit else '' }}accept
+        permanent: true
+        immediate: true
+        offline: true
+        state: enabled
+      loop: "{{ firewalld_admin_net | product(firewalld_ports) | list }}"
+
+    - name: Set default zone target to DROP
+      ansible.posix.firewalld:
+        zone: "{{ firewalld_zone }}"
+        target: DROP
+        permanent: true
+        offline: true
+        state: present
+      notify:
+        - Reload firewalld
+
+    - name: Configure conntrack sysctl
+      environment:
+        PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      ansible.posix.sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value | int }}"
+        state: present
+        sysctl_set: true
+        sysctl_file: "{{ firewalld_sysctl_conf_dir }}/zz-firewalld-hardening.conf"
+      with_dict: "{{ firewalld_conntrack_sysctl_settings }}"
+      notify:
+        - Restart sysctl
