@@ -1,0 +1,20 @@
+---
+firewalld_conntrack_sysctl_settings:
+  net.netfilter.nf_conntrack_max: 2000000 # The maximum number of connections that the system’s connection tracking table can hold at any time.
+  net.netfilter.nf_conntrack_tcp_loose: 0 # If 0, the system will not allow TCP connections to be established without a SYN packet.
+
+# The firewalld zone to set as default-deny and apply firewalld_admin_net/firewalld_ports to.
+firewalld_zone: public
+
+# Only the network(s) defined in C(firewalld_admin_net) are allowed to connect to C(firewalld_ports).
+firewalld_admin_net: ["192.168.0.0/24", "192.168.1.0/24"]
+
+# Specifies the port number(s) that firewalld should accept incoming connections on.
+firewalld_ports: [22]
+
+# firewall-cmd --set-log-denied value. One of "all", "unicast", "broadcast", "multicast" or "off".
+firewalld_log_denied: unicast
+
+# If True, rate limiting is enabled for incoming administrator connections.
+firewalld_rate_limit: false
+firewalld_rate_limit_value: "6/m"

@@ -1,0 +1,16 @@
+---
+- name: Reload firewalld
+  become: true
+  ansible.builtin.command:
+    cmd: firewall-cmd --reload
+  changed_when: true
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+- name: Restart sysctl
+  become: true
+  ansible.builtin.service:
+    name: systemd-sysctl
+    state: restarted
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
