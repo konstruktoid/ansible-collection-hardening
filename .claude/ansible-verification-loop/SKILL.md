@@ -45,9 +45,14 @@ documented clearly.
 ## Verify
 - Run `ansible-lint` and confirm a clean exit / expected output. This is the primary quality gate —
   do not add suppressions to `.ansible-lint-ignore` to silence findings from new changes.
-- Run `tox -e docker` (or `molecule test -s docker` from repo root) and confirm exit code 0. This
-  installs `requirements.yml`, runs `ansible-lint`, then converges and verifies all roles in
-  containers (almalinux10, ubuntu resolute, debian trixie), including an idempotence check.
+- Run `tox -e docker` and confirm exit code 0. This installs role dependencies
+  (`requirements.yml`), runs `ansible-lint`, then invokes `molecule test -s docker` to converge and
+  verify all roles in containers (almalinux10, ubuntu resolute, debian trixie), including an
+  idempotence check.
+- Running `molecule test -s docker` directly (from repo root, or `cd extensions/molecule/docker`)
+  skips the dependency install and lint steps that `tox -e docker` performs first — install
+  `requirements.yml` and run `ansible-lint` yourself beforehand if you use this form instead of
+  `tox`.
 - While iterating on a single role, use `molecule converge -s docker` / `molecule verify -s docker`
   instead of the full `test` cycle to save time, but always finish with a full `molecule test -s
   docker` (or `tox -e docker`) before declaring the change verified.
