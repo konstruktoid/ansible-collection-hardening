@@ -2,6 +2,7 @@
 ansible.cfg
 ansible_collections
 .cache
+.claude/settings.local.json
 .env
 .env.yml
 .nox
