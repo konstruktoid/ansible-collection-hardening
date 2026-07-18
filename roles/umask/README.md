@@ -12,7 +12,7 @@ Configure system-wide default UMASK settings for AlmaLinux, Debian, and Ubuntu v
 | --- | --- |
 | Debian | trixie |
 | EL | 10 |
-| Ubuntu | noble, resolute |
+| Ubuntu | resolute |
 
 ## Role variables
 
@@ -54,7 +54,7 @@ Defined in `roles/umask/defaults/main.yml`.
 
 ## Tags
 
-`almalinux`, `centos`, `cis`, `debian`, `disa`, `hardening`, `security`, `system`, `systemd`, `ubuntu`
+`almalinux`, `cis`, `debian`, `disa`, `hardening`, `security`, `system`, `systemd`, `ubuntu`
 
 ## License
 

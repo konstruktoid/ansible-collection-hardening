@@ -12,7 +12,7 @@ Disable IPv6 by configuring the `net.ipv6.conf.*.disable_ipv6` sysctl keys and t
 | --- | --- |
 | Debian | trixie |
 | EL | 10 |
-| Ubuntu | noble, resolute |
+| Ubuntu | resolute |
 
 ## Role variables
 
@@ -59,7 +59,7 @@ net.ipv6.conf.default.disable_ipv6: 1
 
 ## Tags
 
-`almalinux`, `centos`, `cis`, `debian`, `disa`, `hardening`, `security`, `system`, `systemd`, `ubuntu`
+`almalinux`, `cis`, `debian`, `disa`, `hardening`, `security`, `system`, `systemd`, `ubuntu`
 
 ## License
 

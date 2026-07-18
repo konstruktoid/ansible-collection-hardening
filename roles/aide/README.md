@@ -12,7 +12,7 @@ Installation and configuration of AIDE (Advanced Intrusion Detection Environment
 | --- | --- |
 | Debian | trixie |
 | EL | 10 |
-| Ubuntu | noble, resolute |
+| Ubuntu | resolute |
 
 ## Role variables
 
@@ -66,7 +66,7 @@ Defined in `roles/aide/defaults/main.yml`.
 
 ## Tags
 
-`aide`, `almalinux`, `centos`, `cis`, `debian`, `disa`, `hardening`, `security`, `system`, `systemd`, `ubuntu`
+`aide`, `almalinux`, `cis`, `debian`, `disa`, `hardening`, `security`, `system`, `systemd`, `ubuntu`
 
 ## License
 

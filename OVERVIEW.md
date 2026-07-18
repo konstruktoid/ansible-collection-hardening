@@ -6,7 +6,7 @@
 format for distributing Ansible content, that applies security hardening to
 systemd-based Linux servers. It targets three platform families: AlmaLinux
 and other Enterprise Linux (EL) derivatives at version 10, Debian trixie, and
-Ubuntu (noble, resolute).
+Ubuntu (resolute).
 
 The collection is not a single role or playbook. It consists of
 approximately 40 independent, single-purpose roles under `roles/`, each

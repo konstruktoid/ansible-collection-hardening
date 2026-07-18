@@ -12,7 +12,7 @@ Configure adduser and useradd.
 | --- | --- |
 | Debian | trixie |
 | EL | 10 |
-| Ubuntu | noble, resolute |
+| Ubuntu | resolute |
 
 ## Role variables
 
@@ -41,7 +41,7 @@ Defined in `roles/adduser/defaults/main.yml`.
 
 ## Tags
 
-`adduser`, `almalinux`, `centos`, `cis`, `debian`, `disa`, `hardening`, `security`, `system`, `ubuntu`, `useradd`
+`adduser`, `almalinux`, `cis`, `debian`, `disa`, `hardening`, `security`, `system`, `ubuntu`, `useradd`
 
 ## License
 

@@ -12,7 +12,7 @@ SUDO configuration and hardening.
 | --- | --- |
 | Debian | trixie |
 | EL | 10 |
-| Ubuntu | noble, resolute |
+| Ubuntu | resolute |
 
 ## Role variables
 
@@ -55,7 +55,7 @@ Defined in `roles/sudo/defaults/main.yml`.
 
 ## Tags
 
-`almalinux`, `centos`, `cis`, `debian`, `disa`, `hardening`, `security`, `system`, `sudo`, `ubuntu`
+`almalinux`, `cis`, `debian`, `disa`, `hardening`, `security`, `system`, `sudo`, `ubuntu`
 
 ## License
 

@@ -13,7 +13,8 @@ An Ansible role to manage UFW (Uncomplicated Firewall) rules.
 | Platform | Versions |
 | --- | --- |
 | Debian | trixie |
-| Ubuntu | noble, resolute |
+| EL | 10 |
+| Ubuntu | resolute |
 
 ## Role variables
 
@@ -102,7 +103,7 @@ net.netfilter.nf_conntrack_tcp_loose: 0
 
 ## Tags
 
-`cis`, `debian`, `disa`, `hardening`, `security`, `ubuntu`, `ufw`
+`almalinux`, `cis`, `debian`, `disa`, `hardening`, `security`, `ubuntu`, `ufw`
 
 ## License
 

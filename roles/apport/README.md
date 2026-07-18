@@ -11,7 +11,7 @@ Manage Apport.
 | Platform | Versions |
 | --- | --- |
 | Debian | trixie |
-| Ubuntu | noble, resolute |
+| Ubuntu | resolute |
 
 ## Role variables
 

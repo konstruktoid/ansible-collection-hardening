@@ -11,7 +11,7 @@ Manage apt esm, motd-news and Ubuntu PRO.
 | Platform | Versions |
 | --- | --- |
 | Debian | trixie |
-| Ubuntu | noble, resolute |
+| Ubuntu | resolute |
 
 ## Role variables
 

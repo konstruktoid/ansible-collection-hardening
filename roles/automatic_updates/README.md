@@ -13,7 +13,7 @@ Configure unattended-upgrades to automatically install security updates.
 | --- | --- |
 | Debian | trixie |
 | EL | 10 |
-| Ubuntu | noble, resolute |
+| Ubuntu | resolute |
 
 ## Role variables
 
@@ -77,7 +77,7 @@ custom_origins: []
 
 ## Tags
 
-`almalinux`, `centos`, `cis`, `debian`, `disa`, `hardening`, `security`, `system`, `systemd`, `ubuntu`
+`almalinux`, `cis`, `debian`, `disa`, `hardening`, `security`, `system`, `systemd`, `ubuntu`
 
 ## License
 

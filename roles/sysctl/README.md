@@ -12,7 +12,7 @@ Applies kernel runtime hardening through sysctl: generic kernel, IPv4, and IPv6 
 | --- | --- |
 | Debian | trixie |
 | EL | 10 |
-| Ubuntu | noble, resolute |
+| Ubuntu | resolute |
 
 ## Role variables
 
@@ -142,7 +142,7 @@ net.ipv6.conf.default.use_tempaddr: 2
 
 ## Tags
 
-`almalinux`, `centos`, `cis`, `debian`, `disa`, `hardening`, `security`, `system`, `systemd`, `ubuntu`
+`almalinux`, `cis`, `debian`, `disa`, `hardening`, `security`, `system`, `systemd`, `ubuntu`
 
 ## License
 

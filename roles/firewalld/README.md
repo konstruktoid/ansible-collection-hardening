@@ -90,7 +90,7 @@ zone model differs from ufw's in a way that changes what can be mirrored:
 
 ## Tags
 
-`almalinux`, `centos`, `cis`, `disa`, `firewalld`, `hardening`, `security`, `system`, `systemd`
+`almalinux`, `cis`, `disa`, `firewalld`, `hardening`, `security`, `system`, `systemd`
 
 ## License
 

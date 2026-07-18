@@ -14,7 +14,7 @@ SSH installation and configuration.
 | --- | --- |
 | Debian | trixie |
 | EL | 10 |
-| Ubuntu | noble, resolute |
+| Ubuntu | resolute |
 
 ## Role variables
 
@@ -157,7 +157,7 @@ Defined in `roles/ssh/defaults/main.yml`.
 
 ## Tags
 
-`almalinux`, `centos`, `cis`, `debian`, `disa`, `hardening`, `security`, `ssh`, `system`, `systemd`, `ubuntu`
+`almalinux`, `cis`, `debian`, `disa`, `hardening`, `security`, `ssh`, `system`, `systemd`, `ubuntu`
 
 ## License
 

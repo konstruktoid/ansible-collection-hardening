@@ -42,7 +42,7 @@ ansible-galaxy collection install -r requirements.yml
 | --- | --- |
 | AlmaLinux / EL | 10 |
 | Debian | trixie |
-| Ubuntu | noble, resolute |
+| Ubuntu | resolute |
 
 Platform support is declared per role in `roles/<role>/meta/main.yml` and is
 verified in CI against AlmaLinux 10, Debian trixie, and Ubuntu resolute
@@ -119,7 +119,7 @@ role. See each role's `README.md` for its variables and example usage.
 | [`systemdconf`](roles/systemdconf/README.md) | Ansible role to configure systemd system.conf and user.conf files. | Debian, AlmaLinux/EL, Ubuntu |
 | [`tcpwrappers`](roles/tcpwrappers/README.md) | tcpwrappers, hosts.allow and hosts.deny, management. | Debian, AlmaLinux/EL, Ubuntu |
 | [`timesyncd`](roles/timesyncd/README.md) | Ansible role to manage timesyncd configuration. | Debian, AlmaLinux/EL, Ubuntu |
-| [`ufw`](roles/ufw/README.md) | An Ansible role to manage UFW (Uncomplicated Firewall) rules. | Debian, Ubuntu |
+| [`ufw`](roles/ufw/README.md) | An Ansible role to manage UFW (Uncomplicated Firewall) rules. | Debian, AlmaLinux/EL, Ubuntu |
 | [`umask`](roles/umask/README.md) | Configure system-wide default UMASK settings for AlmaLinux, Debian, and Ubuntu via login.defs, shell profiles, and PAM. | Debian, AlmaLinux/EL, Ubuntu |
 | [`usbguard`](roles/usbguard/README.md) | Ansible role to manage USBGuard, a software for implementing USB device authorization policies. | Debian, AlmaLinux/EL, Ubuntu |
 
@@ -139,11 +139,6 @@ role. See each role's `README.md` for its variables and example usage.
   `qemu-system-x86_64`, instead of containers. It requires
   `qemu-system-x86_64`, `qemu-img`, `genisoimage`, and OVMF UEFI firmware
   installed on the host.
-- `tox -e os-devel` / `molecule test -s os-devel`
-  (`extensions/molecule/os-devel`) tests against upcoming/development OS
-  releases (Debian forky, Ubuntu stonking) using their daily/current cloud
-  images. It boots qemu images like the `default` scenario and is
-  local-development-only, with no CI workflow.
 
 ## Security
 
