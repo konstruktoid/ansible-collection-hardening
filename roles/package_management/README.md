@@ -12,7 +12,7 @@ Role to manage configuration of APT and DNF.
 | --- | --- |
 | Debian | trixie |
 | EL | 10 |
-| Ubuntu | noble, resolute |
+| Ubuntu | resolute |
 
 ## Role variables
 
@@ -31,16 +31,15 @@ Defined in `roles/package_management/defaults/main.yml`.
 2. Configure APT
 3. Run apt upgrade
 4. Dnf configuration
-5. Link dnf.conf
-6. Set yum.conf gpgcheck
-7. Set yum.conf clean_requirements
-8. Set yum.conf localpkg_gpgcheck
-9. Set yum.conf repo_gpgcheck
-10. Enable dnf repositories and upgrades
-11. Stat PowerTools repository files
-12. Enable the PowerTools repository
-13. Update dnf cache
-14. Run dnf upgrade
+5. Set yum.conf gpgcheck
+6. Set yum.conf clean_requirements
+7. Set yum.conf localpkg_gpgcheck
+8. Set yum.conf repo_gpgcheck
+9. Enable dnf repositories and upgrades
+10. Stat PowerTools repository files
+11. Enable the PowerTools repository
+12. Update dnf cache
+13. Run dnf upgrade
 
 ## Handlers
 
@@ -59,7 +58,7 @@ Defined in `roles/package_management/defaults/main.yml`.
 
 ## Tags
 
-`almalinux`, `apt`, `centos`, `cis`, `debian`, `disa`, `hardening`, `security`, `system`, `ubuntu`, `yum`
+`almalinux`, `apt`, `cis`, `debian`, `disa`, `hardening`, `security`, `system`, `ubuntu`, `yum`
 
 ## License
 

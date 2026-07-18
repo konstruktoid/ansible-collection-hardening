@@ -14,11 +14,9 @@ galaxy_info:
         - "10"
     - name: Ubuntu
       versions:
-        - noble
         - resolute
   galaxy_tags:
     - almalinux
-    - centos
     - cis
     - debian
     - disa

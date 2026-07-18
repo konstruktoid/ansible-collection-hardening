@@ -41,17 +41,6 @@
   when:
     - ansible_facts.os_family == "RedHat"
   block:
-    - name: Link dnf.conf
-      ansible.builtin.file:
-        src: /etc/dnf/dnf.conf
-        dest: /etc/yum.conf
-        owner: root
-        group: root
-        state: link
-        force: true
-      when:
-        - ansible_facts.distribution == "Fedora"
-
     - name: Set yum.conf gpgcheck
       ansible.builtin.lineinfile:
         regexp: ^gpgcheck=
@@ -103,9 +92,6 @@
       with_items:
         - /etc/yum.repos.d/almalinux-crb.repo
         - /etc/yum.repos.d/almalinux-powertools.repo
-        - /etc/yum.repos.d/CentOS-Linux-PowerTools.repo
-        - /etc/yum.repos.d/CentOS-PowerTools.repo
-        - /etc/yum.repos.d/CentOS-Stream-PowerTools.repo
       register: powertools_repo
 
     - name: Enable the PowerTools repository

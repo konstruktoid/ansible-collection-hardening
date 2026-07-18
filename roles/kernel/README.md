@@ -12,7 +12,7 @@ Hardens kernel runtime behavior via sysctl and boot-time parameters: configures 
 | --- | --- |
 | Debian | trixie |
 | EL | 10 |
-| Ubuntu | noble, resolute |
+| Ubuntu | resolute |
 
 ## Role variables
 
@@ -59,7 +59,7 @@ Defined in `roles/kernel/defaults/main.yml`.
 
 ## Tags
 
-`almalinux`, `centos`, `cis`, `debian`, `disa`, `hardening`, `kernel`, `security`, `system`, `systemd`, `ubuntu`
+`almalinux`, `cis`, `debian`, `disa`, `hardening`, `kernel`, `security`, `system`, `systemd`, `ubuntu`
 
 ## License
 

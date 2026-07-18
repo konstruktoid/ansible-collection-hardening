@@ -12,7 +12,7 @@ Configure scheduled command services.
 | --- | --- |
 | Debian | trixie |
 | EL | 10 |
-| Ubuntu | noble, resolute |
+| Ubuntu | resolute |
 
 ## Role variables
 
@@ -44,7 +44,7 @@ This role has no configurable variables.
 
 ## Tags
 
-`almalinux`, `atd`, `centos`, `cis`, `cron`, `debian`, `disa`, `hardening`, `security`, `system`, `ubuntu`
+`almalinux`, `atd`, `cis`, `cron`, `debian`, `disa`, `hardening`, `security`, `system`, `ubuntu`
 
 ## License
 

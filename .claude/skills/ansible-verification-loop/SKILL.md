@@ -24,6 +24,12 @@ documented clearly.
    authoritative security/quality rules for this repo (FQCN only, double-quoted strings, quoted
    octal `mode` with explicit `owner`/`group`, role-prefixed variable names, treat SSH/sudo/PAM/
    audit/SELinux/AppArmor/firewall/mounts/sysctl/services/auth as high-sensitivity).
+   - When writing or editing YAML, follow the [YAML 1.2.2 spec](https://yaml.org/spec/1.2.2/).
+     Ansible's loader is YAML-1.1-flavored (e.g. bare `yes`/`no`/`on`/`off` parse as booleans,
+     which YAML 1.2's core schema would treat as plain strings), so always use explicit
+     `true`/`false` and quote any scalar that could otherwise be misread as a different type
+     across the two specs (leading-zero numbers, sexagesimal-looking `NN:NN` strings, etc). Do
+     not use tabs for indentation.
 3. Follow the existing conventions and patterns in the codebase: naming, file structure, and style.
 4. If OS-conditional logic changes, keep `roles/<name>/meta/main.yml` `galaxy_info.platforms` in
    sync with it.
@@ -65,3 +71,6 @@ Never declare this done based on the edit alone. Confirm each of the following:
 - [ ] `verify_<role>.yml` and `converge.yml` updated if a role's behavior or variables changed
 - [ ] `meta/main.yml` `galaxy_info.platforms` still matches any OS-conditional logic
 - [ ] No unrelated files changed
+- [ ] New/changed YAML has no YAML-1.1/1.2 ambiguities (bare `yes`/`no`/`on`/`off`, unquoted
+      leading-zero numbers, sexagesimal-looking strings, tab indentation) — `ansible-lint`'s
+      `yaml[truthy]` rule catches the boolean case, but review the rest by eye
