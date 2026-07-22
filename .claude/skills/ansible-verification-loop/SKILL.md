@@ -1,72 +1,79 @@
 ---
 name: ansible-verification-loop
-description: Use this skill when reviewing or modifying Ansible collections, playbooks, roles, or tasks.
+description: Implements and verifies changes to Ansible roles, playbooks, and tasks in this hardening collection through a bounded lint-test-fix loop. Use when reviewing or modifying anything under roles/, playbooks, or other Ansible collection content in this repository.
 ---
 
 # ansible-verification-loop
 
-## Purpose
-Provide a structured approach for reviewing and modifying Ansible collections, playbooks, roles, or
-tasks in this repository. It ensures changes are made consistently, verified thoroughly, and
-documented clearly.
+## When to use
+- Reviewing or modifying Ansible roles, playbooks, or tasks in this collection.
 
-## When to use this
-- When reviewing or modifying Ansible collections, playbooks, roles, or tasks.
-- When you need to ensure that changes are made consistently and verified thoroughly.
+## When not to use
+- Changes that don't touch Ansible collection content.
 
-## When NOT to use this
-- When making changes that do not involve Ansible collections, playbooks, roles, or tasks.
+## Workflow
 
-## Steps
-1. Read the relevant role's `defaults/main.yml`, `tasks/main.yml`, and `meta/main.yml` before making
-   any changes, plus any dependencies (`galaxy.yml`, `meta/runtime.yml`) or requirements.
-2. Follow `.github/copilot-instructions.md` and `.github/instructions/*.instructions.md` — the
-   authoritative security/quality rules for this repo (FQCN only, double-quoted strings, quoted
-   octal `mode` with explicit `owner`/`group`, role-prefixed variable names, treat SSH/sudo/PAM/
-   audit/SELinux/AppArmor/firewall/mounts/sysctl/services/auth as high-sensitivity).
-   - When writing or editing YAML, follow the [YAML 1.2.2 spec](https://yaml.org/spec/1.2.2/).
-     Ansible's loader is YAML-1.1-flavored (e.g. bare `yes`/`no`/`on`/`off` parse as booleans,
-     which YAML 1.2's core schema would treat as plain strings), so always use explicit
-     `true`/`false` and quote any scalar that could otherwise be misread as a different type
-     across the two specs (leading-zero numbers, sexagesimal-looking `NN:NN` strings, etc). Do
-     not use tabs for indentation.
-3. Follow the existing conventions and patterns in the codebase: naming, file structure, and style.
-4. If OS-conditional logic changes, keep `roles/<name>/meta/main.yml` `galaxy_info.platforms` in
-   sync with it.
-5. If default values or argument specs change, update all relevant documentation (README, role
-   docs, defaults/argspec, etc).
-6. Add or update test coverage for the change:
-   - This repo has no per-role test setup — all roles are exercised together via
-     `extensions/molecule/resources/converge.yml` and verified via
-     `extensions/molecule/tests/verify_<role>.yml`, included from `resources/verify.yml`.
-   - When adding or changing a role, add/update its `verify_<role>.yml` and, if it needs
-     scenario-specific variables, its `vars:` block in `converge.yml`.
-7. Verify the change (see checklist below). If any issues are found, fix them and re-verify. Repeat
-   until all issues are resolved or verification has been attempted 3 times, whichever comes first.
-   If issues remain unresolved after 3 attempts, stop and report to the user instead of proceeding
-   or silently giving up.
-8. Report any issues found during verification, with detailed reproduction steps and relevant
-   logs/output.
+Copy this checklist into your response and check off items as you complete them:
 
-## Verify
-- Run `ansible-lint` and confirm a clean exit / expected output. This is the primary quality gate —
-  do not add suppressions to `.ansible-lint-ignore` to silence findings from new changes.
-- Run `tox -e docker` and confirm exit code 0. This installs role dependencies
-  (`requirements.yml`), runs `ansible-lint`, then invokes `molecule test -s docker` to converge and
-  verify all roles in containers (almalinux10, ubuntu resolute, debian trixie), including an
-  idempotence check.
-- Running `molecule test -s docker` directly (from repo root, or `cd extensions/molecule/docker`)
-  skips the dependency install and lint steps that `tox -e docker` performs first — install
-  `requirements.yml` and run `ansible-lint` yourself beforehand if you use this form instead of
-  `tox`.
-- While iterating on a single role, use `molecule converge -s docker` / `molecule verify -s docker`
-  instead of the full `test` cycle to save time, but always finish with a full `molecule test -s
-  docker` (or `tox -e docker`) before declaring the change verified.
+```
+Ansible change progress:
+- [ ] Step 1: Read the role's defaults/main.yml, tasks/main.yml, meta/main.yml (+ galaxy.yml/meta/runtime.yml if relevant)
+- [ ] Step 2: Apply the change, following repo conventions and security rules
+- [ ] Step 3: Sync galaxy_info.platforms and docs/argspec if OS logic or defaults changed
+- [ ] Step 4: Update verify_<role>.yml / converge.yml if role behavior or variables changed
+- [ ] Step 5: Run the verification loop until clean or 3 attempts are exhausted
+- [ ] Step 6: Report the result, including any unresolved issues
+```
 
-## Verification checklist
-Never declare this done based on the edit alone. Confirm each of the following:
-- [ ] Lint passes: `ansible-lint`
-- [ ] Tests pass: `tox -e docker` / `molecule test -s docker`
+**Step 1: Read before changing.** Read the role's `defaults/main.yml`, `tasks/main.yml`, and
+`meta/main.yml`, plus any dependencies (`galaxy.yml`, `meta/runtime.yml`) or requirements.
+
+**Step 2: Apply the change.** Follow `.github/copilot-instructions.md` and
+`.github/instructions/*.instructions.md` — the authoritative security/quality rules for this repo
+(FQCN only, double-quoted strings, quoted octal `mode` with explicit `owner`/`group`,
+role-prefixed variable names, treat SSH/sudo/PAM/audit/SELinux/AppArmor/firewall/mounts/sysctl/
+services/auth as high-sensitivity). Follow existing naming, file structure, and style conventions.
+
+When writing or editing YAML, follow the [YAML 1.2.2 spec](https://yaml.org/spec/1.2.2/). Ansible's
+loader is YAML-1.1-flavored (bare `yes`/`no`/`on`/`off` parse as booleans, which YAML 1.2's core
+schema would treat as plain strings), so always use explicit `true`/`false` and quote any scalar
+that could be misread as a different type across the two specs (leading-zero numbers,
+sexagesimal-looking `NN:NN` strings, etc). Do not use tabs for indentation.
+
+**Step 3: Sync dependents.** If OS-conditional logic changed, keep `roles/<name>/meta/main.yml`
+`galaxy_info.platforms` in sync with it. If default values or argument specs changed, update all
+relevant documentation (README, role docs, defaults/argspec, etc).
+
+**Step 4: Update test coverage.** This repo has no per-role test setup — all roles are exercised
+together via `extensions/molecule/resources/converge.yml` and verified via
+`extensions/molecule/tests/verify_<role>.yml`, included from `resources/verify.yml`. When adding or
+changing a role, add/update its `verify_<role>.yml` and, if it needs scenario-specific variables,
+its `vars:` block in `converge.yml`.
+
+## Step 5: Verification loop (run validator → fix → repeat)
+
+1. Run `ansible-lint` and confirm a clean result. This is the primary quality gate — do not add
+   suppressions to `.ansible-lint-ignore` to silence findings from new changes. Do not proceed
+   until it passes.
+2. Run `tox -e docker` and confirm exit code 0. This installs role dependencies
+   (`requirements.yml`), re-runs `ansible-lint`, then invokes `molecule test -s docker` to converge
+   and verify all roles in containers (almalinux10, ubuntu resolute, debian trixie), including an
+   idempotence check.
+   - While iterating on a single role, use `molecule converge -s docker` / `molecule verify -s
+     docker` instead of the full cycle to save time — but always finish with a full `tox -e docker`
+     (or `molecule test -s docker`, after installing `requirements.yml` and running `ansible-lint`
+     yourself) before treating the change as verified.
+3. If step 2 fails: fix the issue and return to step 1. This counts as one attempt.
+4. Repeat until every check passes, or 3 attempts have been made — whichever comes first. If issues
+   remain unresolved after 3 attempts, stop and report to the user with detailed reproduction steps
+   and relevant logs/output, instead of continuing or silently declaring success.
+
+## Step 6: Final checklist
+
+Never declare this done from the edit alone. Confirm each of the following before reporting
+success:
+- [ ] `ansible-lint` passes
+- [ ] `tox -e docker` / `molecule test -s docker` passes
 - [ ] Idempotence holds (no changes reported on molecule's second converge)
 - [ ] `verify_<role>.yml` and `converge.yml` updated if a role's behavior or variables changed
 - [ ] `meta/main.yml` `galaxy_info.platforms` still matches any OS-conditional logic
