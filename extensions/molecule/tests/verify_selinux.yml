@@ -10,14 +10,14 @@
     - name: Assert SELinux packages are installed
       ansible.builtin.assert:
         that:
-          - "'python3-libselinux' in ansible_facts.packages"
-          - "'selinux-policy-targeted' in ansible_facts.packages"
+          - item in ansible_facts.packages
+      loop: "{{ selinux_packages }}"
 
     - name: Assert SELinux blocklisted packages are absent
       ansible.builtin.assert:
         that:
-          - "'setroubleshoot' not in ansible_facts.packages"
-          - "'mcstrans' not in ansible_facts.packages"
+          - item not in ansible_facts.packages
+      loop: "{{ selinux_packages_blocklist }}"
 
     - name: Read /etc/selinux/config
       ansible.builtin.slurp:

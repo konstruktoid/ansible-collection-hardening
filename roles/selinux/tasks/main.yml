@@ -25,9 +25,9 @@
       when:
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
 
-    - name: Remove enforcing=0 from the kernel command line
+    - name: Remove selinux=0 and enforcing=0 from the kernel command line
       ansible.builtin.command:
-        cmd: grubby --update-kernel=ALL --remove-args="enforcing"
+        cmd: grubby --update-kernel=ALL --remove-args="selinux=0 enforcing=0"
       register: selinux_grubby_enforcing
       changed_when: false
       when:

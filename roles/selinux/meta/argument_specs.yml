@@ -42,6 +42,6 @@ argument_specs:
           - "permissive"
           - "disabled"
       selinux_update_kernel_param:
-        description: "If True, also remove the \"selinux=0\" kernel command line argument using grubby."
+        description: "If True, also remove the \"selinux=0\" and \"enforcing=0\" kernel command line arguments using grubby."
         type: "bool"
         default: true

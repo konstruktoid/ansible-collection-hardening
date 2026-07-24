@@ -24,7 +24,7 @@ Defined in `roles/selinux/defaults/main.yml`.
 | `selinux_packages_blocklist` | list, see below | Packages to remove, as they increase attack surface and are not required on a hardened, non-interactive host. |
 | `selinux_policy` | `"targeted"` | The SELinux policy to use. |
 | `selinux_state` | `"enforcing"` | The SELinux mode. One of `enforcing`, `permissive` or `disabled`. |
-| `selinux_update_kernel_param` | `true` | If True, also remove the `selinux=0` kernel command line argument using grubby. |
+| `selinux_update_kernel_param` | `true` | If True, also remove the `selinux=0` and `enforcing=0` kernel command line arguments using grubby. |
 
 `selinux_packages` default value:
 
@@ -49,9 +49,9 @@ setroubleshoot-server
 `tasks/main.yml` executes, in order, on AlmaLinux/EL hosts:
 
 1. Install SELinux packages
-2. Remove SELinux related packages
+2. Remove SELinux-related packages
 3. Configure SELinux state and policy
-4. Remove enforcing=0 from the kernel command line
+4. Remove selinux=0 and enforcing=0 from the kernel command line
 5. Notify if a reboot is required for the SELinux state to take effect
 
 The state, policy, and kernel-command-line steps are skipped inside
