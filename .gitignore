@@ -1,6 +1,5 @@
+*.gz
 .ansible/
-ansible.cfg
-ansible_collections
 .cache
 .claude/settings.local.json
 .env
@@ -9,3 +8,5 @@ ansible_collections
 .tox
 .venv
 .yamllint
+ansible.cfg
+ansible_collections
