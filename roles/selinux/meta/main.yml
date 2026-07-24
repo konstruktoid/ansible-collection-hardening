@@ -1,0 +1,20 @@
+---
+galaxy_info:
+  role_name: selinux
+  author: konstruktoid
+  description: SELinux installation and configuration.
+  license: apache
+  min_ansible_version: "2.18"
+  platforms:
+    - name: EL
+      versions:
+        - "10"
+  galaxy_tags:
+    - almalinux
+    - cis
+    - disa
+    - hardening
+    - security
+    - selinux
+    - system
+    - systemd

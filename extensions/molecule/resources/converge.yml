@@ -47,6 +47,7 @@
     - role: konstruktoid.hardening.ctrlaltdel
     - role: konstruktoid.hardening.auditd
     - role: konstruktoid.hardening.apparmor
+    - role: konstruktoid.hardening.selinux
     - role: konstruktoid.hardening.disable_wireless
     - role: konstruktoid.hardening.compilers
     - role: konstruktoid.hardening.umask

@@ -1,0 +1,44 @@
+---
+- name: Configure and enable SELinux
+  become: true
+  when:
+    - ansible_facts.os_family == "RedHat"
+  block:
+    - name: Install SELinux packages
+      ansible.builtin.package:
+        name: "{{ selinux_packages }}"
+        state: present
+      when:
+        - selinux_install_packages | bool
+
+    - name: Remove SELinux related packages
+      ansible.builtin.package:
+        name: "{{ selinux_packages_blocklist }}"
+        state: absent
+
+    - name: Configure SELinux state and policy
+      ansible.posix.selinux:
+        policy: "{{ selinux_policy }}"
+        state: "{{ selinux_state }}"
+        update_kernel_param: "{{ selinux_update_kernel_param }}"
+      register: selinux_config
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Remove enforcing=0 from the kernel command line
+      ansible.builtin.command:
+        cmd: grubby --update-kernel=ALL --remove-args="enforcing"
+      register: selinux_grubby_enforcing
+      changed_when: false
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Notify if a reboot is required for the SELinux state to take effect
+      ansible.builtin.debug:
+        msg: >-
+          A reboot is required for the SELinux state to change to
+          '{{ selinux_state }}'.
+      when:
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+        - selinux_config is defined
+        - selinux_config.reboot_required | default(false)

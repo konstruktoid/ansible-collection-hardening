@@ -26,7 +26,7 @@ Some roles require the following additional collections:
 
 | Collection | Minimum version | Required by |
 | --- | --- | --- |
-| `ansible.posix` | 2.2.0 | firewalld, mount, ufw |
+| `ansible.posix` | 2.2.0 | firewalld, mount, selinux, ufw |
 | `community.crypto` | 3.2.1 | ssh |
 | `community.general` | 13.0.1 | automatic_updates, disable_wireless, firewalld, ssh, ufw |
 
@@ -113,6 +113,7 @@ role. See each role's `README.md` for its variables and example usage.
 | [`resolvedconf`](roles/resolvedconf/README.md) | systemd-resolved configuration. | Debian, AlmaLinux/EL, Ubuntu |
 | [`root_access`](roles/root_access/README.md) | Limit root access using /etc/securetty, /etc/security/access.conf and masking debug-shell. | Debian, AlmaLinux/EL, Ubuntu |
 | [`schedulers`](roles/schedulers/README.md) | Configure scheduled command services. | Debian, AlmaLinux/EL, Ubuntu |
+| [`selinux`](roles/selinux/README.md) | SELinux installation and configuration. | AlmaLinux/EL |
 | [`ssh`](roles/ssh/README.md) | SSH installation and configuration. | Debian, AlmaLinux/EL, Ubuntu |
 | [`sudo`](roles/sudo/README.md) | SUDO configuration and hardening. | Debian, AlmaLinux/EL, Ubuntu |
 | [`sysctl`](roles/sysctl/README.md) | Applies kernel runtime hardening through sysctl: generic kernel, IPv4, and IPv6 network and memory-protection settings, with optional IPv6 disablement. | Debian, AlmaLinux/EL, Ubuntu |

@@ -1,0 +1,35 @@
+---
+- name: SELinux block
+  when:
+    - ansible_facts.os_family == "RedHat"
+  block:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: auto
+
+    - name: Assert SELinux packages are installed
+      ansible.builtin.assert:
+        that:
+          - "'python3-libselinux' in ansible_facts.packages"
+          - "'selinux-policy-targeted' in ansible_facts.packages"
+
+    - name: Assert SELinux blocklisted packages are absent
+      ansible.builtin.assert:
+        that:
+          - "'setroubleshoot' not in ansible_facts.packages"
+          - "'mcstrans' not in ansible_facts.packages"
+
+    - name: Read /etc/selinux/config
+      ansible.builtin.slurp:
+        src: /etc/selinux/config
+      register: selinux_config_file
+      when:
+        - not ansible_facts.virtualization_type in ["container", "docker", "podman"]
+
+    - name: Assert /etc/selinux/config content
+      ansible.builtin.assert:
+        that:
+          - "'SELINUX=enforcing' in (selinux_config_file.content | b64decode)"
+          - "'SELINUXTYPE=targeted' in (selinux_config_file.content | b64decode)"
+      when:
+        - not ansible_facts.virtualization_type in ["container", "docker", "podman"]

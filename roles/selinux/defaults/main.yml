@@ -1,0 +1,26 @@
+---
+# If True, install SELinux userspace utilities and the targeted policy.
+selinux_install_packages: true
+
+# SELinux packages to install.
+selinux_packages:
+  - "libselinux-utils"
+  - "policycoreutils"
+  - "policycoreutils-python-utils"
+  - "python3-libselinux"
+  - "selinux-policy-targeted"
+
+# Packages to remove, as they increase attack surface and are not required on a hardened, non-interactive host.
+selinux_packages_blocklist:
+  - "mcstrans"
+  - "setroubleshoot"
+  - "setroubleshoot-server"
+
+# The SELinux policy to use.
+selinux_policy: "targeted"
+
+# The SELinux mode. One of enforcing, permissive or disabled.
+selinux_state: "enforcing"
+
+# If True, also remove the "selinux=0" kernel command line argument using grubby.
+selinux_update_kernel_param: true
