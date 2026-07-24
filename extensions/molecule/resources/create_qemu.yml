@@ -38,7 +38,7 @@
         url: "{{ item.image_url }}"
         dest: "{{ qemu_image_cache_dir }}/{{ item.name }}-base.qcow2"
         mode: "0644"
-        timeout: 30
+        timeout: 180
       loop: "{{ molecule_yml.platforms }}"
       loop_control:
         label: "{{ item.name }}"
@@ -193,7 +193,7 @@
   tasks:
     - name: Wait for SSH to accept connections
       ansible.builtin.wait_for_connection:
-        timeout: 180
+        timeout: 450
 
     - name: Check instance access
       ansible.builtin.raw: /bin/true
