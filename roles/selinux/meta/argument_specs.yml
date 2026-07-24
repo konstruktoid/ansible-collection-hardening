@@ -1,0 +1,47 @@
+---
+argument_specs:
+  main:
+    short_description: SELinux installation and configuration.
+    description:
+      - This role manages SELinux package installation, policy, and enforcement state.
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      selinux_install_packages:
+        description: "If True, install SELinux userspace utilities and the targeted policy."
+        type: "bool"
+        default: true
+      selinux_packages:
+        type: "list"
+        elements: "str"
+        default:
+          - "libselinux-utils"
+          - "policycoreutils"
+          - "policycoreutils-python-utils"
+          - "python3-libselinux"
+          - "selinux-policy-targeted"
+        description: "SELinux packages to install."
+      selinux_packages_blocklist:
+        type: "list"
+        elements: "str"
+        default:
+          - "mcstrans"
+          - "setroubleshoot"
+          - "setroubleshoot-server"
+        description: "Packages to remove, as they increase attack surface and are not required on a hardened, non-interactive host."
+      selinux_policy:
+        description: "The SELinux policy to use."
+        type: "str"
+        default: "targeted"
+      selinux_state:
+        description: "The SELinux mode. One of enforcing, permissive or disabled."
+        type: "str"
+        default: "enforcing"
+        choices:
+          - "enforcing"
+          - "permissive"
+          - "disabled"
+      selinux_update_kernel_param:
+        description: "If True, also remove the \"selinux=0\" and \"enforcing=0\" kernel command line arguments using grubby."
+        type: "bool"
+        default: true
