@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   check-actor:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 5
     permissions:
       contents: read
@@ -43,7 +43,7 @@ jobs:
   claude-review:
     needs: check-actor
     if: needs.check-actor.outputs.has_write == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 15
     permissions:
       contents: write

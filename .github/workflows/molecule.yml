@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   tox-docker:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 60
     permissions:
       contents: read
@@ -42,7 +42,7 @@ jobs:
           tox run -e docker
 
   tox-docker-upstream:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     timeout-minutes: 60
     permissions:
       contents: read
