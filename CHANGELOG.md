@@ -5,6 +5,15 @@
 - Add `file_permissions` role, restricting the ownership and permissions of the account
   databases (`/etc/passwd`, `/etc/shadow`, `/etc/group`, `/etc/gshadow`, their backup files
   and `/etc/security/opasswd`) and of the bootloader configuration files.
+- Extend `packages_blocklist` with the network server packages that remote vulnerability
+  scanners fingerprint and report on: DNS (`bind`, `bind9`, `dnsmasq`), SNMP (`net-snmp`,
+  `snmpd`), NFS (`nfs-kernel-server`), print (`cups`, `cups-browsed`, `cups-daemon`), SMB
+  (`samba`), LDAP (`openldap-servers`, `slapd`), IMAP/POP3 (`cyrus-imapd`, `dovecot`,
+  `dovecot-core`), DHCP (`dhcp-server`, `isc-dhcp-server`), proxy (`squid`), VNC
+  (`tigervnc-server`), NIS (`nis`, `ypserv`), the remaining cleartext r-services
+  (`rsh-redone-client`, `rsh-redone-server`, `rusersd`, `rwho`), `rsync-daemon` and the
+  remaining telnet and TFTP server package names (`inetutils-telnetd`, `telnetd`,
+  `tftp-server`). Override `packages_blocklist` on hosts that legitimately run any of these.
 
 ## 0.2.0 (2026-07-23)
 
