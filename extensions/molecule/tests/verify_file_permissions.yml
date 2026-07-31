@@ -42,14 +42,18 @@
       loop: "{{ file_permissions_bootloader_files }}"
       register: verify_bootloader_files
 
-    - name: Assert bootloader configuration is not group or other accessible
+    - name: Assert bootloader configuration is root owned and not group or other accessible
       ansible.builtin.assert:
         that:
           - item.stat.mode is search("00$")
+          - item.stat.pw_name == "root"
+          - item.stat.gr_name == "root"
         success_msg: >-
-          {{ item.item }} is not group or other accessible: {{ item.stat.mode }}
+          {{ item.item }} is root owned and not group or other accessible:
+          {{ item.stat.mode }} {{ item.stat.pw_name }}:{{ item.stat.gr_name }}
         fail_msg: >-
-          {{ item.item }} is group or other accessible: {{ item.stat.mode }}
+          {{ item.item }} is group or other accessible, or not root owned:
+          {{ item.stat.mode }} {{ item.stat.pw_name }}:{{ item.stat.gr_name }}
       loop: "{{ verify_bootloader_files.results | selectattr('stat.exists') | list }}"
       loop_control:
         label: "{{ item.item }}"

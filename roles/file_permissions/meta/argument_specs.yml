@@ -1,13 +1,13 @@
 ---
 argument_specs:
   main:
-    short_description: Account database and bootloader configuration permissions.
+    short_description: "Account database and bootloader configuration permissions."
     description:
-      - This role restricts the ownership and permissions of the account databases and of the bootloader configuration files.
-      - Credentials and boot parameters are thereby not exposed to unprivileged users.
-      - Files that do not exist on the target host are skipped.
+      - "This role restricts the ownership and permissions of the account databases and of the bootloader configuration files."
+      - "Credentials and boot parameters are thereby not exposed to unprivileged users."
+      - "Files that do not exist on the target host are skipped."
     author:
-      - konstruktoid
+      - "Thomas Sjögren (@konstruktoid)"
     options:
       file_permissions_account_databases:
         description: "The account databases to manage, and the ownership and permissions to apply to them."
@@ -31,12 +31,12 @@ argument_specs:
             type: "str"
             required: true
       file_permissions_bootloader:
-        description: "Manage the permissions of the bootloader configuration files listed in C(file_permissions_bootloader_files)."
+        description: "Manage the ownership and permissions of the bootloader configuration files listed in C(file_permissions_bootloader_files)."
         type: "bool"
         default: true
       file_permissions_bootloader_files:
         description:
-          - "Bootloader configuration files that should not be readable or writable by group or other."
+          - "Bootloader configuration files that should be owned by C(root:root) and not readable or writable by group or other."
           - "Files residing on the C(vfat) EFI system partition are deliberately excluded since that file system has no Unix permissions."
         type: "list"
         elements: "str"
@@ -51,8 +51,8 @@ argument_specs:
       file_permissions_bootloader_mode:
         description:
           - "The file mode applied to a C(file_permissions_bootloader_files) entry that is readable or writable by group or other."
-          - "Files that already have no group and other permission bits are left alone."
-          - "C(grub-mkconfig) writes C(0400), and rewriting those files would make the role non-idempotent."
+          - "Files that already have no group and other permission bits keep their mode, their ownership is still set to C(root:root)."
+          - "C(grub-mkconfig) writes C(0400), and rewriting those files would both widen the mode and make the role non-idempotent."
         type: "str"
         default: "0600"
       file_permissions_opasswd_mode:
