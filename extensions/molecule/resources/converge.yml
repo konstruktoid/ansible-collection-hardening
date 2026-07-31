@@ -60,3 +60,4 @@
     - role: konstruktoid.hardening.kernel_modules
     - role: konstruktoid.hardening.aide
     - role: konstruktoid.hardening.password_management
+    - role: konstruktoid.hardening.file_permissions

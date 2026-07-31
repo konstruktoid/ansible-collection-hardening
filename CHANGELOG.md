@@ -1,5 +1,11 @@
 # Change Log
 
+## Unreleased
+
+- Add `file_permissions` role, restricting the ownership and permissions of the account
+  databases (`/etc/passwd`, `/etc/shadow`, `/etc/group`, `/etc/gshadow`, their backup files
+  and `/etc/security/opasswd`) and of the bootloader configuration files.
+
 ## 0.2.0 (2026-07-23)
 
 - Add `firewalld` role.

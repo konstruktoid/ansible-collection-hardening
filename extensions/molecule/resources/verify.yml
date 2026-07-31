@@ -205,3 +205,7 @@
     - name: Verify password_management role
       ansible.builtin.include_tasks:
         file: ../tests/verify_password_management.yml
+
+    - name: Verify file_permissions role
+      ansible.builtin.include_tasks:
+        file: ../tests/verify_file_permissions.yml
