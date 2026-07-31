@@ -2,7 +2,7 @@
 
 Ansible collection for hardening systemd-based Linux servers: AlmaLinux, Debian,
 and Ubuntu. It applies CIS Benchmark- and DISA STIG-aligned security controls
-through 40 independent, single-purpose roles covering SSH, sudo, PAM,
+through 43 independent, single-purpose roles covering SSH, sudo, PAM,
 auditd, sysctl, firewalling, mounts, and kernel modules, among other hardening
 domains.
 
@@ -92,6 +92,7 @@ role. See each role's `README.md` for its variables and example usage.
 | [`delete_users`](roles/delete_users/README.md) | Delete listed users. | Debian, AlmaLinux/EL, Ubuntu |
 | [`disable_ipv6`](roles/disable_ipv6/README.md) | Disable IPv6 by configuring the `net.ipv6.conf.*.disable_ipv6` sysctl keys and the GRUB kernel command line. | Debian, AlmaLinux/EL, Ubuntu |
 | [`disable_wireless`](roles/disable_wireless/README.md) | Disable wireless interfaces and wireless kernel modules on AlmaLinux, Debian, and Ubuntu systems. | Debian, AlmaLinux/EL, Ubuntu |
+| [`file_permissions`](roles/file_permissions/README.md) | Restrict the ownership and permissions of the account databases and of the bootloader configuration files. | Debian, AlmaLinux/EL, Ubuntu |
 | [`firewalld`](roles/firewalld/README.md) | An Ansible role to manage firewalld default-deny zone rules. | AlmaLinux/EL |
 | [`issue`](roles/issue/README.md) | Role to update /etc/issue and /etc/motd files using Jinja2 templates. | Debian, AlmaLinux/EL, Ubuntu |
 | [`journald`](roles/journald/README.md) | Configures systemd-journald storage, rotation, and file permissions; installs and configures rsyslog and logrotate for log forwarding and rotation; disables systemd-journal-remote. | Debian, AlmaLinux/EL, Ubuntu |

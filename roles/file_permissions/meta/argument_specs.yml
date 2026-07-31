@@ -1,0 +1,84 @@
+---
+argument_specs:
+  main:
+    short_description: Account database and bootloader configuration permissions.
+    description:
+      - This role restricts the ownership and permissions of the account databases and of the bootloader configuration files.
+      - Credentials and boot parameters are thereby not exposed to unprivileged users.
+      - Files that do not exist on the target host are skipped.
+    author:
+      - konstruktoid
+    options:
+      file_permissions_account_databases:
+        description: "The account databases to manage, and the ownership and permissions to apply to them."
+        type: "list"
+        elements: "dict"
+        options:
+          path:
+            description: "Absolute path of the account database."
+            type: "str"
+            required: true
+          owner:
+            description: "Owner of the account database."
+            type: "str"
+            required: true
+          group:
+            description: "Owner group of the account database."
+            type: "str"
+            required: true
+          mode:
+            description: "File mode of the account database."
+            type: "str"
+            required: true
+      file_permissions_bootloader:
+        description: "Manage the permissions of the bootloader configuration files listed in C(file_permissions_bootloader_files)."
+        type: "bool"
+        default: true
+      file_permissions_bootloader_files:
+        description:
+          - "Bootloader configuration files that should not be readable or writable by group or other."
+          - "Files residing on the C(vfat) EFI system partition are deliberately excluded since that file system has no Unix permissions."
+        type: "list"
+        elements: "str"
+        default:
+          - "/boot/grub/grub.cfg"
+          - "/boot/grub/grubenv"
+          - "/boot/grub/user.cfg"
+          - "/boot/grub2/grub.cfg"
+          - "/boot/grub2/grubenv"
+          - "/boot/grub2/user.cfg"
+          - "/boot/loader/loader.conf"
+      file_permissions_bootloader_mode:
+        description:
+          - "The file mode applied to a C(file_permissions_bootloader_files) entry that is readable or writable by group or other."
+          - "Files that already have no group and other permission bits are left alone."
+          - "C(grub-mkconfig) writes C(0400), and rewriting those files would make the role non-idempotent."
+        type: "str"
+        default: "0600"
+      file_permissions_opasswd_mode:
+        description: "File mode of C(/etc/security/opasswd) and C(/etc/security/opasswd.old), the C(pam_pwhistory) password history databases."
+        type: "str"
+        default: "0600"
+      file_permissions_passwd:
+        description: "Manage the ownership and permissions of the C(file_permissions_account_databases) files."
+        type: "bool"
+        default: true
+      file_permissions_passwd_backup_mode:
+        description: "File mode of the C(/etc/passwd-) and C(/etc/group-) backup files."
+        type: "str"
+        default: "0600"
+      file_permissions_passwd_mode:
+        description: "File mode of the world readable account databases, C(/etc/passwd) and C(/etc/group)."
+        type: "str"
+        default: "0644"
+      file_permissions_shadow_group:
+        description:
+          - "Owner group of C(/etc/shadow), C(/etc/shadow-), C(/etc/gshadow) and C(/etc/gshadow-)."
+          - "Debian family systems use a dedicated C(shadow) group so that setgid helpers, C(unix_chkpwd) for example, can read the file."
+          - "Defaults to C(shadow) on the Debian family and to C(root) otherwise."
+        type: "str"
+      file_permissions_shadow_mode:
+        description:
+          - "File mode of C(/etc/shadow), C(/etc/shadow-), C(/etc/gshadow) and C(/etc/gshadow-)."
+          - "Defaults to C(0640) on the Debian family and to C(0000) otherwise."
+        type: "str"

@@ -1,0 +1,52 @@
+---
+- name: Configure account database ownership and permissions
+  when:
+    - file_permissions_passwd | bool
+  block:
+    - name: Stat account databases
+      ansible.builtin.stat:
+        path: "{{ item.path }}"
+        get_attributes: false
+        get_checksum: false
+        get_mime: false
+      loop: "{{ file_permissions_account_databases }}"
+      loop_control:
+        label: "{{ item.path }}"
+      register: file_permissions_account_stat
+
+    - name: Set account database ownership and permissions
+      become: true
+      ansible.builtin.file:
+        path: "{{ item.item.path }}"
+        state: file
+        mode: "{{ item.item.mode }}"
+        owner: "{{ item.item.owner }}"
+        group: "{{ item.item.group }}"
+      loop: "{{ file_permissions_account_stat.results | selectattr('stat.exists') | list }}"
+      loop_control:
+        label: "{{ item.item.path }}"
+
+- name: Restrict bootloader configuration permissions
+  become: true
+  when:
+    - file_permissions_bootloader | bool
+  block:
+    - name: Stat bootloader configuration
+      ansible.builtin.stat:
+        path: "{{ item }}"
+        get_attributes: false
+        get_checksum: false
+        get_mime: false
+      loop: "{{ file_permissions_bootloader_files }}"
+      register: file_permissions_bootloader_stat
+
+    - name: Set bootloader configuration permissions
+      ansible.builtin.file:
+        path: "{{ item.item }}"
+        state: file
+        mode: "{{ file_permissions_bootloader_mode }}"
+        owner: root
+        group: root
+      loop: "{{ file_permissions_bootloader_stat.results | selectattr('stat.exists') | rejectattr('stat.mode', 'search', '00$') | list }}"
+      loop_control:
+        label: "{{ item.item }}"

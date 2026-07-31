@@ -1,0 +1,55 @@
+---
+- name: Verify account database ownership and permissions
+  become: true
+  block:
+    - name: Stat account databases
+      ansible.builtin.stat:
+        path: "{{ item.path }}"
+        get_attributes: false
+        get_checksum: false
+        get_mime: false
+      loop: "{{ file_permissions_account_databases }}"
+      loop_control:
+        label: "{{ item.path }}"
+      register: verify_account_databases
+
+    - name: Assert account database ownership and permissions
+      ansible.builtin.assert:
+        that:
+          - item.stat.mode == item.item.mode
+          - item.stat.pw_name == item.item.owner
+          - item.stat.gr_name == item.item.group
+        success_msg: >-
+          {{ item.item.path }} has the expected ownership and permissions:
+          {{ item.stat.mode }} {{ item.stat.pw_name }}:{{ item.stat.gr_name }}
+        fail_msg: >-
+          {{ item.item.path }} ownership or permissions are incorrect:
+          {{ item.stat.mode }} {{ item.stat.pw_name }}:{{ item.stat.gr_name }},
+          expected {{ item.item.mode }} {{ item.item.owner }}:{{ item.item.group }}
+      loop: "{{ verify_account_databases.results | selectattr('stat.exists') | list }}"
+      loop_control:
+        label: "{{ item.item.path }}"
+
+- name: Verify bootloader configuration permissions
+  become: true
+  block:
+    - name: Stat bootloader configuration
+      ansible.builtin.stat:
+        path: "{{ item }}"
+        get_attributes: false
+        get_checksum: false
+        get_mime: false
+      loop: "{{ file_permissions_bootloader_files }}"
+      register: verify_bootloader_files
+
+    - name: Assert bootloader configuration is not group or other accessible
+      ansible.builtin.assert:
+        that:
+          - item.stat.mode is search("00$")
+        success_msg: >-
+          {{ item.item }} is not group or other accessible: {{ item.stat.mode }}
+        fail_msg: >-
+          {{ item.item }} is group or other accessible: {{ item.stat.mode }}
+      loop: "{{ verify_bootloader_files.results | selectattr('stat.exists') | list }}"
+      loop_control:
+        label: "{{ item.item }}"

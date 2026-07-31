@@ -1,0 +1,90 @@
+---
+# The account databases to manage, and the ownership and permissions to apply
+# to them. Files that do not exist on the target host are skipped.
+file_permissions_account_databases:
+  - path: "/etc/group"
+    owner: "root"
+    group: "root"
+    mode: "{{ file_permissions_passwd_mode }}"
+  - path: "/etc/group-"
+    owner: "root"
+    group: "root"
+    mode: "{{ file_permissions_passwd_backup_mode }}"
+  - path: "/etc/gshadow"
+    owner: "root"
+    group: "{{ file_permissions_shadow_group }}"
+    mode: "{{ file_permissions_shadow_mode }}"
+  - path: "/etc/gshadow-"
+    owner: "root"
+    group: "{{ file_permissions_shadow_group }}"
+    mode: "{{ file_permissions_shadow_mode }}"
+  - path: "/etc/passwd"
+    owner: "root"
+    group: "root"
+    mode: "{{ file_permissions_passwd_mode }}"
+  - path: "/etc/passwd-"
+    owner: "root"
+    group: "root"
+    mode: "{{ file_permissions_passwd_backup_mode }}"
+  - path: "/etc/security/opasswd"
+    owner: "root"
+    group: "root"
+    mode: "{{ file_permissions_opasswd_mode }}"
+  - path: "/etc/security/opasswd.old"
+    owner: "root"
+    group: "root"
+    mode: "{{ file_permissions_opasswd_mode }}"
+  - path: "/etc/shadow"
+    owner: "root"
+    group: "{{ file_permissions_shadow_group }}"
+    mode: "{{ file_permissions_shadow_mode }}"
+  - path: "/etc/shadow-"
+    owner: "root"
+    group: "{{ file_permissions_shadow_group }}"
+    mode: "{{ file_permissions_shadow_mode }}"
+
+# Manage the permissions of the bootloader configuration files listed in
+# C(file_permissions_bootloader_files).
+file_permissions_bootloader: true
+
+# Bootloader configuration files that should not be readable or writable by
+# group or other. Files residing on the C(vfat) EFI system partition are
+# deliberately excluded since that file system has no Unix permissions.
+file_permissions_bootloader_files:
+  - "/boot/grub/grub.cfg"
+  - "/boot/grub/grubenv"
+  - "/boot/grub/user.cfg"
+  - "/boot/grub2/grub.cfg"
+  - "/boot/grub2/grubenv"
+  - "/boot/grub2/user.cfg"
+  - "/boot/loader/loader.conf"
+
+# The file mode applied to a C(file_permissions_bootloader_files) entry that is
+# readable or writable by group or other. Files that already have no group and
+# other permission bits are left alone, since C(grub-mkconfig) writes C(0400)
+# and rewriting those would make the role non-idempotent.
+file_permissions_bootloader_mode: "0600"
+
+# File mode of C(/etc/security/opasswd) and C(/etc/security/opasswd.old), the
+# C(pam_pwhistory) password history databases.
+file_permissions_opasswd_mode: "0600"
+
+# Manage the ownership and permissions of the
+# C(file_permissions_account_databases) files.
+file_permissions_passwd: true
+
+# File mode of the C(/etc/passwd-) and C(/etc/group-) backup files.
+file_permissions_passwd_backup_mode: "0600"
+
+# File mode of the world readable account databases, C(/etc/passwd) and
+# C(/etc/group).
+file_permissions_passwd_mode: "0644"
+
+# Owner group of C(/etc/shadow), C(/etc/shadow-), C(/etc/gshadow) and
+# C(/etc/gshadow-). Debian family systems use a dedicated C(shadow) group so
+# that setgid helpers, C(unix_chkpwd) for example, can read the file.
+file_permissions_shadow_group: "{{ 'shadow' if ansible_facts.os_family == 'Debian' else 'root' }}"
+
+# File mode of C(/etc/shadow), C(/etc/shadow-), C(/etc/gshadow) and
+# C(/etc/gshadow-).
+file_permissions_shadow_mode: "{{ '0640' if ansible_facts.os_family == 'Debian' else '0000' }}"
