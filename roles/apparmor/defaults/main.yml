@@ -11,3 +11,6 @@ apparmor_sysctl_settings:
 
 # AppArmor sysctl configuration template location.
 sysctl_apparmor_config_template: "etc/sysctl/sysctl.apparmor.conf.j2"
+
+# Profiles matching this expression are left alone by the enforce task.
+apparmor_unenforced_flags_regex: ".*flags\\s*=\\s*\\([^)]*\\b(unconfined|prompt|default_allow)\\b"
