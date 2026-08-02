@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Set `lock_timeout` on the `apt` handlers in the `automatic_updates` and `packages` roles,
+  so that cleanup no longer fails when a package management service still holds the apt lock.
+- Install `epel-release` during test preparation instead of mid-play, and document that
+  repository adding roles have to run before the upgrade, so that the repository set is
+  stable across both converges and the idempotence check on AlmaLinux no longer fails.
 - Add `file_permissions` role, restricting the ownership and permissions of the account
   databases (`/etc/passwd`, `/etc/shadow`, `/etc/group`, `/etc/gshadow`, their backup files
   and `/etc/security/opasswd`) and of the bootloader configuration files.
