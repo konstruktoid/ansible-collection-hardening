@@ -37,7 +37,7 @@
         paths: /etc/apparmor.d/
         file_type: file
         recurse: false
-        contains: ".*flags\\s*=\\s*\\([^)]*\\bunconfined\\b"
+        contains: "^(?!\\s*#).*flags\\s*=\\s*\\([^)]*\\bunconfined\\b"
       register: apparmor_unconfined_profiles
 
     - name: Find AppArmor profiles that allow everything
