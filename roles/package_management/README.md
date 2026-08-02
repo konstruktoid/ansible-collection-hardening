@@ -2,6 +2,11 @@
 
 Role to manage configuration of APT and DNF.
 
+Apply any role that adds a package repository before this one when `system_upgrade` is
+enabled. `timesyncd` installs `epel-release` on the RedHat family, for example. A
+repository added after the upgrade has run leaves its packages upgradable, so the next
+run of this role reports changed again.
+
 ## Requirements
 
 - Ansible-core >= 2.18

@@ -18,3 +18,13 @@
 
     - name: Gather facts
       ansible.builtin.gather_facts:
+
+    - name: Install epel-release on the RedHat family
+      become: true
+      ansible.builtin.dnf:
+        name: epel-release
+        state: present
+        update_cache: true
+      when:
+        - ansible_facts.os_family == "RedHat"
+        - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
