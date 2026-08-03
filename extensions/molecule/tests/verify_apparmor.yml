@@ -22,6 +22,46 @@
           - "'kernel.apparmor_restrict_unprivileged_unconfined = 1' in sysctl_output.stdout"
           - "'kernel.unprivileged_userns_apparmor_policy = 1' in sysctl_output.stdout"
 
+    - name: Find permissive AppArmor stub profiles
+      become: true
+      ansible.builtin.find:
+        paths: /etc/apparmor.d/
+        file_type: file
+        recurse: false
+        contains: "^# This profile allows everything and only exists to give the$"
+      register: apparmor_stub_profiles
+
+    - name: Find AppArmor profiles that kept the unconfined flag
+      become: true
+      ansible.builtin.find:
+        paths: /etc/apparmor.d/
+        file_type: file
+        recurse: false
+        contains: "^(?!\\s*#).*flags\\s*=\\s*\\([^)]*\\bunconfined\\b"
+      register: apparmor_unconfined_profiles
+
+    - name: Find AppArmor profiles that allow everything
+      become: true
+      ansible.builtin.find:
+        paths: /etc/apparmor.d/
+        file_type: file
+        recurse: false
+        contains: "\\s*allow all,"
+      register: apparmor_allow_all_profiles
+
+    - name: Assert that permissive stub profiles are still permissive
+      ansible.builtin.assert:
+        that:
+          - apparmor_broken_stub_profiles | length == 0
+        fail_msg: >-
+          aa-enforce stripped the permissive flags from {{ apparmor_broken_stub_profiles | join(", ") }},
+          turning stub profiles that allow everything into enforcing profiles that deny everything.
+      vars:
+        apparmor_broken_stub_profiles: >-
+          {{ apparmor_stub_profiles.files | map(attribute='path') | list
+             | difference((apparmor_unconfined_profiles.files | map(attribute='path') | list)
+                          | union(apparmor_allow_all_profiles.files | map(attribute='path') | list)) | sort }}
+
     - name: Assert io_uring sysctl setting
       ansible.builtin.assert:
         that:

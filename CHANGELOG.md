@@ -10,7 +10,10 @@
   `systemd-timesyncd` again, and `chronyd.service` (`Conflicts=systemd-timesyncd.service`,
   started after `sysinit.target`) stopped it on the next boot. The NTP servers configured by
   the role were therefore never used on those platforms.
-
+- Stop the `apparmor` role from enforcing profiles that declare `flags=(unconfined)`,
+  `flags=(prompt)` or `flags=(default_allow)`. Note that hosts hardened with an earlier
+  release keep the rewritten profiles on disk and have to be restored separately, for example
+  with `apt-get install --reinstall apparmor apparmor-profiles`.
 - Set `lock_timeout` on the `apt` handlers in the `automatic_updates` and `packages` roles,
   so that cleanup no longer fails when a package management service still holds the apt lock.
 - Install `epel-release` during test preparation instead of mid-play, and document that
