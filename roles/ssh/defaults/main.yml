@@ -5,8 +5,6 @@ ssh_config_template: "etc/ssh/ssh_config.j2"
 # Specifies what environment variables sent by the client will be copied into the session.
 sshd_accept_env: "LANG LC_*"
 
-# Only the network(s) defined in C(sshd_admin_net) are allowed to connect to C(sshd_ports).
-sshd_admin_net: ["192.168.0.0/24", "192.168.1.0/24"]
 # Specifies whether ssh-agent forwarding is permitted.
 sshd_allow_agent_forwarding: false
 

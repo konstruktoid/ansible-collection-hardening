@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Remove the unused `sshd_admin_net` variable from the `ssh` role. It is a leftover from
+  `ansible-role-hardening`, where the role also managed the firewall, and it has had no effect
+  since firewalling moved to the separate `ufw` and `firewalld` roles. Use `ufw_admin_net` or
+  `firewalld_admin_net` to restrict which networks may connect.
 - Make the `timesyncd` role stop and disable any other time synchronization service, listed in
   the new `timesyncd_conflicting_services` variable, and drop the `timedatectl set-ntp` task.
   On AlmaLinux and Ubuntu, which ship `chrony`, the role previously left both clients enabled:

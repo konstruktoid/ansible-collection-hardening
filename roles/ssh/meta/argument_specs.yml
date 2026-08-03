@@ -15,13 +15,6 @@ argument_specs:
         description: "Specifies what environment variables sent by the client will be copied into the session."
         type: "str"
         default: "LANG LC_*"
-      sshd_admin_net:
-        description: "Only the network(s) defined in C(sshd_admin_net) are allowed to connect to C(sshd_ports)."
-        type: "list"
-        elements: "str"
-        default:
-          - "192.168.0.0/24"
-          - "192.168.1.0/24"
       sshd_allow_agent_forwarding:
         description: "Specifies whether ssh-agent forwarding is permitted."
         type: "bool"

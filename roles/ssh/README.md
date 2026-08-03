@@ -24,7 +24,6 @@ Defined in `roles/ssh/defaults/main.yml`.
 | --- | --- | --- |
 | `ssh_config_template` | `"etc/ssh/ssh_config.j2"` | OpenSSH ssh_config template location. |
 | `sshd_accept_env` | `"LANG LC_*"` | Specifies what environment variables sent by the client will be copied into the session. |
-| `sshd_admin_net` | `["192.168.0.0/24", "192.168.1.0/24"]` | Only the network(s) defined in `sshd_admin_net` are allowed to connect to `sshd_ports`. |
 | `sshd_allow_agent_forwarding` | `false` | Specifies whether ssh-agent forwarding is permitted. |
 | `sshd_allow_groups` | `["sudo"]` | If specified, login is allowed only for users whose primary group or supplementary group list matches one of the patterns. |
 | `sshd_allow_tcp_forwarding` | `false` | Specifies whether TCP forwarding is permitted. |
