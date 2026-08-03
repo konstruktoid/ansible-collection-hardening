@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Remove the unused `sshd_admin_net` variable from the `ssh` role. It is a leftover from
+  `ansible-role-hardening`, where the role also managed the firewall, and it has had no effect
+  since firewalling moved to the separate `ufw` and `firewalld` roles. Use `ufw_admin_net` or
+  `firewalld_admin_net` to restrict which networks may connect.
 - Stop the `apparmor` role from enforcing profiles that declare `flags=(unconfined)`,
   `flags=(prompt)` or `flags=(default_allow)`. Note that hosts hardened with an earlier
   release keep the rewritten profiles on disk and have to be restored separately, for example
