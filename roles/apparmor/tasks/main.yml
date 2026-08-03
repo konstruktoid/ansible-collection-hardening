@@ -79,14 +79,44 @@
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
 
     - name: Enforce AppArmor profiles
-      ansible.builtin.command:
-        cmd: find /etc/apparmor.d/ -maxdepth 1 -type f -exec aa-enforce {} \;
-      register: enforce_apparmor_profiles
-      changed_when: enforce_apparmor_profiles.rc != 0
-      failed_when: enforce_apparmor_profiles.rc != 0
       when:
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
         - get_apparmor_complaining.stdout != "0"
+      block:
+        - name: Find AppArmor profiles
+          ansible.builtin.find:
+            paths: /etc/apparmor.d/
+            file_type: file
+            recurse: false
+          register: apparmor_profiles
+
+        - name: Find AppArmor profiles that are deliberately not enforced
+          ansible.builtin.find:
+            paths: /etc/apparmor.d/
+            file_type: file
+            recurse: false
+            contains: "{{ apparmor_unenforced_flags_regex }}"
+          register: apparmor_unenforced_profiles
+
+        - name: Enforce AppArmor profiles not flagged as unenforced
+          environment:
+            PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+          ansible.builtin.command:
+            cmd: "aa-enforce {{ item }}"
+          loop: >-
+            {{ apparmor_profiles.files | map(attribute='path') | list
+               | difference(apparmor_unenforced_profiles.files | map(attribute='path') | list) | sort }}
+          register: enforce_apparmor_profiles
+          changed_when: true
+          failed_when: false
+
+        - name: Warn about AppArmor profiles that could not be enforced
+          ansible.builtin.debug:
+            msg: >-
+              aa-enforce failed for {{ enforce_apparmor_profiles.results
+                | rejectattr('rc', 'equalto', 0) | map(attribute='item') | join(", ") }}
+          when:
+            - enforce_apparmor_profiles.results | rejectattr('rc', 'equalto', 0) | list | length > 0
 
     - name: Enable apparmor
       ansible.builtin.systemd_service:
