@@ -6,6 +6,14 @@
   `ansible-role-hardening`, where the role also managed the firewall, and it has had no effect
   since firewalling moved to the separate `ufw` and `firewalld` roles. Use `ufw_admin_net` or
   `firewalld_admin_net` to restrict which networks may connect.
+- Make the `timesyncd` role stop and disable any other time synchronization service, listed in
+  the new `timesyncd_conflicting_services` variable, and drop the `timedatectl set-ntp` task.
+  On AlmaLinux and Ubuntu, which ship `chrony`, the role previously left both clients enabled:
+  `systemd-timedated` selects the first unit in `/usr/lib/systemd/ntp-units.d/`, where
+  `50-chrony*` sorts before `80-systemd-timesync`, so `timedatectl set-ntp true` disabled
+  `systemd-timesyncd` again, and `chronyd.service` (`Conflicts=systemd-timesyncd.service`,
+  started after `sysinit.target`) stopped it on the next boot. The NTP servers configured by
+  the role were therefore never used on those platforms.
 - Stop the `apparmor` role from enforcing profiles that declare `flags=(unconfined)`,
   `flags=(prompt)` or `flags=(default_allow)`. Note that hosts hardened with an earlier
   release keep the rewritten profiles on disk and have to be restored separately, for example

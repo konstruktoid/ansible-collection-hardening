@@ -27,24 +27,33 @@
       notify:
         - Restart systemd-timesyncd
 
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    # systemd-timedated picks the first unit listed in /usr/lib/systemd/ntp-units.d/ and
+    # disables every other one, and chrony conflicts with systemd-timesyncd, so any other
+    # time synchronization service left installed and enabled will win over timesyncd.
+    - name: Stop conflicting time synchronization services
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+        state: stopped
+      loop: "{{ timesyncd_conflicting_services }}"
+      when:
+        - item in ansible_facts.services
+        - ansible_facts.services[item].state == "running"
+
+    - name: Disable conflicting time synchronization services
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+        enabled: false
+      loop: "{{ timesyncd_conflicting_services }}"
+      when:
+        - item in ansible_facts.services
+        - ansible_facts.services[item].status in ["enabled", "enabled-runtime"]
+
     - name: Start timesyncd
       ansible.builtin.systemd_service:
         name: systemd-timesyncd
         enabled: true
         masked: false
         state: started
-
-    - name: Stat timedatectl show
-      ansible.builtin.command:
-        cmd: timedatectl show
-      register: timedatectl_show
-      changed_when: false
-      failed_when: timedatectl_show.rc != 0
-
-    - name: Run timedatectl set-ntp
-      ansible.builtin.command:
-        cmd: timedatectl set-ntp true
-      register: timedatectl_set_ntp
-      changed_when: timedatectl_set_ntp.rc == 0
-      when:
-        - timedatectl_show.stdout.find('NTP=yes') == -1

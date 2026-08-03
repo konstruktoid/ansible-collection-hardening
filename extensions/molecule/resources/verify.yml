@@ -14,7 +14,7 @@
         - name: Wait for host connection
           ansible.builtin.wait_for_connection:
             delay: 10
-          timeout: 120
+            timeout: 120
 
     - name: Find all defaults/main.yml files
       ansible.builtin.find:
