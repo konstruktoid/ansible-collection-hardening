@@ -3,14 +3,52 @@
   when:
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
   block:
-    - name: Gather service facts
-      ansible.builtin.service_facts:
+    - name: Get systemd-timesyncd status
+      ansible.builtin.systemd_service:
+        name: systemd-timesyncd.service
+      register: systemd_timesyncd_service
 
     - name: Assert timesyncd is configured and active
       ansible.builtin.assert:
         that:
-          - "'systemd-timesyncd.service' in ansible_facts.services"
-          - ansible_facts.services['systemd-timesyncd.service'].status == 'enabled'
+          - systemd_timesyncd_service.status.UnitFileState == "enabled"
+          - systemd_timesyncd_service.status.ActiveState == "active"
+        fail_msg: >-
+          systemd-timesyncd.service is not enabled and active.
+          UnitFileState: {{ systemd_timesyncd_service.status.UnitFileState | default('none') }},
+          ActiveState: {{ systemd_timesyncd_service.status.ActiveState }}
+
+    - name: Get conflicting time synchronization service status
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+      register: systemd_timesyncd_conflicting
+      loop: "{{ timesyncd_conflicting_services }}"
+
+    - name: Assert no conflicting time synchronization service is enabled or active
+      ansible.builtin.assert:
+        that:
+          - item.status.ActiveState != "active"
+          - item.status.UnitFileState | default("") not in ["enabled", "enabled-runtime"]
+        fail_msg: >-
+          {{ item.item }} still synchronizes the system clock.
+          UnitFileState: {{ item.status.UnitFileState | default('none') }},
+          ActiveState: {{ item.status.ActiveState }}
+      loop: "{{ systemd_timesyncd_conflicting.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+
+    - name: Get timedatectl NTP status
+      become: true
+      ansible.builtin.command:
+        cmd: timedatectl show --property=NTP --value
+      register: systemd_timesyncd_timedatectl
+      changed_when: false
+
+    - name: Assert network time synchronization is enabled
+      ansible.builtin.assert:
+        that:
+          - systemd_timesyncd_timedatectl.stdout == "yes"
+        fail_msg: "timedatectl reports NTP={{ systemd_timesyncd_timedatectl.stdout }}"
 
     - name: Verify systemd timesyncd.conf
       become: true
