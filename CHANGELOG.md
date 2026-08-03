@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Make the `timesyncd` role stop and disable any other time synchronization service, listed in
+  the new `timesyncd_conflicting_services` variable, and drop the `timedatectl set-ntp` task.
+  On AlmaLinux and Ubuntu, which ship `chrony`, the role previously left both clients enabled:
+  `systemd-timedated` selects the first unit in `/usr/lib/systemd/ntp-units.d/`, where
+  `50-chrony*` sorts before `80-systemd-timesync`, so `timedatectl set-ntp true` disabled
+  `systemd-timesyncd` again, and `chronyd.service` (`Conflicts=systemd-timesyncd.service`,
+  started after `sysinit.target`) stopped it on the next boot. The NTP servers configured by
+  the role were therefore never used on those platforms.
+
 - Set `lock_timeout` on the `apt` handlers in the `automatic_updates` and `packages` roles,
   so that cleanup no longer fails when a package management service still holds the apt lock.
 - Install `epel-release` during test preparation instead of mid-play, and document that
