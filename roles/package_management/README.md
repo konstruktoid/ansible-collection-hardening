@@ -25,7 +25,7 @@ Defined in `roles/package_management/defaults/main.yml`.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `apt_options` | `['Acquire::AllowDowngradeToInsecureRepositories "false";', 'Acquire::AllowInsecureRepositories "false";', 'Acquire::http::AllowRedirect "false";', 'APT::Get::AllowUnauthenticated "false";', 'APT::Get::AutomaticRemove "true";', 'APT::Install-Recommends "false";', 'APT::Install-Suggests "false";', 'APT::Periodic::AutocleanInterval "7";', 'APT::Sandbox::Seccomp "1";', 'Unattended-Upgrade::Remove-Unused-Dependencies "true";', 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";']` | Options used to configure the APT suite of tools. |
+| `apt_options` | `['Acquire::AllowDowngradeToInsecureRepositories "0";', 'Acquire::AllowInsecureRepositories "0";', 'Acquire::AllowWeakRepositories "0";', 'Acquire::Check-Date "true";', 'Acquire::http::AllowRedirect "false";', 'APT::Get::AllowUnauthenticated "false";', 'APT::Get::AutomaticRemove "true";', 'APT::Install-Recommends "0";', 'APT::Install-Suggests "0";', 'APT::Periodic::AutocleanInterval "7";', 'APT::Sandbox::Seccomp "1";', 'Unattended-Upgrade::Remove-Unused-Dependencies "true";', 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";']` | Options used to configure the APT suite of tools. |
 | `system_upgrade` | `true` | If True, then the installed packages will be upgraded to the latest version using `apt` or `dnf`. |
 
 ## Tasks

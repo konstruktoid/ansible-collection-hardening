@@ -12,13 +12,15 @@ argument_specs:
         type: "list"
         elements: "str"
         default:
-          - 'Acquire::AllowDowngradeToInsecureRepositories "false";'
-          - 'Acquire::AllowInsecureRepositories "false";'
+          - 'Acquire::AllowDowngradeToInsecureRepositories "0";'
+          - 'Acquire::AllowInsecureRepositories "0";'
+          - 'Acquire::AllowWeakRepositories "0";'
+          - 'Acquire::Check-Date "true";'
           - 'Acquire::http::AllowRedirect "false";'
           - 'APT::Get::AllowUnauthenticated "false";'
           - 'APT::Get::AutomaticRemove "true";'
-          - 'APT::Install-Recommends "false";'
-          - 'APT::Install-Suggests "false";'
+          - 'APT::Install-Recommends "0";'
+          - 'APT::Install-Suggests "0";'
           - 'APT::Periodic::AutocleanInterval "7";'
           - 'APT::Sandbox::Seccomp "1";'
           - 'Unattended-Upgrade::Remove-Unused-Dependencies "true";'
