@@ -12,6 +12,7 @@
         mode: "0644"
         state: present
         create: true
+        regexp: '^{{ item.split(" ") | first | regex_escape }}\s'
         line: "{{ item }}"
       loop: "{{ apt_options }}"
       when: >-

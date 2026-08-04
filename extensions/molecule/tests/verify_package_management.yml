@@ -23,13 +23,15 @@
         executable: /bin/bash
       changed_when: false
       loop:
-        - 'Acquire::AllowDowngradeToInsecureRepositories "false";'
-        - 'Acquire::AllowInsecureRepositories "false";'
+        - 'Acquire::AllowDowngradeToInsecureRepositories "0";'
+        - 'Acquire::AllowInsecureRepositories "0";'
+        - 'Acquire::AllowWeakRepositories "0";'
+        - 'Acquire::Check-Date "true";'
         - 'Acquire::http::AllowRedirect "false";'
         - 'APT::Get::AllowUnauthenticated "false";'
         - 'APT::Get::AutomaticRemove "true";'
-        - 'APT::Install-Recommends "false";'
-        - 'APT::Install-Suggests "false";'
+        - 'APT::Install-Recommends "0";'
+        - 'APT::Install-Suggests "0";'
         - 'APT::Periodic::AutocleanInterval "7";'
         - 'Unattended-Upgrade::Remove-Unused-Dependencies "true";'
         - 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";'
@@ -55,6 +57,34 @@
       register: package_management_trixie_seccomp
       when:
         - ansible_facts.distribution_release == "trixie"
+
+    - name: Get apt-config dump
+      become: true
+      ansible.builtin.command:
+        cmd: apt-config dump
+      changed_when: false
+      register: package_management_apt_config_dump
+
+    # CIS Debian 13 v1.1.0 and CIS Ubuntu 26.04 v1.0.0 1.2.1.12 - 1.2.1.15 audit
+    - name: Assert CIS audited apt options are present in apt-config dump
+      ansible.builtin.assert:
+        that:
+          - item in package_management_apt_config_dump.stdout_lines
+        fail_msg: "{{ item }} is missing from the apt-config dump output"
+      loop:
+        - 'Acquire::AllowInsecureRepositories "0";'
+        - 'Acquire::AllowWeakRepositories "0";'
+        - 'Acquire::AllowDowngradeToInsecureRepositories "0";'
+        - 'Acquire::Check-Date "true";'
+
+    - name: Assert apt options with a built-in default are present in apt-config dump
+      ansible.builtin.assert:
+        that:
+          - item in package_management_apt_config_dump.stdout_lines
+        fail_msg: "{{ item }} is missing from the apt-config dump output"
+      loop:
+        - 'APT::Install-Recommends "0";'
+        - 'APT::Install-Suggests "0";'
 
 - name: Stat yum.conf
   when:
