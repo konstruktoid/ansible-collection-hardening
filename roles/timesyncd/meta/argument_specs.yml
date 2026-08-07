@@ -20,8 +20,10 @@ argument_specs:
         elements: "str"
         default:
           - "chrony.service"
+          - "chronyd-restricted.service"
           - "chronyd.service"
           - "ntp.service"
+          - "ntpd-rs.service"
           - "ntpd.service"
           - "ntpsec.service"
           - "openntpd.service"

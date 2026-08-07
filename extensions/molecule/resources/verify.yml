@@ -93,9 +93,9 @@
       ansible.builtin.include_tasks:
         file: ../tests/verify_journald.yml
 
-    - name: Verify timesyncd role
+    - name: Verify chrony role
       ansible.builtin.include_tasks:
-        file: ../tests/verify_timesyncd.yml
+        file: ../tests/verify_chrony.yml
 
     - name: Verify prelink role
       ansible.builtin.include_tasks:

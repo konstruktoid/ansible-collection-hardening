@@ -32,7 +32,7 @@
     - role: konstruktoid.hardening.automatic_updates
     - role: konstruktoid.hardening.systemdconf
     - role: konstruktoid.hardening.journald
-    - role: konstruktoid.hardening.timesyncd
+    - role: konstruktoid.hardening.chrony
     - role: konstruktoid.hardening.prelink
     - role: konstruktoid.hardening.logindconf
     - role: konstruktoid.hardening.netplan

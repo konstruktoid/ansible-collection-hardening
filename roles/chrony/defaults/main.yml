@@ -1,0 +1,168 @@
+---
+# Packages required to synchronize the clock over NTS. C(ca-certificates) is
+# not a dependency of the C(chrony) package on the Debian family, and without a
+# trust store every NTS-KE handshake fails with an unknown certificate issuer,
+# which with C(chrony_authselectmode) set to C(require) leaves the clock
+# unsynchronized.
+chrony_packages:
+  - "chrony"
+  - "ca-certificates"
+
+# chrony.conf template location.
+chrony_conf_template: "etc/chrony/chrony.conf.j2"
+
+# Path of the chrony configuration file. The Debian family patches chronyd to
+# read C(/etc/chrony/chrony.conf), the Red Hat family keeps the upstream
+# C(/etc/chrony.conf).
+chrony_conf: "{{ '/etc/chrony/chrony.conf' if ansible_facts.os_family == 'Debian' else '/etc/chrony.conf' }}"
+
+# File mode of the chrony configuration file. C(chronyd) parses it as root
+# before dropping privileges, so it does not have to be group readable, but the
+# packages ship it world readable and nothing in it is secret.
+chrony_conf_mode: "0644"
+
+# Name of the chrony systemd unit. The Debian family names the unit
+# C(chrony.service) and only adds the C(chronyd.service) alias when the unit is
+# enabled, the Red Hat family names it C(chronyd.service) and has no
+# C(chrony.service) at all.
+chrony_service: "{{ 'chrony.service' if ansible_facts.os_family == 'Debian' else 'chronyd.service' }}"
+
+# User C(chronyd) drops its privileges to. The Debian family uses the reserved
+# C(_chrony) name, the Red Hat family uses C(chrony).
+chrony_user: "{{ '_chrony' if ansible_facts.os_family == 'Debian' else 'chrony' }}"
+
+# Group of the chrony daemon user.
+chrony_group: "{{ '_chrony' if ansible_facts.os_family == 'Debian' else 'chrony' }}"
+
+# File in which C(chronyd) records the rate at which the system clock gains or
+# loses time.
+chrony_driftfile: "{{ '/var/lib/chrony/chrony.drift' if ansible_facts.os_family == 'Debian' else '/var/lib/chrony/drift' }}"
+
+# Directory in which C(chronyd) saves NTS keys and cookies, so that a restart
+# does not require a new NTS-KE session with every source.
+chrony_ntsdumpdir: "/var/lib/chrony"
+
+# Directory in which C(chronyd) saves the measurement history. It has to be the
+# runtime directory of the unit, which is the only writable path left by
+# C(RuntimeDirectory=chrony) and C(ProtectSystem=strict).
+chrony_dumpdir: "/run/chrony"
+
+# Directory in which C(chronyd) writes its log files.
+chrony_logdir: "/var/log/chrony"
+
+# Time sources. Every source is emitted as C(<type> <address> <options>), where
+# I(type) is either C(server) or C(pool).
+# The default sources all support NTS, which is what makes
+# C(chrony_authselectmode: "require") usable. Which organizations a host asks
+# for the time is a supply chain decision, review the list before using it.
+chrony_sources:
+  - address: "time.cloudflare.com"
+    type: "server"
+    options: ["iburst", "nts"]
+  - address: "ntppool1.time.nl"
+    type: "server"
+    options: ["iburst", "nts"]
+  - address: "nts.netnod.se"
+    type: "server"
+    options: ["iburst", "nts"]
+  - address: "ptbtime1.ptb.de"
+    type: "server"
+    options: ["iburst", "nts"]
+
+# Directories scanned for additional source files, C(sourcedir) directives.
+# Empty by default: the packaged configurations read C(/run/chrony-dhcp), which
+# adds whatever unauthenticated servers a DHCP server hands out.
+chrony_sourcedirs: []
+
+# Directories scanned for additional configuration files, C(confdir)
+# directives. Empty by default so that the configuration of a host is the file
+# this role manages and nothing else.
+chrony_confdirs: []
+
+# Minimum number of selectable sources required to adjust the system clock.
+chrony_minsources: 3
+
+# Authentication required for a source to be selected. C(require) rejects every
+# unauthenticated source, C(ignore) is the C(chronyd) default and selects
+# sources regardless of authentication. Set to an empty string to leave the
+# directive out.
+chrony_authselectmode: "require"
+
+# Number of clock updates for which the NTS-KE certificate time checks are
+# disabled. Needed only to break the bootstrap deadlock on hosts that come up
+# with a clock wrong enough to make every certificate look expired, which stops
+# NTS, which is the only way left to correct the clock. C(0) keeps the checks.
+chrony_nocerttimecheck: 0
+
+# Threshold and limit of the C(makestep) directive: step the clock instead of
+# slewing it if the correction is larger than the first value, for the first
+# number of updates given by the second value.
+chrony_makestep: "1.0 3"
+
+# Synchronize the real time clock from the system clock every 11 minutes.
+chrony_rtcsync: true
+
+# Assume the real time clock keeps UTC. Wrong for hosts that dual boot an
+# operating system that keeps local time in the RTC.
+chrony_rtconutc: false
+
+# File containing the TAI-UTC offset and the leap seconds, C(leapseclist). The
+# directive is only written when the file exists on the target.
+chrony_leapseclist: "/usr/share/zoneinfo/leap-seconds.list"
+
+# UDP port C(chronyd) listens on for NTP requests. C(0) means the host is a
+# client only and never answers NTP.
+chrony_port: 0
+
+# UDP port C(chronyd) listens on for C(chronyc) command packets. C(0) disables
+# it, C(chronyc) still works for root over the Unix domain socket.
+chrony_cmdport: 0
+
+# Do not keep per client access logs. Only relevant when serving time, it stops
+# the memory a remote client can make C(chronyd) allocate.
+chrony_noclientlog: true
+
+# Services that also synchronize the system clock. They are stopped and
+# disabled so that chrony is the only time synchronization service on the host.
+chrony_conflicting_services:
+  - "systemd-timesyncd.service"
+  - "ntp.service"
+  - "ntpd.service"
+  - "ntpsec.service"
+  - "openntpd.service"
+  - "ntpd-rs.service"
+  - "chronyd-restricted.service"
+
+# Serve time to other hosts. Opt-in, and it requires C(chrony_port) to be a
+# real port and C(chrony_server_allow) to list the networks that may ask.
+chrony_server_enabled: false
+
+# Networks allowed to use the host as a time source, C(allow) directives. An
+# empty list serves nobody.
+chrony_server_allow: []
+
+# Private key of the NTS server certificate. On the Debian family it has to
+# stay under C(/etc/chrony), the AppArmor profile of C(chronyd) denies reads
+# anywhere else.
+chrony_ntsserverkey: "{{ '/etc/chrony/nts-server.key' if ansible_facts.os_family == 'Debian' else '/etc/pki/tls/private/chrony-nts.key' }}"
+
+# Certificate, or certificate chain, presented to NTS clients.
+chrony_ntsservercert: "{{ '/etc/chrony/nts-server.crt' if ansible_facts.os_family == 'Debian' else '/etc/pki/tls/certs/chrony-nts.crt' }}"
+
+# File mode of C(chrony_ntsserverkey). It is owned by C(root) and readable by
+# C(chrony_group), which is the account C(chronyd) drops to.
+chrony_ntsserverkey_mode: "0640"
+
+# File mode of C(chrony_ntsservercert).
+chrony_ntsservercert_mode: "0644"
+
+# Number of helper processes handling NTS-KE sessions.
+chrony_ntsprocesses: 1
+
+# Interval, as a power of two seconds, between responses to a client before
+# C(chronyd) starts dropping requests.
+chrony_ratelimit_interval: 1
+
+# Number of requests a client may send faster than C(chrony_ratelimit_interval)
+# before C(chronyd) starts dropping them.
+chrony_ratelimit_burst: 16

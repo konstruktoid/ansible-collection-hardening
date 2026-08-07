@@ -87,6 +87,7 @@ role. See each role's `README.md` for its variables and example usage.
 | [`apport`](roles/apport/README.md) | Manage Apport. | Debian, Ubuntu |
 | [`auditd`](roles/auditd/README.md) | Install and configure auditd and manage audit rules on AlmaLinux, Debian, and Ubuntu. | Debian, AlmaLinux/EL, Ubuntu |
 | [`automatic_updates`](roles/automatic_updates/README.md) | Configure unattended-upgrades to automatically install security updates. | Debian, AlmaLinux/EL, Ubuntu |
+| [`chrony`](roles/chrony/README.md) | Ansible role to manage chrony configuration. | Debian, AlmaLinux/EL, Ubuntu |
 | [`compilers`](roles/compilers/README.md) | Restrict compiler binaries to root on AlmaLinux, Debian, and Ubuntu systems. | Debian, AlmaLinux/EL, Ubuntu |
 | [`ctrlaltdel`](roles/ctrlaltdel/README.md) | Disable Ctrl+Alt+Del key sequence to prevent reboots. | Debian, AlmaLinux/EL, Ubuntu |
 | [`delete_users`](roles/delete_users/README.md) | Delete listed users. | Debian, AlmaLinux/EL, Ubuntu |

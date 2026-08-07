@@ -1,0 +1,228 @@
+---
+argument_specs:
+  main:
+    short_description: "chrony configuration."
+    description:
+      - "This role configures chrony as a client only NTP daemon, using Network Time Security authenticated sources."
+      - "Any other time synchronization service is stopped and disabled, so that chrony is the only one running."
+    author:
+      - "Thomas Sjögren (@konstruktoid)"
+    options:
+      chrony_packages:
+        description:
+          - "Packages required to synchronize the clock over NTS."
+          - "C(ca-certificates) is not a dependency of the C(chrony) package on the Debian family."
+          - "Without a trust store every NTS-KE handshake fails with an unknown certificate issuer."
+          - "With C(chrony_authselectmode) set to C(require) the clock is then never synchronized."
+        type: "list"
+        elements: "str"
+        default:
+          - "chrony"
+          - "ca-certificates"
+      chrony_conf_template:
+        description: "chrony.conf template location."
+        type: "path"
+        default: "etc/chrony/chrony.conf.j2"
+      chrony_conf:
+        description:
+          - "Path of the chrony configuration file."
+          - "The Debian family patches chronyd to read C(/etc/chrony/chrony.conf), the Red Hat family keeps the upstream C(/etc/chrony.conf)."
+          - "Defaults to C(/etc/chrony/chrony.conf) on the Debian family and to C(/etc/chrony.conf) otherwise."
+        type: "path"
+      chrony_conf_mode:
+        description:
+          - "File mode of the chrony configuration file."
+          - "C(chronyd) parses it as root before dropping privileges, so it does not have to be group readable."
+          - "The packages ship it world readable and nothing in it is secret."
+        type: "str"
+        default: "0644"
+      chrony_service:
+        description:
+          - "Name of the chrony systemd unit."
+          - "The Debian family names the unit C(chrony.service) and only adds the C(chronyd.service) alias when the unit is enabled."
+          - "The Red Hat family names it C(chronyd.service) and has no C(chrony.service) at all."
+          - "Defaults to C(chrony.service) on the Debian family and to C(chronyd.service) otherwise."
+        type: "str"
+      chrony_user:
+        description:
+          - "User C(chronyd) drops its privileges to."
+          - "Defaults to C(_chrony) on the Debian family and to C(chrony) otherwise."
+        type: "str"
+      chrony_group:
+        description:
+          - "Group of the chrony daemon user."
+          - "Defaults to C(_chrony) on the Debian family and to C(chrony) otherwise."
+        type: "str"
+      chrony_driftfile:
+        description:
+          - "File in which C(chronyd) records the rate at which the system clock gains or loses time."
+          - "Defaults to C(/var/lib/chrony/chrony.drift) on the Debian family and to C(/var/lib/chrony/drift) otherwise."
+        type: "path"
+      chrony_ntsdumpdir:
+        description:
+          - "Directory in which C(chronyd) saves NTS keys and cookies."
+          - "It stops a restart from requiring a new NTS-KE session with every source."
+        type: "path"
+        default: "/var/lib/chrony"
+      chrony_dumpdir:
+        description:
+          - "Directory in which C(chronyd) saves the measurement history."
+          - "It has to be the runtime directory of the unit, which is the only writable path left by C(RuntimeDirectory=chrony) and C(ProtectSystem=strict)."
+        type: "path"
+        default: "/run/chrony"
+      chrony_logdir:
+        description: "Directory in which C(chronyd) writes its log files."
+        type: "path"
+        default: "/var/log/chrony"
+      chrony_sources:
+        description:
+          - "Time sources. Every source is emitted as C(<type> <address> <options>), where I(type) is either C(server) or C(pool)."
+          - "The default sources all support NTS, which is what makes C(chrony_authselectmode) set to C(require) usable."
+          - "Which organizations a host asks for the time is a supply chain decision, review the list before using it."
+        type: "list"
+        elements: "dict"
+        default:
+          - { "address": "time.cloudflare.com", "type": "server", "options": ["iburst", "nts"] }
+          - { "address": "ntppool1.time.nl", "type": "server", "options": ["iburst", "nts"] }
+          - { "address": "nts.netnod.se", "type": "server", "options": ["iburst", "nts"] }
+          - { "address": "ptbtime1.ptb.de", "type": "server", "options": ["iburst", "nts"] }
+      chrony_sourcedirs:
+        description:
+          - "Directories scanned for additional source files, C(sourcedir) directives."
+          - "Empty by default: the packaged configurations read C(/run/chrony-dhcp), which adds whatever unauthenticated servers a DHCP server hands out."
+        type: "list"
+        elements: "path"
+        default: []
+      chrony_confdirs:
+        description:
+          - "Directories scanned for additional configuration files, C(confdir) directives."
+          - "Empty by default so that the configuration of a host is the file this role manages and nothing else."
+        type: "list"
+        elements: "path"
+        default: []
+      chrony_minsources:
+        description: "Minimum number of selectable sources required to adjust the system clock."
+        type: "int"
+        default: 3
+      chrony_authselectmode:
+        description:
+          - "Authentication required for a source to be selected."
+          - "C(require) rejects every unauthenticated source, C(ignore) is the C(chronyd) default and selects sources regardless of authentication."
+          - "Set to an empty string to leave the directive out."
+          - "The role fails when this is C(require) and C(chrony_sources) contains a source without the C(nts) option."
+        type: "str"
+        default: "require"
+        choices:
+          - "require"
+          - "prefer"
+          - "mix"
+          - "ignore"
+          - ""
+      chrony_nocerttimecheck:
+        description:
+          - "Number of clock updates for which the NTS-KE certificate time checks are disabled."
+          - "Needed only to break the bootstrap deadlock on hosts that come up with a clock wrong enough to make every certificate look expired."
+          - "That stops NTS, which is the only way left to correct the clock."
+          - "C(0) keeps the checks."
+        type: "int"
+        default: 0
+      chrony_makestep:
+        description:
+          - "Threshold and limit of the C(makestep) directive."
+          - "Step the clock instead of slewing it if the correction is larger than the first value, for the first number of updates given by the second value."
+        type: "str"
+        default: "1.0 3"
+      chrony_rtcsync:
+        description: "If True, the real time clock is synchronized from the system clock every 11 minutes."
+        type: "bool"
+        default: true
+      chrony_rtconutc:
+        description:
+          - "If True, the real time clock is assumed to keep UTC."
+          - "Wrong for hosts that dual boot an operating system that keeps local time in the RTC."
+        type: "bool"
+        default: false
+      chrony_leapseclist:
+        description:
+          - "File containing the TAI-UTC offset and the leap seconds, C(leapseclist)."
+          - "The directive is only written when the file exists on the target, since it belongs to the tz database and not to chrony."
+        type: "path"
+        default: "/usr/share/zoneinfo/leap-seconds.list"
+      chrony_port:
+        description:
+          - "UDP port C(chronyd) listens on for NTP requests."
+          - "C(0) means the host is a client only and never answers NTP."
+        type: "int"
+        default: 0
+      chrony_cmdport:
+        description:
+          - "UDP port C(chronyd) listens on for C(chronyc) command packets."
+          - "C(0) disables it, C(chronyc) still works for root over the Unix domain socket."
+        type: "int"
+        default: 0
+      chrony_noclientlog:
+        description:
+          - "If True, no per client access logs are kept."
+          - "Only relevant when serving time, it stops the memory a remote client can make C(chronyd) allocate."
+        type: "bool"
+        default: true
+      chrony_conflicting_services:
+        description:
+          - "Services that also synchronize the system clock."
+          - "They are stopped and disabled so that chrony is the only time synchronization service on the host."
+        type: "list"
+        elements: "str"
+        default:
+          - "systemd-timesyncd.service"
+          - "ntp.service"
+          - "ntpd.service"
+          - "ntpsec.service"
+          - "openntpd.service"
+          - "ntpd-rs.service"
+          - "chronyd-restricted.service"
+      chrony_server_enabled:
+        description:
+          - "If True, the host serves time to the networks listed in C(chrony_server_allow)."
+          - "It requires C(chrony_port) to be a real port, the role fails otherwise."
+        type: "bool"
+        default: false
+      chrony_server_allow:
+        description:
+          - "Networks allowed to use the host as a time source, C(allow) directives."
+          - "An empty list serves nobody."
+        type: "list"
+        elements: "str"
+        default: []
+      chrony_ntsserverkey:
+        description:
+          - "Private key of the NTS server certificate."
+          - "On the Debian family it has to stay under C(/etc/chrony), the AppArmor profile of C(chronyd) denies reads anywhere else."
+          - "Defaults to C(/etc/chrony/nts-server.key) on the Debian family and to C(/etc/pki/tls/private/chrony-nts.key) otherwise."
+        type: "path"
+      chrony_ntsservercert:
+        description:
+          - "Certificate, or certificate chain, presented to NTS clients."
+          - "Defaults to C(/etc/chrony/nts-server.crt) on the Debian family and to C(/etc/pki/tls/certs/chrony-nts.crt) otherwise."
+        type: "path"
+      chrony_ntsserverkey_mode:
+        description:
+          - "File mode of C(chrony_ntsserverkey)."
+          - "It is owned by C(root) and readable by C(chrony_group), which is the account C(chronyd) drops to."
+        type: "str"
+        default: "0640"
+      chrony_ntsservercert_mode:
+        description: "File mode of C(chrony_ntsservercert)."
+        type: "str"
+        default: "0644"
+      chrony_ntsprocesses:
+        description: "Number of helper processes handling NTS-KE sessions."
+        type: "int"
+        default: 1
+      chrony_ratelimit_interval:
+        description: "Interval, as a power of two seconds, between responses to a client before C(chronyd) starts dropping requests."
+        type: "int"
+        default: 1
+      chrony_ratelimit_burst:
+        description: "Number of requests a client may send faster than C(chrony_ratelimit_interval) before C(chronyd) starts dropping them."
+        type: "int"
+        default: 16

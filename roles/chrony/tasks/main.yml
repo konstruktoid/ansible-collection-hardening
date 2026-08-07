@@ -1,0 +1,145 @@
+---
+- name: Install and configure chrony
+  become: true
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+  block:
+    - name: Assert that the time sources are usable
+      ansible.builtin.assert:
+        that:
+          - chrony_sources | length > 0
+          - chrony_sources | rejectattr("type", "in", ["server", "pool"]) | list | length == 0
+        fail_msg: >-
+          chrony_sources has to contain at least one source, and the type of every
+          source has to be either "server" or "pool".
+
+    # chronyd parses "authselectmode require" together with an unauthenticated
+    # source without complaining and then never selects a source, leaving the
+    # clock unsynchronized, so the combination is rejected here instead.
+    - name: Assert that every time source is authenticated
+      ansible.builtin.assert:
+        that:
+          - chrony_sources | rejectattr("options", "contains", "nts") | list | length == 0
+        fail_msg: >-
+          chrony_authselectmode is "require", which lets chronyd select
+          authenticated sources only, but chrony_sources contains a source
+          without the "nts" option:
+          {{ chrony_sources | rejectattr("options", "contains", "nts") | map(attribute="address") | join(", ") }}
+      when: chrony_authselectmode == "require"
+
+    - name: Assert that a time server accepts NTP requests
+      ansible.builtin.assert:
+        that:
+          - chrony_port | int > 0
+        fail_msg: >-
+          chrony_server_enabled is true, but chrony_port is 0, which stops
+          chronyd from opening the NTP port at all. Set chrony_port to 123.
+      when: chrony_server_enabled
+
+    - name: Install chrony
+      ansible.builtin.package:
+        name: "{{ chrony_packages }}"
+        state: present
+
+    # leapseclist without the file makes chronyd exit, and the file belongs to
+    # the tz database, not to chrony, so it is not installed on every host.
+    - name: Stat the leap second list
+      ansible.builtin.stat:
+        path: "{{ chrony_leapseclist }}"
+        get_attributes: false
+        get_checksum: false
+        get_mime: false
+      register: chrony_leapseclist_stat
+
+    - name: Set the NTS server key and certificate ownership and permissions
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: file
+        owner: root
+        group: "{{ item.group }}"
+        mode: "{{ item.mode }}"
+      loop:
+        - path: "{{ chrony_ntsserverkey }}"
+          group: "{{ chrony_group }}"
+          mode: "{{ chrony_ntsserverkey_mode }}"
+        - path: "{{ chrony_ntsservercert }}"
+          group: "root"
+          mode: "{{ chrony_ntsservercert_mode }}"
+      loop_control:
+        label: "{{ item.path }}"
+      when: chrony_server_enabled
+
+    - name: Configure chrony
+      ansible.builtin.template:
+        src: "{{ chrony_conf_template }}"
+        dest: "{{ chrony_conf }}"
+        backup: true
+        mode: "{{ chrony_conf_mode }}"
+        owner: root
+        group: root
+      register: chrony_configuration
+      notify:
+        - Restart chrony
+
+    # The AppArmor profile shipped with the Debian family package only lets
+    # chronyd read /etc/chrony/** and /etc/chrony.*, so the configuration cannot
+    # be validated where the template module puts its temporary file. It is
+    # written first and parsed afterwards, and the backup is put back when
+    # chronyd rejects it.
+    - name: Validate the chrony configuration
+      when: not ansible_check_mode
+      block:
+        - name: Parse the chrony configuration
+          ansible.builtin.command:
+            cmd: "chronyd -f {{ chrony_conf }} -p"
+          changed_when: false
+      rescue:
+        - name: Restore the previous chrony configuration
+          ansible.builtin.copy:
+            src: "{{ chrony_configuration.backup_file }}"
+            dest: "{{ chrony_conf }}"
+            remote_src: true
+            mode: "{{ chrony_conf_mode }}"
+            owner: root
+            group: root
+          when: chrony_configuration.backup_file is defined
+
+        - name: Fail because chronyd rejected the configuration
+          ansible.builtin.fail:
+            msg: >-
+              chronyd rejected {{ chrony_conf }}.
+              {{ 'The previous configuration has been restored.'
+                 if chrony_configuration.backup_file is defined
+                 else 'There was no previous configuration to restore.' }}
+
+    - name: Gather service facts
+      ansible.builtin.service_facts:
+
+    # systemd-timedated picks the first unit listed in /usr/lib/systemd/ntp-units.d/
+    # and disables every other one, so the conflicting units are stopped and
+    # disabled before chrony is enabled and started. Doing it the other way
+    # round leaves the host synchronizing with whichever unit sorts first.
+    - name: Stop conflicting time synchronization services
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+        state: stopped
+      loop: "{{ chrony_conflicting_services }}"
+      when:
+        - item in ansible_facts.services
+        - ansible_facts.services[item].state == "running"
+
+    - name: Disable conflicting time synchronization services
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+        enabled: false
+      loop: "{{ chrony_conflicting_services }}"
+      when:
+        - item in ansible_facts.services
+        - ansible_facts.services[item].status in ["enabled", "enabled-runtime"]
+
+    - name: Start chrony
+      ansible.builtin.systemd_service:
+        name: "{{ chrony_service }}"
+        enabled: true
+        masked: false
+        state: started

@@ -1,0 +1,177 @@
+---
+- name: Verify chrony configuration
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+  block:
+    - name: Get chrony service status
+      ansible.builtin.systemd_service:
+        name: "{{ chrony_service }}"
+      register: chrony_service_status
+
+    # CIS 2.3.1.1 and 2.3.3.3.
+    - name: Assert chrony is unmasked, enabled and active
+      ansible.builtin.assert:
+        that:
+          - chrony_service_status.status.LoadState == "loaded"
+          - chrony_service_status.status.UnitFileState == "enabled"
+          - chrony_service_status.status.ActiveState == "active"
+        fail_msg: >-
+          {{ chrony_service }} is not unmasked, enabled and active.
+          LoadState: {{ chrony_service_status.status.LoadState }},
+          UnitFileState: {{ chrony_service_status.status.UnitFileState | default('none') }},
+          ActiveState: {{ chrony_service_status.status.ActiveState }}
+
+    - name: Get conflicting time synchronization service status
+      ansible.builtin.systemd_service:
+        name: "{{ item }}"
+      register: chrony_conflicting
+      loop: "{{ chrony_conflicting_services }}"
+
+    # CIS 2.3.1.1, exactly one time synchronization service.
+    - name: Assert no conflicting time synchronization service is enabled or active
+      ansible.builtin.assert:
+        that:
+          - item.status.ActiveState != "active"
+          - item.status.UnitFileState | default("") not in ["enabled", "enabled-runtime"]
+        fail_msg: >-
+          {{ item.item }} still synchronizes the system clock.
+          UnitFileState: {{ item.status.UnitFileState | default('none') }},
+          ActiveState: {{ item.status.ActiveState }}
+      loop: "{{ chrony_conflicting.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+
+    # Not the MainPID of the unit: on Ubuntu that is the root owned
+    # /usr/lib/systemd/scripts/chronyd-starter.sh wrapper, and the chronyd
+    # processes it starts are the ones that have to be unprivileged.
+    - name: Get the chronyd process owners
+      become: true
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          ps -o user= -C chronyd | sort -u
+      register: chrony_process_owners
+      changed_when: false
+
+    # CIS 2.3.3.2, chronyd is not running as root.
+    - name: Assert chronyd runs as the unprivileged chrony user
+      ansible.builtin.assert:
+        that:
+          - chrony_process_owners.stdout_lines | length > 0
+          - chrony_process_owners.stdout_lines == [chrony_user]
+        fail_msg: >-
+          chronyd runs as {{ chrony_process_owners.stdout_lines | join(', ') | default('nobody', true) }}
+          and not as {{ chrony_user }}.
+
+    - name: Stat the chrony configuration
+      become: true
+      ansible.builtin.stat:
+        path: "{{ chrony_conf }}"
+        get_attributes: false
+        get_checksum: false
+        get_mime: false
+      register: chrony_conf_stat
+
+    - name: Assert the chrony configuration ownership and permissions
+      ansible.builtin.assert:
+        that:
+          - chrony_conf_stat.stat.exists
+          - chrony_conf_stat.stat.mode == chrony_conf_mode
+          - chrony_conf_stat.stat.pw_name == "root"
+          - chrony_conf_stat.stat.gr_name == "root"
+        fail_msg: >-
+          {{ chrony_conf }} ownership or permissions are incorrect:
+          {{ chrony_conf_stat.stat.mode }}
+          {{ chrony_conf_stat.stat.pw_name }}:{{ chrony_conf_stat.stat.gr_name }},
+          expected {{ chrony_conf_mode }} root:root
+
+    - name: Read the chrony configuration
+      become: true
+      ansible.builtin.slurp:
+        src: "{{ chrony_conf }}"
+      register: chrony_conf_content
+
+    # CIS 2.3.3.1, the configuration has a source. The sources are written to
+    # the main configuration file, so no sourcedir or confdir include has to be
+    # followed to find them.
+    - name: Assert the configured time sources are in the chrony configuration
+      ansible.builtin.assert:
+        that:
+          - chrony_source_line in chrony_conf_lines
+        fail_msg: "{{ chrony_source_line }} is missing from {{ chrony_conf }}"
+      loop: "{{ chrony_sources }}"
+      loop_control:
+        label: "{{ item.address }}"
+      vars:
+        chrony_conf_lines: "{{ (chrony_conf_content.content | b64decode).splitlines() }}"
+        chrony_source_line: "{{ item.type }} {{ item.address }} {{ item.options | join(' ') }}"
+
+    - name: Assert the chrony client configuration
+      ansible.builtin.assert:
+        that:
+          - "'user ' ~ chrony_user in chrony_conf_lines"
+          - "'minsources ' ~ chrony_minsources in chrony_conf_lines"
+          - "'port ' ~ chrony_port in chrony_conf_lines"
+          - "'cmdport ' ~ chrony_cmdport in chrony_conf_lines"
+          - "'driftfile ' ~ chrony_driftfile in chrony_conf_lines"
+          - "('authselectmode ' ~ chrony_authselectmode in chrony_conf_lines) or chrony_authselectmode | length == 0"
+          - "('noclientlog' in chrony_conf_lines) or not chrony_noclientlog"
+          - "('rtcsync' in chrony_conf_lines) or not chrony_rtcsync"
+          - "('rtconutc' in chrony_conf_lines) == chrony_rtconutc"
+        fail_msg: "{{ chrony_conf }} does not match the configured values."
+      vars:
+        chrony_conf_lines: "{{ (chrony_conf_content.content | b64decode).splitlines() }}"
+
+    - name: Get timedatectl NTP status
+      become: true
+      ansible.builtin.command:
+        cmd: timedatectl show --property=NTP --value
+      register: chrony_timedatectl
+      changed_when: false
+
+    - name: Assert network time synchronization is enabled
+      ansible.builtin.assert:
+        that:
+          - chrony_timedatectl.stdout == "yes"
+        fail_msg: "timedatectl reports NTP={{ chrony_timedatectl.stdout }}"
+
+    # NTS needs outbound 4460/tcp. Where it is filtered chronyd reports the
+    # sources without a key and without cookies, and there is nothing to assert.
+    - name: Get the chrony NTS authentication data
+      become: true
+      ansible.builtin.command:
+        cmd: chronyc -N -c authdata
+      register: chrony_authdata
+      changed_when: false
+      failed_when: false
+
+    - name: Assert the NTS sources are authenticated
+      ansible.builtin.assert:
+        that:
+          - item.split(",")[2] | int > 0
+          - item.split(",")[4] | int > 0
+        fail_msg: >-
+          {{ item.split(',')[0] }} negotiated no NTS key:
+          KeyID {{ item.split(',')[2] }}, KLen {{ item.split(',')[4] }}
+      loop: "{{ chrony_authdata.stdout_lines | select('search', '^[^,]+,NTS,') | list }}"
+      loop_control:
+        label: "{{ item.split(',')[0] }}"
+      when: chrony_authdata.rc == 0
+
+    # chronyd spends a cookie on every request and only refills from the
+    # replies, so a source that is slow to answer legitimately reports Cook 0
+    # at the moment chronyc is run. Requiring cookies of every source is a race
+    # with the poll interval, requiring them of at least one is not, and it is
+    # what shows that the cookie exchange works at all. The regular expression
+    # matches a non-zero ninth field, which is Cook.
+    - name: Assert at least one NTS source holds cookies
+      ansible.builtin.assert:
+        that:
+          - chrony_nts_sources | select("search", "^([^,]*,){8}[1-9]") | list | length > 0
+        fail_msg: >-
+          No NTS source holds cookies: {{ chrony_nts_sources | join(' ') }}
+      vars:
+        chrony_nts_sources: "{{ chrony_authdata.stdout_lines | select('search', '^[^,]+,NTS,') | list }}"
+      when:
+        - chrony_authdata.rc == 0
+        - chrony_nts_sources | length > 0

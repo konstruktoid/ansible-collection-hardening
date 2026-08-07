@@ -1,0 +1,28 @@
+---
+galaxy_info:
+  role_name: chrony
+  author: konstruktoid
+  description: "Ansible role to manage chrony configuration."
+  license: apache
+  min_ansible_version: "2.18"
+  platforms:
+    - name: Debian
+      versions:
+        - trixie
+    - name: EL
+      versions:
+        - "10"
+    - name: Ubuntu
+      versions:
+        - resolute
+  galaxy_tags:
+    - almalinux
+    - chrony
+    - cis
+    - debian
+    - disa
+    - hardening
+    - ntp
+    - security
+    - system
+    - ubuntu
