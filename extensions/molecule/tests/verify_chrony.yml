@@ -46,22 +46,23 @@
     # processes it starts are the ones that have to be unprivileged.
     - name: Get the chronyd process owners
       become: true
-      ansible.builtin.shell:
-        cmd: |
-          set -o pipefail
-          ps -o user= -C chronyd | sort -u
+      ansible.builtin.command:
+        cmd: ps -o user= -C chronyd
       register: chrony_process_owners
       changed_when: false
+      failed_when: false
 
     # CIS 2.3.3.2, chronyd is not running as root.
     - name: Assert chronyd runs as the unprivileged chrony user
       ansible.builtin.assert:
         that:
-          - chrony_process_owners.stdout_lines | length > 0
-          - chrony_process_owners.stdout_lines == [chrony_user]
+          - chrony_owners | length > 0
+          - chrony_owners == [chrony_user]
         fail_msg: >-
-          chronyd runs as {{ chrony_process_owners.stdout_lines | join(', ') | default('nobody', true) }}
+          chronyd runs as {{ chrony_owners | join(', ') | default('nobody', true) }}
           and not as {{ chrony_user }}.
+      vars:
+        chrony_owners: "{{ chrony_process_owners.stdout_lines | map('trim') | unique | sort | list }}"
 
     - name: Stat the chrony configuration
       become: true

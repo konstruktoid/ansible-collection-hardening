@@ -3,7 +3,8 @@ argument_specs:
   main:
     short_description: "chrony configuration."
     description:
-      - "This role configures chrony as a client only NTP daemon, using Network Time Security authenticated sources."
+      - "This role configures chrony as a client by default, using Network Time Security authenticated sources."
+      - "Serving time to other hosts is opt-in and enabled with C(chrony_server_enabled)."
       - "Any other time synchronization service is stopped and disabled, so that chrony is the only one running."
     author:
       - "Thomas Sjögren (@konstruktoid)"

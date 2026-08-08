@@ -69,6 +69,14 @@
         label: "{{ item.path }}"
       when: chrony_server_enabled
 
+    - name: Stat the chrony configuration before rendering it
+      ansible.builtin.stat:
+        path: "{{ chrony_conf }}"
+        get_attributes: false
+        get_checksum: false
+        get_mime: false
+      register: chrony_conf_before
+
     - name: Configure chrony
       ansible.builtin.template:
         src: "{{ chrony_conf_template }}"
@@ -85,7 +93,9 @@
     # chronyd read /etc/chrony/** and /etc/chrony.*, so the configuration cannot
     # be validated where the template module puts its temporary file. It is
     # written first and parsed afterwards, and the backup is put back when
-    # chronyd rejects it.
+    # chronyd rejects it. A rejected configuration that had no file before the
+    # template task, and therefore no backup, is removed instead of being left
+    # behind for chronyd to read on the next start.
     - name: Validate the chrony configuration
       when: not ansible_check_mode
       block:
@@ -104,13 +114,23 @@
             group: root
           when: chrony_configuration.backup_file is defined
 
+        - name: Remove the rejected chrony configuration
+          ansible.builtin.file:
+            path: "{{ chrony_conf }}"
+            state: absent
+          when:
+            - chrony_configuration.backup_file is not defined
+            - not chrony_conf_before.stat.exists
+
         - name: Fail because chronyd rejected the configuration
           ansible.builtin.fail:
             msg: >-
               chronyd rejected {{ chrony_conf }}.
               {{ 'The previous configuration has been restored.'
                  if chrony_configuration.backup_file is defined
-                 else 'There was no previous configuration to restore.' }}
+                 else 'The rejected configuration has been removed.'
+                 if not chrony_conf_before.stat.exists
+                 else 'The previous configuration was unchanged and is still in place.' }}
 
     - name: Gather service facts
       ansible.builtin.service_facts:
