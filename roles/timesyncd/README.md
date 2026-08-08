@@ -8,6 +8,10 @@ This matters on distributions that ship a different NTP client by default, for e
 AlmaLinux and Ubuntu, where `chrony` otherwise takes over the clock again after a reboot and
 the servers configured by this role are never used.
 
+The [`chrony`](../chrony/README.md) role is the alternative, and does the same mutual exclusion in
+the other direction. The two roles are alternatives, do not apply both to the same host and
+expect both to keep running.
+
 On the Red Hat family `systemd-timesyncd` is only available from EPEL, so the role installs
 `epel-release`. Roles that add repositories have to run before any package upgrade, see the
 [`package_management`](../package_management/README.md) role.
@@ -33,7 +37,7 @@ Defined in `roles/timesyncd/defaults/main.yml`.
 | `fallback_ntp` | `["ntp.netnod.se", "ntp.ubuntu.com"]` | A list of NTP server host names or IP addresses to be used as the fallback NTP servers. |
 | `ntp` | `["2.pool.ntp.org", "time.nist.gov"]` | A list of NTP server host names or IP addresses to be used as the primary NTP servers. |
 | `timesyncd_conf_template` | `"etc/systemd/timesyncd.conf.j2"` | systemd timesyncd.conf template location. |
-| `timesyncd_conflicting_services` | `["chrony.service", "chronyd.service", "ntp.service", "ntpd.service", "ntpsec.service", "openntpd.service"]` | Services that also synchronize the system clock. They are stopped and disabled so that systemd-timesyncd is the only time synchronization service on the host. |
+| `timesyncd_conflicting_services` | `["chrony.service", "chronyd-restricted.service", "chronyd.service", "ntp.service", "ntpd-rs.service", "ntpd.service", "ntpsec.service", "openntpd.service"]` | Services that also synchronize the system clock. They are stopped and disabled so that systemd-timesyncd is the only time synchronization service on the host. |
 
 ## Tasks
 

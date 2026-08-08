@@ -5,8 +5,10 @@ timesyncd_conf_template: "etc/systemd/timesyncd.conf.j2"
 # systemd-timesyncd is the only time synchronization service on the host.
 timesyncd_conflicting_services:
   - "chrony.service"
+  - "chronyd-restricted.service"
   - "chronyd.service"
   - "ntp.service"
+  - "ntpd-rs.service"
   - "ntpd.service"
   - "ntpsec.service"
   - "openntpd.service"

@@ -35,6 +35,22 @@
   (`rsh-redone-client`, `rsh-redone-server`, `rusersd`, `rwho`), `rsync-daemon` and the
   remaining telnet and TFTP server package names (`inetutils-telnetd`, `telnetd`,
   `tftp-server`). Override `packages_blocklist` on hosts that legitimately run any of these.
+- Add `chrony` role, configuring `chrony` as a client only NTP daemon and as the single time
+  synchronization service on the host: NTS authenticated sources only, `authselectmode require`,
+  `minsources 3`, no NTP port, no command port and no `sourcedir`/`confdir` includes, so that a
+  DHCP server cannot add unauthenticated sources. Serving time is opt-in behind
+  `chrony_server_enabled`. The role ships no systemd drop-in, the packaged units are already
+  hardened. It is the alternative to the `timesyncd` role, apply one or the other.
+  The role also installs `ca-certificates`, which is not a dependency of the `chrony` package on
+  the Debian family: NTS is TLS, and without a trust store every NTS-KE handshake fails with
+  `The certificate issuer is unknown` and the host never synchronizes its clock.
+- Extend `timesyncd_conflicting_services` with `chronyd-restricted.service` and
+  `ntpd-rs.service`, so that switching a host to `systemd-timesyncd` also stops the restricted
+  `chronyd` variant both families package, and `ntpd-rs`, which Debian trixie packages.
+- Converge and verify the `chrony` role instead of the `timesyncd` role in the Molecule
+  scenarios. Both roles disable the other one, so only one of them can be tested per host, and
+  `chrony` is what the supported platforms ship. `extensions/molecule/tests/verify_timesyncd.yml`
+  is kept for scenarios that select `timesyncd` instead.
 
 ## 0.2.0 (2026-07-23)
 

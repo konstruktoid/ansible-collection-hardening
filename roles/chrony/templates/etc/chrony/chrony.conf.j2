@@ -1,0 +1,68 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
+# Managed by Ansible role {{ ansible_role_name }}
+
+# Time sources.
+{% for source in chrony_sources %}
+{{ source.type }} {{ source.address }} {{ source.options | join(' ') }}
+{% endfor %}
+{% for sourcedir in chrony_sourcedirs %}
+sourcedir {{ sourcedir }}
+{% endfor %}
+{% for confdir in chrony_confdirs %}
+confdir {{ confdir }}
+{% endfor %}
+
+# Do not adjust the clock unless this many sources agree.
+minsources {{ chrony_minsources }}
+{% if chrony_authselectmode | length > 0 %}
+# Authentication required of a source before it can be selected.
+authselectmode {{ chrony_authselectmode }}
+{% endif %}
+{% if chrony_nocerttimecheck | int > 0 %}
+# Ignore the NTS certificate time checks for this many clock updates, so that a
+# host with a clock too far off to validate a certificate can still bootstrap.
+nocerttimecheck {{ chrony_nocerttimecheck }}
+{% endif %}
+
+# Drop privileges to this account once the sockets are open.
+user {{ chrony_user }}
+
+# State.
+driftfile {{ chrony_driftfile }}
+dumpdir {{ chrony_dumpdir }}
+ntsdumpdir {{ chrony_ntsdumpdir }}
+logdir {{ chrony_logdir }}
+
+# Step the clock instead of slewing it during the first updates.
+makestep {{ chrony_makestep }}
+{% if chrony_rtcsync %}
+# Synchronize the real time clock from the system clock.
+rtcsync
+{% endif %}
+{% if chrony_rtconutc %}
+# The real time clock keeps UTC.
+rtconutc
+{% endif %}
+{% if chrony_leapseclist | length > 0 and chrony_leapseclist_stat.stat.exists %}
+# TAI-UTC offset and leap seconds from the system tz database.
+leapseclist {{ chrony_leapseclist }}
+{% endif %}
+
+# Listening ports. 0 means the port is not opened at all.
+port {{ chrony_port }}
+cmdport {{ chrony_cmdport }}
+{% if chrony_noclientlog %}
+# Do not keep per client access logs.
+noclientlog
+{% endif %}
+{% if chrony_server_enabled %}
+
+# Serve time to these networks.
+{% for network in chrony_server_allow %}
+allow {{ network }}
+{% endfor %}
+ratelimit interval {{ chrony_ratelimit_interval }} burst {{ chrony_ratelimit_burst }}
+ntsserverkey {{ chrony_ntsserverkey }}
+ntsservercert {{ chrony_ntsservercert }}
+ntsprocesses {{ chrony_ntsprocesses }}
+{% endif %}
