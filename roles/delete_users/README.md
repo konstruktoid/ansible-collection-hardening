@@ -30,8 +30,10 @@ package hooks recreate them after this role has removed them:
 - `systemd` ships `/usr/lib/sysusers.d/basic.conf`, generated from `base-passwd`'s `passwd.master`,
   and `dh_installsysusers` adds `systemd-sysusers basic.conf ...` to `systemd.postinst`. Every
   install or upgrade of the `systemd` package therefore recreates `games`, `irc`, `list`, `news`,
-  `sync` and `uucp`. Any package shipping a `sysusers.d` file gets the same postinst snippet, so
-  `systemd` is not the only possible trigger.
+  `sync` and `uucp`. The postinst snippet a package gets from `dh_installsysusers` only processes
+  the `sysusers.d` files that package itself declares and installs, not everything in
+  `/usr/lib/sysusers.d/`, so these accounts return when `systemd`, or any other package shipping
+  and processing `basic.conf`, is installed or upgraded.
 - `base-passwd.postinst` runs `update-passwd` on every *upgrade* of `base-passwd`. When debconf is
   available, which it is on a normal system, it runs unprompted and recreates every account listed
   in `passwd.master`.
@@ -39,9 +41,11 @@ package hooks recreate them after this role has removed them:
 Two consequences:
 
 - Run this role **after** every role or task that installs or upgrades packages. Placing it early
-  in a play that later pulls in `systemd`, for example through `konstruktoid.hardening.resolvedconf`
-  installing `systemd-resolved`, leaves the accounts present at the end of the run and makes the
-  play non-idempotent.
+  in a play that later installs or upgrades `systemd`, for example through
+  `konstruktoid.hardening.resolvedconf` pulling a `systemd` install or upgrade into the same
+  transaction as `systemd-resolved`, leaves the accounts present at the end of the run and makes
+  the play non-idempotent. Installing `systemd-resolved` on its own only creates the
+  `systemd-resolve` user, since its postinst processes `systemd-resolve.conf` and not `basic.conf`.
 - Even with correct ordering the removal is not permanent. A later `systemd` or `base-passwd`
   upgrade, including one applied by unattended upgrades, brings the accounts back. Re-run the role
   periodically if their absence has to hold over time.
