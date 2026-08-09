@@ -1,1 +1,11 @@
 ---
+- name: Get passwd database
+  ansible.builtin.getent:
+    database: passwd
+
+- name: Assert users in delete_users are absent
+  ansible.builtin.assert:
+    that:
+      - delete_users | intersect(ansible_facts.getent_passwd.keys() | list) | length == 0
+    fail_msg: "Users that should have been deleted are present: {{ delete_users | intersect(ansible_facts.getent_passwd.keys() | list) }}"
+    success_msg: "All users in delete_users are absent."
