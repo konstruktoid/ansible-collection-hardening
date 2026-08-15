@@ -63,10 +63,42 @@ its `vars:` block in `converge.yml`.
      docker` instead of the full cycle to save time — but always finish with a full `tox -e docker`
      (or `molecule test -s docker`, after installing `requirements.yml` and running `ansible-lint`
      yourself) before treating the change as verified.
-3. If step 2 fails: fix the issue and return to step 1. This counts as one attempt.
-4. Repeat until every check passes, or 3 attempts have been made — whichever comes first. If issues
-   remain unresolved after 3 attempts, stop and report to the user with detailed reproduction steps
-   and relevant logs/output, instead of continuing or silently declaring success.
+3. If **either** step 1 or step 2 fails: fix the issue and return to step 1. Both are required
+   gates, and a lint failure counts against the budget exactly as a test failure does. This counts
+   as one attempt. One **attempt** is one full fix-and-rerun cycle: apply fixes for the findings
+   from the previous run, then rerun the verification commands to completion. Reading output or
+   re-reading a file without changing anything is not an attempt.
+4. Repeat until every check passes, bounded as follows:
+   - Baseline the loop at 3 attempts.
+   - Continue past 3 only while making measurable progress, meaning each cycle ends with strictly
+     fewer findings than the one before it.
+   - Stop early, before 3 attempts, if the loop is oscillating: the same findings recur, the count
+     stops dropping, or a fix for one finding reintroduces another.
+   - When stopping for either reason, report to the user rather than proceeding or silently giving
+     up. Name the failing check, include its output, and state what was tried.
+
+   Stop at 6 attempts regardless. "Strictly fewer findings" permits an unbounded run when each
+   cycle clears one finding out of many, and every cycle here costs a full container converge.
+   Count findings per check rather than as one total, since `ansible-lint` and `molecule` report
+   unrelated things: progress means the check that failed improved and no other check regressed.
+
+## Reporting and redaction
+
+Report any issues found during verification, with detailed reproduction steps and relevant
+logs/output. Ansible output is unusually rich in machine detail: play recaps and `--diff` output
+name the target host, gathered facts carry hostnames, interfaces and internal addresses, and
+failure messages quote absolute paths under the invoking user's home. Strip that before pasting
+output anywhere it will be stored, and never commit it into the repository. The same applies to
+anything checked in as a fixture: use `localhost`, `example.com`, or RFC 5737 addresses
+(`192.0.2.0/24`) in inventories, host vars, and templates rather than a real host.
+
+Machine identifiers are not the only exposure. Ansible output can also carry passwords, API
+tokens, private keys, vaulted or `no_log`-worthy variable values, and credential-bearing URLs:
+`--diff` on a templated secret prints both versions, a failed `uri` or `get_url` task echoes its
+headers, and a verbose module failure dumps the arguments it was called with. Redact those before
+the output is pasted, stored, uploaded as a CI artifact, or attached to an issue, not only before
+it is committed. When a task handles a secret, `no_log: true` is the fix, so that there is nothing
+to redact in the first place.
 
 ## Step 6: Final checklist
 
@@ -77,7 +109,19 @@ success:
 - [ ] Idempotence holds (no changes reported on molecule's second converge)
 - [ ] `verify_<role>.yml` and `converge.yml` updated if a role's behavior or variables changed
 - [ ] `meta/main.yml` `galaxy_info.platforms` still matches any OS-conditional logic
+- [ ] No user or system information committed: inventories, host vars, templates, and any captured
+      lint or molecule output use placeholder hosts and addresses, with no real hostname, home
+      directory path, username, or internal IP
+- [ ] No secrets in anything reported, stored, or uploaded: no passwords, API tokens, private
+      keys, vault contents, or credential-bearing URLs in pasted output, CI artifacts, or issue
+      attachments, and `no_log: true` set on any task that handles one
 - [ ] No unrelated files changed
 - [ ] New/changed YAML has no YAML-1.1/1.2 ambiguities (bare `yes`/`no`/`on`/`off`, unquoted
       leading-zero numbers, sexagesimal-looking strings, tab indentation) — `ansible-lint`'s
       `yaml[truthy]` rule catches the boolean case, but review the rest by eye
+
+## References
+
+- [references/yaml-quoting.md](references/yaml-quoting.md): YAML 1.2.2 scalar resolution and
+  quoting, including the "Norway problem". Read it when a change touches quoting in a YAML file,
+  or when justifying why a value must stay quoted.
