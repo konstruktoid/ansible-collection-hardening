@@ -330,7 +330,7 @@
       ansible.builtin.debug:
         msg: "{{ sshd_config_parameters_runtime }}"
 
-    - name: Verify sshd runtime configuration
+    - name: Get sshd runtime configuration
       become: true
       environment:
         PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -339,7 +339,24 @@
       check_mode: false
       register: sshd_config
       changed_when: false
-      failed_when: item not in sshd_config.stdout_lines
+
+    # Lowercase the keyword only, exactly as the expected parameters are
+    # normalized above, and keep the value as-is. Newer OpenSSH releases print
+    # the canonical mixed-case keyword names, older ones print them lowercase.
+    - name: Set runtime parameters for runtime check
+      ansible.builtin.set_fact:
+        sshd_config_runtime: >-
+          {{
+            sshd_config_runtime | default([]) +
+            [(item.split(' ')[0] | lower) + ' ' + (item.split(' ')[1:] | join(' '))]
+          }}
+      loop: "{{ sshd_config.stdout_lines }}"
+
+    - name: Verify sshd runtime configuration
+      ansible.builtin.assert:
+        that:
+          - item in sshd_config_runtime
+        fail_msg: "{{ item }} was not found in the sshd -T output"
       loop: "{{ sshd_config_parameters_runtime }}"
 
     - name: Verify ssh client configuration

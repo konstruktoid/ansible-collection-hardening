@@ -1,5 +1,9 @@
 ---
 - name: Verify apt hardening configuration
+  vars:
+    package_management_seccomp_broken:
+      - forky
+      - trixie
   when:
     - ansible_facts.os_family == "Debian"
   block:
@@ -44,19 +48,19 @@
         executable: /bin/bash
       changed_when: false
       when:
-        - ansible_facts.distribution_release != "trixie"
+        - ansible_facts.distribution_release not in package_management_seccomp_broken
 
-    - name: Verify apt seccomp sandboxing is disabled on trixie
+    - name: Verify apt seccomp sandboxing is disabled on affected Debian releases
       become: true
       ansible.builtin.shell:
         cmd: grep -Fxc 'APT::Sandbox::Seccomp "1";' /etc/apt/apt.conf.d/99-hardening
       args:
         executable: /bin/bash
       changed_when: false
-      failed_when: package_management_trixie_seccomp.stdout | trim != "0"
-      register: package_management_trixie_seccomp
+      failed_when: package_management_broken_seccomp.stdout | trim != "0"
+      register: package_management_broken_seccomp
       when:
-        - ansible_facts.distribution_release == "trixie"
+        - ansible_facts.distribution_release in package_management_seccomp_broken
 
     - name: Get apt-config dump
       become: true

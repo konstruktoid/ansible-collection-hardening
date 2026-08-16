@@ -1,6 +1,9 @@
 ---
 - name: Verify
   hosts: all
+  # Same reason as the converge play: the hosts do package manager
+  # specific work, so lock-step execution just makes them wait on each other.
+  strategy: free
   any_errors_fatal: true
   tasks:
     - name: Reboot and reconnect

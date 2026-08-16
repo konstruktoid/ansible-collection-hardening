@@ -39,7 +39,9 @@
         - "-seed.iso"
         - "-user-data"
         - "-meta-data"
-        - "-console.log"
+      # The serial console log is deliberately not removed here. It lives under
+      # molecule-logs/ and is the only evidence left when a guest panics or
+      # never reaches SSH.
 
 - name: Remove dynamic molecule inventory
   hosts: localhost

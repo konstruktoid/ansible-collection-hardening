@@ -35,6 +35,17 @@ Test/lint dependencies: `pip install -r requirements.txt` (pins `ansible-core`, 
   built with `genisoimage`), instead of containers. Requires `qemu-system-x86_64`, `qemu-img`,
   `genisoimage`, and OVMF firmware (`/usr/share/OVMF/OVMF_{CODE,VARS}_4M.fd`) on the host; base
   images are cached under `~/.cache/molecule-qemu/images`.
+- `tox -e prerelease` / `molecule test -s prerelease` — the `prerelease` scenario. Same QEMU
+  provisioning and same converge/verify playbooks as `default`, but against pre-release images:
+  AlmaLinux Kitten 10, the Ubuntu development release, and Debian 14 `forky` daily. Platforms
+  set `image_force: true` so the moving base images are refreshed on every run, and use SSH
+  ports 22301-22303 so the scenario can run alongside `default`. It also sets
+  `molecule_system_upgrade: false`, which `resources/converge.yml` reads: these archives publish
+  between the two converges, so an upgrade would fail the idempotence check on a moving target
+  rather than on a role. It is expected to fail from time to time as upstream changes, so
+  `.github/workflows/molecule-prerelease.yml` runs it on a weekly `schedule` plus
+  `workflow_dispatch` only — never on `pull_request`, so it cannot become a required check.
+  `.github/workflows/molecule.yml` remains the PR gate.
 
 There is no per-role test setup: all roles are exercised together via
 `extensions/molecule/resources/converge.yml`, and verified via

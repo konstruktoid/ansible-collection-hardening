@@ -142,6 +142,15 @@ role. See each role's `README.md` for its variables and example usage.
   `qemu-system-x86_64`, instead of containers. It requires
   `qemu-system-x86_64`, `qemu-img`, `genisoimage`, and OVMF UEFI firmware
   installed on the host.
+- The `prerelease` scenario (`extensions/molecule/prerelease`), run with
+  `molecule test -s prerelease` or `tox -e prerelease`, uses the same QEMU
+  provisioning and the same converge and verify playbooks, but against the
+  current pre-release images: AlmaLinux Kitten 10, Debian 14 `forky` daily,
+  and the Ubuntu development release. Those images move, so the scenario
+  re-downloads them on every run and is expected to break occasionally. It
+  runs weekly, and on demand, from
+  `.github/workflows/molecule-prerelease.yml`, which is deliberately not
+  triggered by pull requests so that it never gates a merge.
 
 ## Security
 

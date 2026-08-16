@@ -1,6 +1,9 @@
 ---
 - name: Prepare
   hosts: molecule
+  # Same reason as the converge play: the hosts do package manager
+  # specific work, so lock-step execution just makes them wait on each other.
+  strategy: free
   gather_facts: false
   any_errors_fatal: true
   tasks:

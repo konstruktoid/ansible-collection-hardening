@@ -51,6 +51,40 @@
   scenarios. Both roles disable the other one, so only one of them can be tested per host, and
   `chrony` is what the supported platforms ship. `extensions/molecule/tests/verify_timesyncd.yml`
   is kept for scenarios that select `timesyncd` instead.
+- Replace the `trixie` only exception for `APT::Sandbox::Seccomp` in the `package_management`
+  role with the new `apt_seccomp_broken_releases` variable, listing `forky` and `trixie`.
+  APT's seccomp sandbox aborts the acquire methods on Debian 14 as well, leaving every later
+  apt operation failing with `E:Method file has died unexpectedly!`. A release comparison is
+  not usable here, Debian testing reports `ansible_distribution_major_version` as `n/a`.
+- Compare the `sshd -T` output in `extensions/molecule/tests/verify_ssh.yml` with the keyword
+  lowercased and the value unchanged, matching how the expected parameters are already
+  normalized. Newer OpenSSH releases print the canonical mixed case keyword names, so the
+  previous exact line match failed on every parameter.
+- Add the `prerelease` Molecule scenario and the `prerelease` tox environment, converging and
+  verifying the same roles against AlmaLinux Kitten 10, the Ubuntu development release and
+  Debian 14 `forky` daily images under QEMU. Platforms set the new `image_force` key, so the
+  moving base images are refreshed on every run, and set `molecule_system_upgrade: false`, a new
+  `resources/converge.yml` override: these archives publish between the two converges, so an
+  upgrade fails the idempotence check on a moving target rather than on a role.
+  `.github/workflows/molecule-prerelease.yml` runs it weekly and on demand, never on
+  `pull_request`, so it cannot gate a merge.
+- Update the test and workflow dependencies: `ansible-lint` 26.8, `molecule` 26.8, the tox
+  `base_python` from 3.13 to 3.14, the collections installed for the Molecule runs
+  (`ansible.posix` 2.2.2, `community.crypto` 3.3.0, `community.docker` 5.2.2,
+  `community.general` 13.3.0) and the pinned GitHub actions. The requirements the collection
+  places on its users, `requires_ansible`, the roles' `min_ansible_version` and the
+  `dependencies` in `galaxy.yml`, are deliberately left alone: no imported collection or task
+  needs a newer version.
+- Repin `anthropics/claude-code-action` in `claude.yml` and `claude-code-review.yml`. The commit
+  the workflows pinned no longer exists in that repository, the API answers `No commit found`
+  for it, so both jobs referenced an action revision that cannot be resolved.
+- Keep `slsa-framework/slsa-github-generator` referenced by its `v2.1.0` tag rather than by
+  commit. The generator derives the builder ID it attests from the tag, and a commit reference
+  makes the resulting provenance unverifiable.
+- Replace `callback_whitelist: profile_tasks` with
+  `callbacks_enabled: ansible.posix.profile_tasks` in every Molecule scenario. `ansible-core`
+  removed the `callback_whitelist` name in favour of `CALLBACKS_ENABLED`, so the setting was
+  ignored and the scenarios reported no task timings at all.
 
 ## 0.2.0 (2026-07-23)
 
