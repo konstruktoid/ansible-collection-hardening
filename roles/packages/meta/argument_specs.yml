@@ -1,11 +1,13 @@
 ---
 argument_specs:
   main:
-    short_description: Package management for hardening.
+    short_description: "Package management for hardening."
     description:
-      - This role manages packages, it can remove potentially vulnerable packages and install necessary security-related packages based on the operating system.
+      - >-
+        This role manages packages, it can remove potentially vulnerable packages
+        and install necessary security-related packages based on the operating system.
     author:
-      - konstruktoid
+      - "Thomas Sjögren (@konstruktoid)"
     options:
       packages_blocklist:
         description: "Packages that will be removed from the system if they are installed."

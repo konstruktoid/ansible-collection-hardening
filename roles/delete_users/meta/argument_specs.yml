@@ -1,7 +1,7 @@
 ---
 argument_specs:
   main:
-    short_description: Delete unnecessary users.
+    short_description: "Delete unnecessary users."
     description:
       - "This role deletes unnecessary users from the system."
     author:

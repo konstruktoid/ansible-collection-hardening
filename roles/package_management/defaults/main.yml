@@ -15,5 +15,11 @@ apt_options:
   - 'Unattended-Upgrade::Remove-Unused-Dependencies "true";'
   - 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";'
 
+# Debian releases where APT's seccomp sandbox aborts the acquire methods, C(E:Method file has died
+# unexpectedly!), and where C(APT::Sandbox::Seccomp) therefore has to be left off.
+apt_seccomp_broken_releases:
+  - "forky"
+  - "trixie"
+
 # If True, then the installed packages will be upgraded to the latest version using C(apt) or C(dnf).
 system_upgrade: true

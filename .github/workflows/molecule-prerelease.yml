@@ -1,0 +1,93 @@
+---
+name: Molecule pre-release testing workflow
+# Deliberately not triggered by pull_request or push: the images this scenario
+# boots are development builds that change daily and are expected to break, so
+# the job must never appear as a check on a pull request.
+on:
+  schedule:
+    - cron: "15 4 * * 1"
+  workflow_dispatch:
+    inputs:
+      verbosity:
+        description: "ANSIBLE_VERBOSITY for a manual debugging run, 0 to 4."
+        required: false
+        default: "0"
+        type: choice
+        options: ["0", "1", "2", "3", "4"]
+permissions: {}
+concurrency:
+  group: molecule-prerelease-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  tox-prerelease:
+    name: Test pre-release images
+    runs-on: ubuntu-26.04
+    timeout-minutes: 180
+    permissions:
+      contents: read
+    steps:
+      # Audit rather than block: the guests reach distribution, EPEL and mirror
+      # endpoints through QEMU user networking, so the egress set is neither
+      # stable nor knowable in advance.
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c  # v2.21.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d  # v10.0.1
+
+      - name: Install system dependencies
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get --assume-yes --no-install-recommends install \
+            genisoimage \
+            ovmf \
+            qemu-system-x86 \
+            qemu-utils
+          uv tool install tox --with tox-uv
+
+      # The device is handed to the workflow user by ownership rather than the
+      # widely copied world-writable MODE="0666" rule: adding the user to the
+      # kvm group has no effect on the already authenticated runner session,
+      # while OWNER applies to the static node immediately.
+      - name: Allow the runner user to use KVM
+        run: |
+          set -euo pipefail
+          printf 'KERNEL=="kvm", OWNER="%s", GROUP="kvm", MODE="0660", OPTIONS+="static_node=kvm"\n' \
+            "$(id -un)" | sudo tee /etc/udev/rules.d/99-kvm.rules > /dev/null
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          sudo udevadm settle
+          if [ ! -r /dev/kvm ] || [ ! -w /dev/kvm ]; then
+            echo "::error::/dev/kvm is not accessible to $(id -un), the guests would fall back to TCG"
+            ls -l /dev/kvm
+            exit 1
+          fi
+
+      - name: Test pre-release images
+        env:
+          # Quoted and passed through the environment rather than interpolated
+          # into the script, so the input never reaches the shell as code.
+          ANSIBLE_VERBOSITY: "${{ inputs.verbosity || '0' }}"
+        run: |
+          set -euo pipefail
+          tox run -e prerelease
+
+      # The guests are development builds, so the interesting failures are boot
+      # and package manager ones. molecule-logs holds a per host transcript and
+      # the serial console of each instance, which is all that survives a guest
+      # that never reaches SSH.
+      - name: Upload Molecule logs
+        if: always() && hashFiles('molecule-logs/**') != ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: molecule-logs-prerelease
+          path: molecule-logs/
+          retention-days: 14

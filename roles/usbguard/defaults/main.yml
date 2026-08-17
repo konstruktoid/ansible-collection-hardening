@@ -31,8 +31,10 @@ usbguard_ipcaccesscontrolfiles: "/etc/usbguard/IPCAccessControl.d/"
 
 # A list of groupnames that the daemon will accept IPC connections from.
 usbguard_ipcallowedgroups: ["plugdev", "root", "wheel"]
+
 # A list of usernames that the daemon will accept IPC connections from.
 usbguard_ipcallowedusers: ["root"]
+
 # How to treat USB controller devices that are already connected when the daemon starts.
 usbguard_presentcontrollerpolicy: "keep"
 

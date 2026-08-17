@@ -13,12 +13,31 @@
     qemu_ovmf_code: "/usr/share/OVMF/OVMF_CODE_4M.fd"
     qemu_ovmf_vars_template: "/usr/share/OVMF/OVMF_VARS_4M.fd"
     qemu_disk_size: "10G"
+    qemu_host_cpus: "{{ lookup('pipe', 'nproc') | int }}"
+    # Upper bound for a single instance: leave one CPU to the host and split
+    # the rest evenly, so that a platform asking for more than the host can
+    # back, a CI runner has far fewer cores than a workstation, is capped
+    # instead of oversubscribing it.
+    qemu_instance_cpus: >-
+      {{ [1, ((qemu_host_cpus | int) - 1) // (molecule_yml.platforms | length)] | max }}
+    # Outside the ephemeral directory on purpose: molecule prunes that on
+    # destroy, and a guest that panics or never finishes booting leaves no
+    # other trace, the connection based logs need an instance to connect to.
+    qemu_console_log_dir: >-
+      {{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/molecule-logs/{{
+      lookup('env', 'MOLECULE_SCENARIO_NAME') }}
   tasks:
     - name: Ensure image cache directory exists
       ansible.builtin.file:
         path: "{{ qemu_image_cache_dir }}"
         state: directory
         mode: "0700"
+
+    - name: Ensure console log directory exists
+      ansible.builtin.file:
+        path: "{{ qemu_console_log_dir }}"
+        state: directory
+        mode: "0755"
 
     - name: Generate ephemeral SSH keypair
       community.crypto.openssh_keypair:
@@ -39,6 +58,7 @@
         dest: "{{ qemu_image_cache_dir }}/{{ item.name }}-base.qcow2"
         mode: "0644"
         timeout: 180
+        force: "{{ item.image_force | default(false) }}"
       loop: "{{ molecule_yml.platforms }}"
       loop_control:
         label: "{{ item.name }}"
@@ -125,7 +145,7 @@
           qemu-system-x86_64
           {{ '-machine q35,accel=kvm -cpu host' if qemu_kvm_stat.stat.exists else '-machine q35 -cpu max' }}
           -m {{ item.memory | default(1024) }}
-          -smp {{ item.cpus | default(1) }}
+          -smp {{ [item.cpus | default(1) | int, qemu_instance_cpus | int] | min }}
           -daemonize
           -pidfile {{ molecule_ephemeral_directory }}/{{ item.name }}.pid
           -drive if=pflash,format=raw,readonly=on,file={{ qemu_ovmf_code }}
@@ -135,7 +155,7 @@
           -netdev user,id=net0,hostfwd=tcp::{{ item.ssh_port }}-:22
           -device virtio-net-pci,netdev=net0
           -display none
-          -serial file:{{ molecule_ephemeral_directory }}/{{ item.name }}-console.log
+          -serial file:{{ qemu_console_log_dir }}/{{ item.name }}-console.log
         creates: "{{ molecule_ephemeral_directory }}/{{ item.name }}.pid"
       loop: "{{ molecule_yml.platforms }}"
       loop_control:

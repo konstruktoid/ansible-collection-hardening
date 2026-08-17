@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Disable IPv6
+    short_description: "Disable IPv6"
     description:
-      - Disable IPv6 by setting sysctl and grub parameters.
+      - "Disable IPv6 by setting sysctl and grub parameters."
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:

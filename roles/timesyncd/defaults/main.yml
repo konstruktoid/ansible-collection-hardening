@@ -1,6 +1,7 @@
 ---
 # systemd timesyncd.conf template location.
 timesyncd_conf_template: "etc/systemd/timesyncd.conf.j2"
+
 # Services that also synchronize the system clock. They are stopped and disabled so that
 # systemd-timesyncd is the only time synchronization service on the host.
 timesyncd_conflicting_services:
@@ -12,7 +13,9 @@ timesyncd_conflicting_services:
   - "ntpd.service"
   - "ntpsec.service"
   - "openntpd.service"
+
 # A list of NTP server host names or IP addresses to be used as the fallback NTP servers.
 fallback_ntp: ["ntp.netnod.se", "ntp.ubuntu.com"]
+
 # A list of NTP server host names or IP addresses to be used as the primary NTP servers.
 ntp: ["2.pool.ntp.org", "time.nist.gov"]

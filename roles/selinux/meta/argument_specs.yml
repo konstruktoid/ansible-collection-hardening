@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: SELinux installation and configuration.
+    short_description: "SELinux installation and configuration."
     description:
-      - This role manages SELinux package installation, policy, and enforcement state.
+      - "This role manages SELinux package installation, policy, and enforcement state."
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:

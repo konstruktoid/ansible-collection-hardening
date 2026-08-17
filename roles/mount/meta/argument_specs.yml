@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Manage /dev/shm, /proc and /tmp mounts.
+    short_description: "Manage /dev/shm, /proc and /tmp mounts."
     description:
-      - This role manages the /dev/shm, /proc and /tmp mounts.
+      - "This role manages the /dev/shm, /proc and /tmp mounts."
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:

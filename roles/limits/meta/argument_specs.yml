@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Configure limits and coredumps
+    short_description: "Configure limits and coredumps"
     description:
-      - Configure limits and coredumps.
+      - "Configure limits and coredumps."
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:

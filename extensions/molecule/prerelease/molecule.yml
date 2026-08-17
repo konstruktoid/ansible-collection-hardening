@@ -4,25 +4,28 @@ dependency:
 driver:
   name: default
 platforms:
-  - name: almalinux10
-    image_url: "https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/AlmaLinux-10-GenericCloud-latest.x86_64.qcow2"
+  - name: kitten10
+    image_url: "https://kitten.repo.almalinux.org/10-kitten/cloud/x86_64/images/AlmaLinux-Kitten-GenericCloud-10-latest.x86_64.qcow2"
+    image_force: true
     ssh_user: almalinux
     ssh_user_group: wheel
-    ssh_port: 22201
+    ssh_port: 22301
     memory: 2048
     cpus: 2
-  - name: resolute
-    image_url: "https://cloud-images.ubuntu.com/resolute/current/resolute-server-cloudimg-amd64.img"
+  - name: stonking
+    image_url: "https://cloud-images.ubuntu.com/stonking/current/stonking-server-cloudimg-amd64.img"
+    image_force: true
     ssh_user: ubuntu
     ssh_user_group: sudo
-    ssh_port: 22202
+    ssh_port: 22302
     memory: 1024
     cpus: 2
-  - name: trixie
-    image_url: "https://cloud.debian.org/images/cloud/trixie/latest/debian-13-generic-amd64.qcow2"
+  - name: forky
+    image_url: "https://cloud.debian.org/images/cloud/forky/daily/latest/debian-14-generic-amd64-daily.qcow2"
+    image_force: true
     ssh_user: debian
     ssh_user_group: sudo
-    ssh_port: 22203
+    ssh_port: 22303
     memory: 1024
     cpus: 2
 provisioner:
@@ -50,14 +53,19 @@ provisioner:
     group_vars:
       molecule:
         ansible_become: true
+        # AlmaLinux Kitten and the Ubuntu development release publish packages
+        # continuously, so an upgrade between the two converges makes the
+        # idempotence check fail on the archive instead of on a role. The
+        # docker and default scenarios still cover the upgrade path.
+        molecule_system_upgrade: false
     host_vars:
-      almalinux10:
-      resolute:
-      trixie:
+      kitten10:
+      stonking:
+      forky:
 verifier:
   name: ansible
 scenario:
-  name: default
+  name: prerelease
   create_sequence:
     - dependency
     - create

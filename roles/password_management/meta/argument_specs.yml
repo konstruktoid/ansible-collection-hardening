@@ -1,12 +1,12 @@
 ---
 argument_specs:
   main:
-    short_description: AlmaLinux, Debian and Ubuntu hardening.
+    short_description: "AlmaLinux, Debian and Ubuntu hardening."
     description:
-      - AlmaLinux, Debian and Ubuntu hardening.
-      - Focused on using systemd services and options.
+      - "AlmaLinux, Debian and Ubuntu hardening."
+      - "Focused on using systemd services and options."
     author:
-      - konstruktoid
+      - "Thomas Sjögren (@konstruktoid)"
     options:
       common_account_template:
         description: "PAM common-account template location."

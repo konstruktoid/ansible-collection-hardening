@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Configure systemd-logind settings.
+    short_description: "Configure systemd-logind settings."
     description:
-      - This role configures systemd-logind settings by deploying a drop-in under C(/etc/systemd/logind.conf.d/).
+      - "This role configures systemd-logind settings by deploying a drop-in under C(/etc/systemd/logind.conf.d/)."
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:

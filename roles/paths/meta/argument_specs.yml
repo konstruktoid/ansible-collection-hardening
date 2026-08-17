@@ -1,11 +1,11 @@
 ---
 argument_specs:
   main:
-    short_description: Path hardening for AlmaLinux, Debian and Ubuntu.
+    short_description: "Path hardening for AlmaLinux, Debian and Ubuntu."
     description:
       - "This Ansible role hardens the PATH variable for all users on AlmaLinux, Debian and Ubuntu."
     author:
-      - konstruktoid
+      - "Thomas Sjögren (@konstruktoid)"
     options:
       initpath_sh_template:
         description: "profile initpath.sh template location."

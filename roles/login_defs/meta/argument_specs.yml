@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: login_defs configuration.
+    short_description: "login_defs configuration."
     description:
-      - This module manages the configuration of login.defs.
+      - "This module manages the configuration of login.defs."
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:
