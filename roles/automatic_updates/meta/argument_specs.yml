@@ -1,11 +1,11 @@
 ---
 argument_specs:
   main:
-    short_description: Configuration of unattended-upgrades
+    short_description: "Configuration of unattended-upgrades"
     description:
-      - Configure unattended-upgrades to automatically install security updates and updates from custom origins.
+      - "Configure unattended-upgrades to automatically install security updates and updates from custom origins."
     author:
-      - konstruktoid
+      - "Thomas Sjögren (@konstruktoid)"
     options:
       automatic_updates:
         type: "dict"

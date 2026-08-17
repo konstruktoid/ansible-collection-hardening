@@ -53,13 +53,23 @@ jobs:
             qemu-utils
           uv tool install tox --with tox-uv
 
+      # The device is handed to the workflow user by ownership rather than the
+      # widely copied world-writable MODE="0666" rule: adding the user to the
+      # kvm group has no effect on the already authenticated runner session,
+      # while OWNER applies to the static node immediately.
       - name: Allow the runner user to use KVM
         run: |
           set -euo pipefail
-          printf '%s\n' 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' |
-            sudo tee /etc/udev/rules.d/99-kvm.rules > /dev/null
+          printf 'KERNEL=="kvm", OWNER="%s", GROUP="kvm", MODE="0660", OPTIONS+="static_node=kvm"\n' \
+            "$(id -un)" | sudo tee /etc/udev/rules.d/99-kvm.rules > /dev/null
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
+          sudo udevadm settle
+          if [ ! -r /dev/kvm ] || [ ! -w /dev/kvm ]; then
+            echo "::error::/dev/kvm is not accessible to $(id -un), the guests would fall back to TCG"
+            ls -l /dev/kvm
+            exit 1
+          fi
 
       - name: Test pre-release images
         env:

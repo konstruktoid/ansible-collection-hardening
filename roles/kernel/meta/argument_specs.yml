@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Kernel hardening.
+    short_description: "Kernel hardening."
     description:
-      - Kernel hardening.
+      - "Kernel hardening."
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:

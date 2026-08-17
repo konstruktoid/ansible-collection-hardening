@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: tcpwrappers, hosts.allow and hosts.deny, management
+    short_description: "tcpwrappers, hosts.allow and hosts.deny, management"
     description:
-      - tcpwrappers, hosts.allow and hosts.deny, management.
+      - "tcpwrappers, hosts.allow and hosts.deny, management."
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:

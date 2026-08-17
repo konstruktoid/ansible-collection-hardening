@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Manage Apport
+    short_description: "Manage Apport"
     description:
-      - Manage Apport
+      - "Manage Apport"
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:

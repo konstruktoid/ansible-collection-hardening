@@ -2,8 +2,8 @@
 - name: Verify apt hardening configuration
   vars:
     package_management_seccomp_broken:
-      - forky
-      - trixie
+      - "forky"
+      - "trixie"
   when:
     - ansible_facts.os_family == "Debian"
   block:

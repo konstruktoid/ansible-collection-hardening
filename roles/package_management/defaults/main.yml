@@ -18,8 +18,8 @@ apt_options:
 # Debian releases where APT's seccomp sandbox aborts the acquire methods, C(E:Method file has died
 # unexpectedly!), and where C(APT::Sandbox::Seccomp) therefore has to be left off.
 apt_seccomp_broken_releases:
-  - forky
-  - trixie
+  - "forky"
+  - "trixie"
 
 # If True, then the installed packages will be upgraded to the latest version using C(apt) or C(dnf).
 system_upgrade: true

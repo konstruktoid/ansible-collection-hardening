@@ -1,6 +1,7 @@
 ---
 # A list of addresses to use as system DNS servers.
 dns: ["1.1.1.2", "9.9.9.9"]
+
 # Set the DNS over TLS mode for systemd-resolved.
 dns_over_tls: "opportunistic"
 

@@ -22,6 +22,9 @@
     - name: Remove APT seccomp sandboxing on affected Debian releases
       ansible.builtin.lineinfile:
         dest: /etc/apt/apt.conf.d/99-hardening
+        owner: root
+        group: root
+        mode: "0644"
         line: 'APT::Sandbox::Seccomp "1";'
         state: absent
       when:

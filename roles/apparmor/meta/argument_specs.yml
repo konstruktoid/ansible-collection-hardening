@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: AppArmor installation and configuration.
+    short_description: "AppArmor installation and configuration."
     description:
-      - This role manages AppArmor installation and configuration.
+      - "This role manages AppArmor installation and configuration."
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:

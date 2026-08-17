@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Configuration of journald, rsyslog and logrotate.
+    short_description: "Configuration of journald, rsyslog and logrotate."
     description:
-      - This role provides configuration of journald, rsyslog and logrotate.
+      - "This role provides configuration of journald, rsyslog and logrotate."
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:

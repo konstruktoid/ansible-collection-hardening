@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: SSH installation and configuration.
+    short_description: "SSH installation and configuration."
     description:
-      - SSH installation and configuration.
+      - "SSH installation and configuration."
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:

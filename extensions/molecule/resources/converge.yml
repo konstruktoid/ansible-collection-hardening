@@ -29,7 +29,7 @@
       vars:
         system_upgrade: >-
           {{ molecule_system_upgrade |
-             default(false if ansible_facts.distribution == 'Debian' else true) }}
+             default(false if ansible_facts.distribution == "Debian" else true) }}
     - role: konstruktoid.hardening.packages
     - role: konstruktoid.hardening.ssh
       vars:

@@ -58,7 +58,7 @@
   not usable here, Debian testing reports `ansible_distribution_major_version` as `n/a`.
 - Compare the `sshd -T` output in `extensions/molecule/tests/verify_ssh.yml` with the keyword
   lowercased and the value unchanged, matching how the expected parameters are already
-  normalized. Newer OpenSSH releases print the canonical mixed case keyword names, so the
+  normalized. Newer OpenSSH releases print the canonical mixed-case keyword names, so the
   previous exact line match failed on every parameter.
 - Add the `prerelease` Molecule scenario and the `prerelease` tox environment, converging and
   verifying the same roles against AlmaLinux Kitten 10, the Ubuntu development release and

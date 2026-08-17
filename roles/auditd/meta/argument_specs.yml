@@ -1,11 +1,11 @@
 ---
 argument_specs:
   main:
-    short_description: Installation and configuration of auditd
+    short_description: "Installation and configuration of auditd"
     description:
-      - Installation and configuration of auditd.
+      - "Installation and configuration of auditd."
     author:
-      - konstruktoid
+      - "Thomas Sjögren (@konstruktoid)"
     options:
       auditd_apply_audit_rules:
         description: "If True, the role applies the auditd rules from the included template file."

@@ -1,9 +1,9 @@
 ---
 argument_specs:
   main:
-    short_description: Update /etc/issue and /etc/motd files.
+    short_description: "Update /etc/issue and /etc/motd files."
     description:
-      - This role updates the /etc/issue and /etc/motd files on a system using Jinja2 templates.
+      - "This role updates the /etc/issue and /etc/motd files on a system using Jinja2 templates."
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:
