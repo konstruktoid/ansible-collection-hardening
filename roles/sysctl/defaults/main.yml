@@ -85,7 +85,8 @@ sysctl_main_config_template: "etc/sysctl/sysctl.main.conf.j2"
 # If 0, the system denies IPv6 router solicitations.
 sysctl_net_ipv6_conf_accept_ra_rtr_pref: 0
 
-# Sets the sysctl configuration directory.
+# Sets the sysctl configuration directory. A value set here is honoured as-is;
+# left at the default it is detected from /usr/lib/sysctl.d/ existence.
 sysctl_conf_dir: "{{ '/usr/lib/sysctl.d' if usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"
 
 # If True, use C(/usr/lib/sysctl.d) as the sysctl configuration directory, otherwise use C(/etc/sysctl.d).

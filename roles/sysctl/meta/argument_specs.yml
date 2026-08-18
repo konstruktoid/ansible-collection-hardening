@@ -123,7 +123,7 @@ argument_specs:
         type: "bool"
         default: false
       sysctl_conf_dir:
-        description: "Sets the sysctl configuration directory."
+        description: "Sets the sysctl configuration directory. A value set here is honoured as-is."
         type: "str"
         default: "{{ '/usr/lib/sysctl.d' if usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"
       sysctl_dev_tty_ldisc_autoload:

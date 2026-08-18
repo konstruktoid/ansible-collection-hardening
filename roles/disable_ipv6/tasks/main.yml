@@ -4,20 +4,20 @@
     - name: Stat /usr/lib/sysctl.d/
       ansible.builtin.stat:
         path: /usr/lib/sysctl.d/
-      register: usr_lib_sysctl_d
+      register: disable_ipv6_usr_lib_sysctl_d
 
     - name: Set /usr/lib/sysctl.d/ existence fact
       ansible.builtin.set_fact:
-        usr_lib_sysctl_d_dir: "{{ true if usr_lib_sysctl_d.stat.exists else false }}"
+        disable_ipv6_usr_lib_sysctl_d_dir: "{{ true if disable_ipv6_usr_lib_sysctl_d.stat.exists else false }}"
 
-    - name: Set sysctl_conf_dir fact based on /usr/lib/sysctl.d/ existence
+    - name: Set disable_ipv6_sysctl_conf_dir fact based on /usr/lib/sysctl.d/ existence
       ansible.builtin.set_fact:
-        sysctl_conf_dir: "{{ '/usr/lib/sysctl.d' if usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"
+        disable_ipv6_sysctl_conf_dir: "{{ '/usr/lib/sysctl.d' if disable_ipv6_usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"
 
 - name: Ensure sysctl configuration dir has the correct permissions
   become: true
   ansible.builtin.file:
-    path: "{{ sysctl_conf_dir }}"
+    path: "{{ disable_ipv6_sysctl_conf_dir }}"
     mode: "0755"
     owner: root
     group: root
@@ -27,7 +27,7 @@
   become: true
   ansible.builtin.template:
     src: "{{ sysctl_disable_ipv6_template }}"
-    dest: "{{ sysctl_conf_dir }}/zz-disable-ipv6.conf"
+    dest: "{{ disable_ipv6_sysctl_conf_dir }}/zz-disable-ipv6.conf"
     mode: "0644"
     owner: root
     group: root

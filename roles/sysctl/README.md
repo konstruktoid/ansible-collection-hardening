@@ -28,7 +28,7 @@ Defined in `roles/sysctl/defaults/main.yml`.
 | `sysctl_ipv6_config_template` | `"etc/sysctl/sysctl.ipv6.conf.j2"` | IPv6 sysctl configuration template location. |
 | `sysctl_main_config_template` | `"etc/sysctl/sysctl.main.conf.j2"` | main sysctl configuration template location. |
 | `sysctl_net_ipv6_conf_accept_ra_rtr_pref` | `0` | If 0, the system denies IPv6 router solicitations. |
-| `sysctl_conf_dir` | `"{{ '/usr/lib/sysctl.d' if usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"` | Sets the sysctl configuration directory. |
+| `sysctl_conf_dir` | `"{{ '/usr/lib/sysctl.d' if usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"` | Sets the sysctl configuration directory. A value set here is honoured as-is, and is not overwritten by detection. |
 | `usr_lib_sysctl_d_dir` | `false` | If True, use `/usr/lib/sysctl.d` as the sysctl configuration directory, otherwise use `/etc/sysctl.d`. |
 | `sysctl_dev_tty_ldisc_autoload` | `0` | If 0, restrict loading TTY line disciplines to the CAP_SYS_MODULE capability. |
 
