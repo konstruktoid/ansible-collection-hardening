@@ -1,21 +1,7 @@
 ---
-- name: Set sysctl configuration directory as fact
-  block:
-    - name: Stat /usr/lib/sysctl.d/
-      ansible.builtin.stat:
-        path: /usr/lib/sysctl.d/
-      register: sysctl_usr_lib_sysctl_d
-
-    # Only detect when sysctl_conf_dir still resolves to its default, so that a
-    # directory supplied by the user is honoured instead of being overwritten.
-    - name: Set sysctl_conf_dir fact based on /usr/lib/sysctl.d/ existence
-      ansible.builtin.set_fact:
-        sysctl_conf_dir: >-
-          {{ '/usr/lib/sysctl.d'
-          if (usr_lib_sysctl_d_dir | bool or sysctl_usr_lib_sysctl_d.stat.exists)
-          else '/etc/sysctl.d' }}
-      when:
-        - sysctl_conf_dir == ('/usr/lib/sysctl.d' if usr_lib_sysctl_d_dir | bool else '/etc/sysctl.d')
+- name: Resolve the sysctl configuration directory
+  ansible.builtin.include_tasks:
+    file: set_conf_dir.yml
 
 - name: Stat IPv6 status
   become: true

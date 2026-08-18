@@ -135,3 +135,30 @@
       when:
         - system_has_ipv6
         - disable_ipv6
+
+- name: Verify an explicitly configured sysctl_conf_dir is preserved
+  block:
+    - name: Set an explicit sysctl_conf_dir
+      ansible.builtin.set_fact:
+        sysctl_conf_dir: "/etc/sysctl.d"
+
+    - name: Resolve the sysctl configuration directory with an explicit value
+      ansible.builtin.include_role:
+        name: konstruktoid.hardening.sysctl
+        tasks_from: set_conf_dir.yml
+
+    - name: Verify the explicit sysctl_conf_dir was not overwritten by detection
+      ansible.builtin.assert:
+        that:
+          - sysctl_conf_dir == "/etc/sysctl.d"
+        fail_msg: >-
+          An explicitly configured sysctl_conf_dir was overwritten with
+          {{ sysctl_conf_dir }}.
+        success_msg: "An explicitly configured sysctl_conf_dir is preserved"
+
+    - name: Restore the detected sysctl_conf_dir
+      ansible.builtin.set_fact:
+        sysctl_conf_dir: >-
+          {{ '/usr/lib/sysctl.d'
+          if sysctl_usr_lib_sysctl_d.stat.exists
+          else '/etc/sysctl.d' }}

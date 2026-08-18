@@ -28,8 +28,8 @@ Defined in `roles/sysctl/defaults/main.yml`.
 | `sysctl_ipv6_config_template` | `"etc/sysctl/sysctl.ipv6.conf.j2"` | IPv6 sysctl configuration template location. |
 | `sysctl_main_config_template` | `"etc/sysctl/sysctl.main.conf.j2"` | main sysctl configuration template location. |
 | `sysctl_net_ipv6_conf_accept_ra_rtr_pref` | `0` | If 0, the system denies IPv6 router solicitations. |
-| `sysctl_conf_dir` | `"{{ '/usr/lib/sysctl.d' if usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"` | Sets the sysctl configuration directory. A value set here is honoured as-is, and is not overwritten by detection. |
-| `usr_lib_sysctl_d_dir` | `false` | If True, use `/usr/lib/sysctl.d` as the sysctl configuration directory, otherwise use `/etc/sysctl.d`. |
+| `sysctl_conf_dir` | `""` | Sets the sysctl configuration directory. A value set here is honoured as-is, and is not overwritten by detection. If empty, the directory is `/usr/lib/sysctl.d` when `usr_lib_sysctl_d_dir` is True or when `/usr/lib/sysctl.d` exists, otherwise `/etc/sysctl.d`. |
+| `usr_lib_sysctl_d_dir` | `false` | If True, use `/usr/lib/sysctl.d` as the sysctl configuration directory. If False, the directory is detected. Ignored if `sysctl_conf_dir` is set. |
 | `sysctl_dev_tty_ldisc_autoload` | `0` | If 0, restrict loading TTY line disciplines to the CAP_SYS_MODULE capability. |
 
 `generic_sysctl_settings` default value:
@@ -118,14 +118,12 @@ net.ipv6.conf.default.use_tempaddr: 2
 
 `tasks/main.yml` executes, in order:
 
-1. Set sysctl configuration directory as fact
-2. Stat /usr/lib/sysctl.d/
-3. Set sysctl_conf_dir fact based on /usr/lib/sysctl.d/ existence
-4. Stat IPv6 status
-5. Set IPv6 fact
-6. Ensure sysctl configuration dir has the correct permissions
-7. Template the sysctl file with general sysctl hardening settings
-8. Template sysctl file with IPv6 settings
+1. Resolve the sysctl configuration directory
+2. Stat IPv6 status
+3. Set IPv6 fact
+4. Ensure sysctl configuration dir has the correct permissions
+5. Template the sysctl file with general sysctl hardening settings
+6. Template sysctl file with IPv6 settings
 
 ## Handlers
 
