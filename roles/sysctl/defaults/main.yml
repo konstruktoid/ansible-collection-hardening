@@ -85,10 +85,13 @@ sysctl_main_config_template: "etc/sysctl/sysctl.main.conf.j2"
 # If 0, the system denies IPv6 router solicitations.
 sysctl_net_ipv6_conf_accept_ra_rtr_pref: 0
 
-# Sets the sysctl configuration directory.
-sysctl_conf_dir: "{{ '/usr/lib/sysctl.d' if usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"
+# Sets the sysctl configuration directory. A value set here is honoured as-is.
+# If empty, the directory is C(/usr/lib/sysctl.d) when usr_lib_sysctl_d_dir is
+# True or when C(/usr/lib/sysctl.d) exists, otherwise C(/etc/sysctl.d).
+sysctl_conf_dir: ""
 
-# If True, use C(/usr/lib/sysctl.d) as the sysctl configuration directory, otherwise use C(/etc/sysctl.d).
+# If True, use C(/usr/lib/sysctl.d) as the sysctl configuration directory. If False,
+# the directory is detected. Ignored if sysctl_conf_dir is set.
 usr_lib_sysctl_d_dir: false
 
 # If 0, restrict loading TTY line disciplines to the CAP_SYS_MODULE capability.

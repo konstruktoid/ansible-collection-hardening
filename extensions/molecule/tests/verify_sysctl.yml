@@ -38,6 +38,22 @@
   ansible.builtin.debug:
     msg: "{{ sysctl_conf_dir }}"
 
+- name: Stat the main sysctl hardening file
+  become: true
+  ansible.builtin.stat:
+    path: "{{ sysctl_conf_dir }}/zz-main-hardening.conf"
+  register: sysctl_main_hardening_file
+
+- name: Verify the sysctl hardening file was written to the resolved directory
+  ansible.builtin.assert:
+    that:
+      - sysctl_conf_dir | length > 0
+      - sysctl_main_hardening_file.stat.exists
+    fail_msg: >-
+      Expected {{ sysctl_conf_dir }}/zz-main-hardening.conf to exist.
+      An empty sysctl_conf_dir means the directory was neither supplied nor detected.
+    success_msg: "sysctl hardening file present in {{ sysctl_conf_dir }}"
+
 - name: Merge sysctl settings
   ansible.builtin.set_fact:
     sysctl_settings: "{{ generic_sysctl_settings | combine(ipv4_sysctl_settings) }}"
@@ -119,3 +135,30 @@
       when:
         - system_has_ipv6
         - disable_ipv6
+
+- name: Verify an explicitly configured sysctl_conf_dir is preserved
+  block:
+    - name: Set an explicit sysctl_conf_dir
+      ansible.builtin.set_fact:
+        sysctl_conf_dir: "/etc/sysctl.d"
+
+    - name: Resolve the sysctl configuration directory with an explicit value
+      ansible.builtin.include_role:
+        name: konstruktoid.hardening.sysctl
+        tasks_from: set_conf_dir.yml
+
+    - name: Verify the explicit sysctl_conf_dir was not overwritten by detection
+      ansible.builtin.assert:
+        that:
+          - sysctl_conf_dir == "/etc/sysctl.d"
+        fail_msg: >-
+          An explicitly configured sysctl_conf_dir was overwritten with
+          {{ sysctl_conf_dir }}.
+        success_msg: "An explicitly configured sysctl_conf_dir is preserved"
+
+    - name: Restore the detected sysctl_conf_dir
+      ansible.builtin.set_fact:
+        sysctl_conf_dir: >-
+          {{ '/usr/lib/sysctl.d'
+          if sysctl_usr_lib_sysctl_d.stat.exists
+          else '/etc/sysctl.d' }}

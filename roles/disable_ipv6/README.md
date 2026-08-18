@@ -37,7 +37,7 @@ net.ipv6.conf.default.disable_ipv6: 1
 1. Set sysctl configuration directory as fact
 2. Stat /usr/lib/sysctl.d/
 3. Set /usr/lib/sysctl.d/ existence fact
-4. Set sysctl_conf_dir fact based on /usr/lib/sysctl.d/ existence
+4. Set disable_ipv6_sysctl_conf_dir fact based on /usr/lib/sysctl.d/ existence
 5. Ensure sysctl configuration dir has the correct permissions
 6. Sysctl settings for disabling IPv6
 7. Set Debian ipv6.disable GRUB cmdline

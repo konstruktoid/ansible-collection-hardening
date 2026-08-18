@@ -119,13 +119,13 @@ argument_specs:
               - 1
               - 2
       usr_lib_sysctl_d_dir:
-        description: "If True, use C(/usr/lib/sysctl.d) as the sysctl configuration directory, otherwise use C(/etc/sysctl.d)."
+        description: "If True, use C(/usr/lib/sysctl.d) as the sysctl configuration directory. If False, the directory is detected. Ignored if sysctl_conf_dir is set."
         type: "bool"
         default: false
       sysctl_conf_dir:
-        description: "Sets the sysctl configuration directory."
+        description: "Sets the sysctl configuration directory. A value set here is honoured as-is. If empty, the directory is detected."
         type: "str"
-        default: "{{ '/usr/lib/sysctl.d' if usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"
+        default: ""
       sysctl_dev_tty_ldisc_autoload:
         description: "If 0, restrict loading TTY line disciplines to the CAP_SYS_MODULE capability."
         type: "int"

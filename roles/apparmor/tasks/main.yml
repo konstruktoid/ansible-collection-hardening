@@ -4,19 +4,19 @@
     - name: Stat /usr/lib/sysctl.d/ exists
       ansible.builtin.stat:
         path: /usr/lib/sysctl.d/
-      register: usr_lib_sysctl_d
+      register: apparmor_usr_lib_sysctl_d
 
     - name: Set sysctl fact
       ansible.builtin.set_fact:
-        usr_lib_sysctl_d_dir: "{{ true if usr_lib_sysctl_d.stat.exists else false }}"
+        apparmor_usr_lib_sysctl_d_dir: "{{ true if apparmor_usr_lib_sysctl_d.stat.exists else false }}"
 
     - name: Determine sysctl configuration directory
       ansible.builtin.set_fact:
-        sysctl_conf_dir: "{{ '/usr/lib/sysctl.d' if usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"
+        apparmor_sysctl_conf_dir: "{{ '/usr/lib/sysctl.d' if apparmor_usr_lib_sysctl_d_dir else '/etc/sysctl.d' }}"
 
     - name: Print sysctl configuration directory
       ansible.builtin.debug:
-        msg: "Using {{ sysctl_conf_dir }} as sysctl configuration directory"
+        msg: "Using {{ apparmor_sysctl_conf_dir }} as sysctl configuration directory"
 
 - name: Configure and enable AppArmor
   become: true
@@ -35,7 +35,7 @@
     - name: AppArmor sysctl settings
       ansible.builtin.template:
         src: "{{ sysctl_apparmor_config_template }}"
-        dest: "{{ sysctl_conf_dir }}/zz-apparmor-hardening.conf"
+        dest: "{{ apparmor_sysctl_conf_dir }}/zz-apparmor-hardening.conf"
         mode: "0644"
         owner: root
         group: root
