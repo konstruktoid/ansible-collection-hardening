@@ -1,6 +1,14 @@
 # Change Log
 
-## Unreleased
+## 0.3.1 (2026-08-19)
+
+- Set the collection version in `galaxy.yml` to `0.3.1`. The `v0.3.0` tag was cut while
+  `galaxy.yml` still read `0.2.0`, so that release built as `konstruktoid-hardening-0.2.0` and
+  the changes listed below were never published under a version of their own. This release
+  contains no other changes. `galaxy.yml` and `CHANGELOG.md` are the only places in the
+  repository that record the version, keep them in step when tagging.
+
+## 0.3.0 (2026-08-18)
 
 - Remove the unused `sshd_admin_net` variable from the `ssh` role. It is a leftover from
   `ansible-role-hardening`, where the role also managed the firewall, and it has had no effect
