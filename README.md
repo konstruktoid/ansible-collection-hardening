@@ -2,7 +2,7 @@
 
 Ansible collection for hardening systemd-based Linux servers: AlmaLinux, Debian,
 and Ubuntu. It applies CIS Benchmark- and DISA STIG-aligned security controls
-through 43 independent, single-purpose roles covering SSH, sudo, PAM,
+through 44 independent, single-purpose roles covering SSH, sudo, PAM,
 auditd, sysctl, firewalling, mounts, and kernel modules, among other hardening
 domains.
 
