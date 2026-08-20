@@ -1,5 +1,17 @@
 # Change Log
 
+## 0.3.2 (2026-08-19)
+
+- Sync `build_ignore` in `galaxy.yml` with `.gitignore`, so that the built collection artifact
+  no longer carries local development state. Directory patterns were written with a trailing
+  slash (`.ansible/`, `.github/`), which `ansible-galaxy collection build` matches against
+  paths without one, so those entries never took effect and the downloaded collections under
+  `.ansible/` were bundled. `.gitignore` entries that had no `build_ignore` counterpart at all
+  (`*.gz`, `molecule-logs/`, `.claude/`) are added, together with the local agent and linter
+  configuration (`.agents`, `.ansible-lint`, `.ansible-lint-ignore`, `CLAUDE.md`). The artifact
+  goes from 26M to 950K and now contains only files tracked in git. This release contains no
+  other changes.
+
 ## 0.3.1 (2026-08-19)
 
 - Set the collection version in `galaxy.yml` to `0.3.1`. The `v0.3.0` tag was cut while
