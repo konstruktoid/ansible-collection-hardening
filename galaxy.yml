@@ -1,7 +1,7 @@
 ---
 namespace: konstruktoid
 name: hardening
-version: 0.3.1
+version: 0.3.2
 readme: README.md
 authors:
   - "Thomas Sjögren (@konstruktoid)"
@@ -26,14 +26,21 @@ tags:
   - systemd
   - ubuntu
 build_ignore:
-  - .ansible/
-  - ansible.cfg
-  - ansible_collections
+  - "*.gz"
+  - .agents
+  - .ansible
+  - .ansible-lint
+  - .ansible-lint-ignore
   - .cache
+  - .claude
   - .env
   - .env.yml
-  - .github/
+  - .github
   - .nox
   - .tox
   - .venv
   - .yamllint
+  - CLAUDE.md
+  - ansible.cfg
+  - ansible_collections
+  - molecule-logs
