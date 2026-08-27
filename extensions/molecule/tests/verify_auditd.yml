@@ -47,6 +47,60 @@
         - "-a always,exit .* key=cron"
         - "-a always,exit .* path=/etc/ld.so.conf .* key=libpath"
 
+    - name: Check which recent syscall names the audit userspace resolves
+      ansible.builtin.command:
+        cmd: ausyscall {{ item }}
+      register: auditd_ausyscall
+      changed_when: false
+      failed_when: false
+      check_mode: false
+      loop:
+        - fchmodat2
+        - file_setattr
+
+    - name: Set fact for the resolvable syscall names
+      ansible.builtin.set_fact:
+        auditd_supported_syscalls: >-
+          {{
+            auditd_ausyscall.results
+            | selectattr("rc", "defined")
+            | selectattr("rc", "equalto", 0)
+            | map(attribute="item")
+            | list
+          }}
+
+    - name: Verify fchmodat2 auditd rules
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          auditctl -l | grep "^{{ item }}$"
+      register: auditd_fchmodat2_rules
+      changed_when: false
+      failed_when: auditd_fchmodat2_rules.rc != 0
+      args:
+        executable: /bin/bash
+      loop:
+        - "-a always,exit -F arch=b32 -S chmod,fchmod,fchmodat,fchmodat2 .* key=perm_mod"
+        - "-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat,fchmodat2 .* key=perm_mod"
+      when:
+        - "'fchmodat2' in auditd_supported_syscalls"
+
+    - name: Verify file_setattr auditd rules
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          auditctl -l | grep "^{{ item }}$"
+      register: auditd_file_setattr_rules
+      changed_when: false
+      failed_when: auditd_file_setattr_rules.rc != 0
+      args:
+        executable: /bin/bash
+      loop:
+        - "-a always,exit -F arch=b32 -S file_setattr .* key=perm_mod"
+        - "-a always,exit -F arch=b64 -S file_setattr .* key=perm_mod"
+      when:
+        - "'file_setattr' in auditd_supported_syscalls"
+
     - name: Verify auditd settings
       ansible.builtin.shell:
         cmd: |

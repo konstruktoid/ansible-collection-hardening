@@ -161,6 +161,10 @@
             {%- if ansible_facts.os_family == 'Debian' and sshd_debian_banner -%}
                 DebianBanner ('yes' if (sshd_debian_banner | bool) else 'no')
             {%- endif -%}
+          - >-
+            {%- if sshd_disable_forwarding | bool and ssh_installed_version is version('7.4', '>=') -%}
+              DisableForwarding yes
+            {%- endif -%}
           - GSSAPIAuthentication {{ 'yes' if (sshd_gssapi_authentication | bool) else 'no' }}
           - GSSAPICleanupCredentials yes
           - HostbasedAuthentication {{ 'yes' if (sshd_hostbased_authentication | bool) else 'no' }}
