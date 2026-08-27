@@ -119,6 +119,10 @@ AllowTcpForwarding {{ sshd_allow_tcp_forwarding if (sshd_allow_tcp_forwarding in
 AllowAgentForwarding {{ 'yes' if (sshd_allow_agent_forwarding | bool) else 'no' }}
 X11Forwarding {{ 'yes' if (sshd_x11_forwarding | bool) else 'no' }}
 X11UseLocalhost yes
+{% if sshd_disable_forwarding | bool and ssh_installed_version is version('7.4', '>=') %}
+# Overrides every directive above and covers any forwarding feature added later.
+DisableForwarding yes
+{% endif %}
 
 #######################################################
 # User environment configuration
