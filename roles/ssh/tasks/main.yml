@@ -23,6 +23,30 @@
   ansible.builtin.debug:
     msg: "{{ ssh_installed_version }}"
 
+- name: Assert that no Match rule conflicts with sshd_disable_forwarding
+  ansible.builtin.assert:
+    that:
+      - sshd_conflicting_match_rules | length == 0
+    fail_msg: >-
+      sshd_disable_forwarding is enabled, but the installed OpenSSH
+      {{ ssh_installed_version }} does not enforce DisableForwarding for agent and
+      X11 forwarding, and these Match rules would remain in effect:
+      {{ sshd_conflicting_match_rules | join(', ') }}. Remove the rules, or upgrade
+      to OpenSSH 10.0 or later.
+    quiet: true
+  vars:
+    sshd_conflicting_match_rules: >-
+      {{
+        (sshd_match_addresses + sshd_match_groups + sshd_match_local_ports + sshd_match_users)
+        | selectattr("rules", "defined") | map(attribute="rules") | flatten
+        | select("search", "(?i)forward|gatewayports|permittunnel|permitopen|permitlisten")
+        | list
+      }}
+  when:
+    - sshd_disable_forwarding | bool
+    - ssh_installed_version is version('7.4', '>=')
+    - ssh_installed_version is version('10.0', '<')
+
 - name: Ensure privilege separation directories exist
   become: true
   ansible.builtin.file:

@@ -13,6 +13,10 @@
   ansible.builtin.set_fact:
     ssh_installed_version: "{{ sshd_version.stderr_lines | regex_search('OpenSSH_([0-9+][0-9+].[0-9+]|[0-9+].[0-9]+)', '\\1') | first }}"
 
+- name: Set forwarding disabled fact
+  ansible.builtin.set_fact:
+    sshd_forwarding_disabled: "{{ (sshd_disable_forwarding | bool) and ssh_installed_version is version('7.4', '>=') }}"
+
 - name: Ensure privilege separation directories exist
   become: true
   ansible.builtin.file:
@@ -120,9 +124,11 @@
             {%- if sshd_allow_users | length > 0 -%}
               {{ 'AllowUsers ' + sshd_allow_users | join(' ') }}
             {%- endif -%}
-          - AllowAgentForwarding {{ 'yes' if (sshd_allow_agent_forwarding | bool) else 'no' }}
+          - AllowAgentForwarding {{ 'no' if (sshd_forwarding_disabled | bool) else ('yes' if (sshd_allow_agent_forwarding | bool) else 'no') }}
           - >-
-            {%- if (ssh_installed_version is version('6.2', '>=')) -%}
+            {%- if sshd_forwarding_disabled | bool -%}
+              AllowTcpForwarding no
+            {%- elif (ssh_installed_version is version('6.2', '>=')) -%}
               {%- if sshd_allow_tcp_forwarding in ('yes', 'no', 'local', 'all', 'remote') -%}
                 AllowTcpForwarding {{ sshd_allow_tcp_forwarding }}
             {%- else -%}
@@ -162,7 +168,7 @@
                 DebianBanner ('yes' if (sshd_debian_banner | bool) else 'no')
             {%- endif -%}
           - >-
-            {%- if sshd_disable_forwarding | bool and ssh_installed_version is version('7.4', '>=') -%}
+            {%- if sshd_forwarding_disabled | bool -%}
               DisableForwarding yes
             {%- endif -%}
           - GSSAPIAuthentication {{ 'yes' if (sshd_gssapi_authentication | bool) else 'no' }}
@@ -212,7 +218,7 @@
           - PasswordAuthentication {{ 'yes' if (sshd_password_authentication | bool) else 'no' }}
           - PermitEmptyPasswords {{ 'yes' if (sshd_permit_empty_passwords | bool) else 'no' }}
           - PermitRootLogin {{ 'yes' if (sshd_permit_root_login | bool) else 'no' }}
-          - PermitTunnel {{ 'yes' if (sshd_permit_tunnel | bool) else 'no' }}
+          - PermitTunnel {{ 'no' if (sshd_forwarding_disabled | bool) else ('yes' if (sshd_permit_tunnel | bool) else 'no') }}
           - PermitUserEnvironment {{ 'yes' if (sshd_permit_user_environment | bool) else 'no' }}
           - PrintLastLog {{ 'yes' if (sshd_print_last_log | bool) else 'no' }}
           - PrintMotd {{ 'yes' if (sshd_print_motd | bool) else 'no' }}
@@ -253,7 +259,7 @@
               UsePrivilegeSeparation {{ 'yes' if (sshd_use_privilege_separation | bool) else 'no' }}
             {%- endif -%}
             {%- endif -%}
-          - X11Forwarding {{ 'yes' if (sshd_x11_forwarding | bool) else 'no' }}
+          - X11Forwarding {{ 'no' if (sshd_forwarding_disabled | bool) else ('yes' if (sshd_x11_forwarding | bool) else 'no') }}
           - X11UseLocalhost yes
 
     - name: Print sshd_config_parameters

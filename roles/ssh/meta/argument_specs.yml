@@ -115,7 +115,7 @@ argument_specs:
         description:
           - "Disables all forwarding, and overrides every other forwarding related directive."
           - "Requires OpenSSH 7.4 or later, and is not written to the configuration file on older releases."
-          - "Overrides the forwarding directives set inside a Match block as well, so it is not enabled when a Match rule mentions forwarding."
+          - "Since C(DisableForwarding) does not disable agent and X11 forwarding before OpenSSH 10.0 (CVE-2025-32728), enabling this writes C(GatewayPorts), C(PermitTunnel), C(AllowTcpForwarding), C(AllowAgentForwarding) and C(X11Forwarding) as disabled as well, and the role fails if a C(sshd_match_*) rule mentions forwarding."
           - "Defaults to C(true) only when C(sshd_allow_agent_forwarding), C(sshd_allow_tcp_forwarding), C(sshd_gateway_ports), C(sshd_permit_tunnel) and C(sshd_x11_forwarding) are all disabled, and no C(sshd_match_*) rule mentions forwarding."
         type: "bool"
       sshd_gateway_ports:

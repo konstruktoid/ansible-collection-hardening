@@ -109,17 +109,22 @@ GSSAPICleanupCredentials yes
 TCPKeepAlive {{ 'yes' if (sshd_tcp_keep_alive | bool) else 'no' }}
 ClientAliveCountMax {{ sshd_client_alive_count_max | int }}
 ClientAliveInterval {{ sshd_client_alive_interval | int }}
-GatewayPorts {{ 'yes' if (sshd_gateway_ports | bool) else 'no' }}
-PermitTunnel {{ 'yes' if (sshd_permit_tunnel | bool) else 'no' }}
-{% if ssh_installed_version is version('6.2', '>=') %}
+{# DisableForwarding does not disable agent and X11 forwarding before OpenSSH
+   10.0 (CVE-2025-32728), so every directive is written out as disabled too. #}
+{% set sshd_forwarding_disabled = (sshd_disable_forwarding | bool) and ssh_installed_version is version('7.4', '>=') %}
+GatewayPorts {{ 'no' if sshd_forwarding_disabled else ('yes' if (sshd_gateway_ports | bool) else 'no') }}
+PermitTunnel {{ 'no' if sshd_forwarding_disabled else ('yes' if (sshd_permit_tunnel | bool) else 'no') }}
+{% if sshd_forwarding_disabled %}
+AllowTcpForwarding no
+{% elif ssh_installed_version is version('6.2', '>=') %}
 AllowTcpForwarding {{ sshd_allow_tcp_forwarding if (sshd_allow_tcp_forwarding in ('yes', 'no', 'local', 'all', 'remote')) else ('yes' if (sshd_allow_tcp_forwarding | bool) else 'no') }}
 {% else %}
 AllowTcpForwarding {{ sshd_allow_tcp_forwarding if (sshd_allow_tcp_forwarding in ('yes', 'no')) else ('yes' if (sshd_allow_tcp_forwarding | bool) else 'no') }}
 {% endif %}
-AllowAgentForwarding {{ 'yes' if (sshd_allow_agent_forwarding | bool) else 'no' }}
-X11Forwarding {{ 'yes' if (sshd_x11_forwarding | bool) else 'no' }}
+AllowAgentForwarding {{ 'no' if sshd_forwarding_disabled else ('yes' if (sshd_allow_agent_forwarding | bool) else 'no') }}
+X11Forwarding {{ 'no' if sshd_forwarding_disabled else ('yes' if (sshd_x11_forwarding | bool) else 'no') }}
 X11UseLocalhost yes
-{% if sshd_disable_forwarding | bool and ssh_installed_version is version('7.4', '>=') %}
+{% if sshd_forwarding_disabled %}
 # Overrides every directive above and covers any forwarding feature added later.
 DisableForwarding yes
 {% endif %}
