@@ -47,6 +47,84 @@
         - "-a always,exit .* key=cron"
         - "-a always,exit .* path=/etc/ld.so.conf .* key=libpath"
 
+    - name: Check which recent syscall names the audit userspace resolves
+      ansible.builtin.command:
+        cmd: ausyscall {{ item.0 }} --exact {{ item.1 }}
+      register: auditd_ausyscall
+      changed_when: false
+      failed_when: false
+      check_mode: false
+      loop: "{{ ['b32', 'b64'] | product(['fchmodat2', 'file_setattr']) | list }}"
+      loop_control:
+        label: "{{ item.0 }} {{ item.1 }}"
+
+    - name: Set facts for the resolvable syscall names
+      ansible.builtin.set_fact:
+        auditd_supported_syscalls_b32: >-
+          {{
+            auditd_ausyscall.results
+            | selectattr("rc", "defined")
+            | selectattr("rc", "equalto", 0)
+            | map(attribute="item")
+            | selectattr("0", "equalto", "b32")
+            | map(attribute="1")
+            | list
+          }}
+        auditd_supported_syscalls_b64: >-
+          {{
+            auditd_ausyscall.results
+            | selectattr("rc", "defined")
+            | selectattr("rc", "equalto", 0)
+            | map(attribute="item")
+            | selectattr("0", "equalto", "b64")
+            | map(attribute="1")
+            | list
+          }}
+
+    - name: Verify fchmodat2 auditd rules
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          auditctl -l | grep "^{{ item.rule }}$"
+      register: auditd_fchmodat2_rules
+      changed_when: false
+      failed_when: auditd_fchmodat2_rules.rc != 0
+      args:
+        executable: /bin/bash
+      loop:
+        - abi: "b32"
+          supported: "{{ auditd_supported_syscalls_b32 }}"
+          rule: "-a always,exit -F arch=b32 -S chmod,fchmod,fchmodat,fchmodat2 .* key=perm_mod"
+        - abi: "b64"
+          supported: "{{ auditd_supported_syscalls_b64 }}"
+          rule: "-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat,fchmodat2 .* key=perm_mod"
+      loop_control:
+        label: "{{ item.abi }}"
+      when:
+        - "'fchmodat2' in item.supported"
+
+    - name: Verify file_setattr auditd rules
+      ansible.builtin.shell:
+        cmd: |
+          set -o pipefail
+          auditctl -l | grep "^{{ item.rule }}$"
+      register: auditd_file_setattr_rules
+      changed_when: false
+      failed_when: auditd_file_setattr_rules.rc != 0
+      args:
+        executable: /bin/bash
+      loop:
+        - abi: "b32"
+          supported: "{{ auditd_supported_syscalls_b32 }}"
+          rule: "-a always,exit -F arch=b32 -S file_setattr .* key=perm_mod"
+        - abi: "b64"
+          supported: "{{ auditd_supported_syscalls_b64 }}"
+          rule: "-a always,exit -F arch=b64 -S file_setattr .* key=perm_mod"
+      loop_control:
+        label: "{{ item.abi }}"
+      when:
+        - "'file_setattr' in item.supported"
+
     - name: Verify auditd settings
       ansible.builtin.shell:
         cmd: |

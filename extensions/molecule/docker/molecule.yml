@@ -5,7 +5,7 @@ driver:
   name: default
 platforms:
   - name: almalinux10
-    image: almalinux:10-kitten-minimal
+    image: docker.io/almalinux:10-minimal
     command: sleep 1d
     privileged: true
     volumes:

@@ -60,6 +60,28 @@ sshd_deny_groups: []
 # Login is disallowed for users whose user name matches one of the patterns.
 sshd_deny_users: []
 
+# Disables all forwarding, and overrides every other forwarding related directive,
+# including the ones set inside a Match block. Defaults to True only when each
+# individual forwarding option is disabled and no Match rule mentions forwarding,
+# so that an existing configuration is never silently overridden.
+sshd_disable_forwarding: >-
+  {{
+    (
+      sshd_allow_tcp_forwarding if sshd_allow_tcp_forwarding in ["yes", "no", "local", "all", "remote"]
+      else ("yes" if (sshd_allow_tcp_forwarding | bool) else "no")
+    ) == "no"
+    and not (sshd_allow_agent_forwarding | bool)
+    and not (sshd_gateway_ports | bool)
+    and not (sshd_permit_tunnel | bool)
+    and not (sshd_x11_forwarding | bool)
+    and (
+      (sshd_match_addresses + sshd_match_groups + sshd_match_local_ports + sshd_match_users)
+      | selectattr("rules", "defined") | map(attribute="rules") | flatten
+      | select("search", "(?i)forward|gatewayports|permittunnel|permitopen|permitlisten")
+      | list | length == 0
+    )
+  }}
+
 # Specifies whether remote hosts are allowed to connect to ports forwarded for the client.
 sshd_gateway_ports: false
 

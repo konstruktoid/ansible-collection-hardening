@@ -165,6 +165,44 @@
         group: root
         create: true
 
+    - name: Check which recent syscall names the audit userspace resolves
+      ansible.builtin.command:
+        cmd: ausyscall {{ item.0 }} --exact {{ item.1 }}
+      register: auditd_ausyscall
+      changed_when: false
+      failed_when: false
+      check_mode: false
+      loop: "{{ ['b32', 'b64'] | product(['fchmodat2', 'file_setattr']) | list }}"
+      loop_control:
+        label: "{{ item.0 }} {{ item.1 }}"
+      when:
+        - auditd_apply_audit_rules | bool
+
+    - name: Set facts for the resolvable syscall names
+      ansible.builtin.set_fact:
+        auditd_supported_syscalls_b32: >-
+          {{
+            auditd_ausyscall.results
+            | selectattr("rc", "defined")
+            | selectattr("rc", "equalto", 0)
+            | map(attribute="item")
+            | selectattr("0", "equalto", "b32")
+            | map(attribute="1")
+            | list
+          }}
+        auditd_supported_syscalls_b64: >-
+          {{
+            auditd_ausyscall.results
+            | selectattr("rc", "defined")
+            | selectattr("rc", "equalto", 0)
+            | map(attribute="item")
+            | selectattr("0", "equalto", "b64")
+            | map(attribute="1")
+            | list
+          }}
+      when:
+        - auditd_apply_audit_rules | bool
+
     - name: Add auditd rules
       ansible.builtin.template:
         src: "{{ hardening_rules_template }}"

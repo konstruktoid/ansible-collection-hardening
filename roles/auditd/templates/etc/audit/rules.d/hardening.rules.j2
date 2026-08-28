@@ -1,4 +1,12 @@
+#jinja2: trim_blocks: True, lstrip_blocks: True
 # Managed by Ansible role {{ ansible_role_name }}
+{# fchmodat2 needs audit 3.1.3 or later, file_setattr needs audit 4.1.1 or later.
+   auditctl errors out on a syscall name the audit userspace cannot resolve, so
+   both are only written when ausyscall was able to look the name up, per ABI. #}
+{% set syscalls_b32 = auditd_supported_syscalls_b32 | default([]) %}
+{% set syscalls_b64 = auditd_supported_syscalls_b64 | default([]) %}
+{% set fchmodat2_b32 = ',fchmodat2' if 'fchmodat2' in syscalls_b32 else '' %}
+{% set fchmodat2_b64 = ',fchmodat2' if 'fchmodat2' in syscalls_b64 else '' %}
 
 # Remove any existing rules
 -D
@@ -48,19 +56,29 @@
 
 # Various system calls by non-root users
 -a always,exit -F arch=b32 -C euid!=uid -F euid=0 -F auid>=1000 -F auid!=unset -S execve -F key=actions
--a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -F key=actions
+-a always,exit -F arch=b32 -S chmod,fchmod,fchmodat{{ fchmodat2_b32 }} -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b32 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b32 -S creat,open,openat,truncate,ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b32 -S creat,open,openat,truncate,ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b32 -S fremovexattr,lremovexattr,removexattr -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b32 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b64 -C euid!=uid -F euid=0 -F auid>=1000 -F auid!=unset -S execve -F key=actions
--a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -F key=actions
+-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat{{ fchmodat2_b64 }} -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b64 -S creat,open,openat,truncate,ftruncate -F exit=-EACCES -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b64 -S creat,open,openat,truncate,ftruncate -F exit=-EPERM -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b64 -S fremovexattr,lremovexattr,removexattr -F auid>=1000 -F auid!=unset -F key=actions
 -a always,exit -F arch=b64 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -F auid>=1000 -F auid!=unset -F key=actions
+{% if 'file_setattr' in syscalls_b32 or 'file_setattr' in syscalls_b64 %}
+# file_setattr(2) sets inode attributes, immutable and append only among them,
+# without going through the chmod or xattr syscalls.
+{% endif %}
+{% if 'file_setattr' in syscalls_b32 %}
+-a always,exit -F arch=b32 -S file_setattr -F auid>=1000 -F auid!=unset -F key=actions
+{% endif %}
+{% if 'file_setattr' in syscalls_b64 %}
+-a always,exit -F arch=b64 -S file_setattr -F auid>=1000 -F auid!=unset -F key=actions
+{% endif %}
 
 # Access to su, sudo, and sudoers files
 -a always,exit -F path=/bin/su -F arch=b32 -F perm=x -F key=actions
@@ -274,14 +292,24 @@
 -a always,exit -F path=/usr/bin/passwd -F arch=b64 -F perm=x -F key=passwd-modification
 
 #  Permission modifications by non-root users
--a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -F key=perm_mod
+-a always,exit -F arch=b32 -S chmod,fchmod,fchmodat{{ fchmodat2_b32 }} -F auid>=1000 -F auid!=unset -F key=perm_mod
 -a always,exit -F arch=b32 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -F key=perm_mod
 -a always,exit -F arch=b32 -S fremovexattr,fsetxattr,lremovexattr -F auid>=1000 -F auid!=unset -F key=perm_mod
 -a always,exit -F arch=b32 -S mount -F auid>=1000 -F auid!=unset -F key=perm_mod
--a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -F auid>=1000 -F auid!=unset -F key=perm_mod
+-a always,exit -F arch=b64 -S chmod,fchmod,fchmodat{{ fchmodat2_b64 }} -F auid>=1000 -F auid!=unset -F key=perm_mod
 -a always,exit -F arch=b64 -S chown,fchown,fchownat,lchown -F auid>=1000 -F auid!=unset -F key=perm_mod
 -a always,exit -F arch=b64 -S fremovexattr,lremovexattr,fsetxattr -F auid>=1000 -F auid!=unset -F key=perm_mod
 -a always,exit -F arch=b64 -S mount -F auid>=1000 -F auid!=unset -F key=perm_mod
+{% if 'file_setattr' in syscalls_b32 or 'file_setattr' in syscalls_b64 %}
+# file_setattr(2) sets inode attributes, immutable and append only among them,
+# without going through the chmod or xattr syscalls.
+{% endif %}
+{% if 'file_setattr' in syscalls_b32 %}
+-a always,exit -F arch=b32 -S file_setattr -F auid>=1000 -F auid!=unset -F key=perm_mod
+{% endif %}
+{% if 'file_setattr' in syscalls_b64 %}
+-a always,exit -F arch=b64 -S file_setattr -F auid>=1000 -F auid!=unset -F key=perm_mod
+{% endif %}
 
 # Power management commands
 -a always,exit -F path=/sbin/halt -F arch=b32 -F perm=x -F key=power
