@@ -1,15 +1,19 @@
 ---
-# Allow virtual system calls (vsyscall).
-allow_virtual_system_calls: true
+# Allow virtual system calls (vsyscall). False sets vsyscall=none, the strictest
+# option; some very old glibc/binary-only software may need "emulate" instead.
+allow_virtual_system_calls: false
 
 # Enable kernel page poisoning.
 enable_page_poisoning: true
 
-# Configures kernel_lockdown.
-kernel_lockdown: false
+# Configures kernel_lockdown. "confidentiality" is the strictest mode: it implies
+# "integrity" and additionally blocks reading kernel memory (e.g. /dev/mem, kcore,
+# debugfs) from userspace, at the cost of breaking tools that rely on that access
+# (some debuggers, hibernation, out-of-tree/unsigned kernel modules).
+kernel_lockdown: "confidentiality"
 
 # Enable page table isolation (PTI).
 page_table_isolation: true
 
 # Enable SLUB debugger poisoning.
-slub_debugger_poisoning: false
+slub_debugger_poisoning: true

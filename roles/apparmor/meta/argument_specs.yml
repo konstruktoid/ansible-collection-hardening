@@ -15,11 +15,11 @@ argument_specs:
         type: "dict"
         default:
           - kernel.apparmor_display_secid_mode: 0
-          - kernel.apparmor_restrict_unprivileged_io_uring: 0
+          - kernel.apparmor_restrict_unprivileged_io_uring: 1
           - kernel.apparmor_restrict_unprivileged_unconfined: 1
           - kernel.apparmor_restrict_unprivileged_userns: 1
           - kernel.apparmor_restrict_unprivileged_userns_complain: 0
-          - kernel.apparmor_restrict_unprivileged_userns_force: 0
+          - kernel.apparmor_restrict_unprivileged_userns_force: 1
           - kernel.unprivileged_userns_apparmor_policy: 1
         description: "AppArmor sysctl settings."
         options:
@@ -39,7 +39,9 @@ argument_specs:
             description: "If 1, unprivileged user namespaces will be put into complain mode."
             type: "int"
           kernel.apparmor_restrict_unprivileged_userns_force:
-            description: "If 1, all confined applications will have the user namespace mediation enforced."
+            description: "If 1, all confined applications will have the user namespace mediation enforced, ignoring any 'userns' allow rule in their profile.
+              Closes the profile-based bypass used by the 2026 CrackArmor local-root disclosures (CVE-2026-23268/23269/23403-23411), at the cost of breaking
+              confined applications (some container/sandbox tooling) whose profile deliberately allows unprivileged user namespace creation."
             type: "int"
           kernel.unprivileged_userns_apparmor_policy:
             description: "If 1, unprivileged user namespaces will be restricted to the AppArmor policy."

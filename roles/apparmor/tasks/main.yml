@@ -65,8 +65,6 @@
         mode: "0640"
         owner: root
         group: root
-      notify:
-        - Update GRUB
 
     - name: Get AppArmor status
       environment:

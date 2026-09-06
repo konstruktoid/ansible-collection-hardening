@@ -58,5 +58,5 @@
       changed_when: false
       failed_when: systemd_timesyncd_conf.rc != 0
       with_items:
-        - NTP={{ ntp | join(' ') }}
-        - FallbackNTP={{ fallback_ntp | join(' ') }}
+        - NTP={{ timesyncd_ntp | join(' ') }}
+        - FallbackNTP={{ timesyncd_fallback_ntp | join(' ') }}

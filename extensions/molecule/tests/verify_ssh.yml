@@ -215,6 +215,10 @@
             {% if sshd_max_startups -%}
               MaxStartups {{ sshd_max_startups }}
             {%- endif -%}
+          - >-
+            {%- if ssh_installed_version is version('9.8', '>=') -%}
+              PerSourceMaxStartups {{ sshd_per_source_max_startups }}
+            {%- endif -%}
           - PasswordAuthentication {{ 'yes' if (sshd_password_authentication | bool) else 'no' }}
           - PermitEmptyPasswords {{ 'yes' if (sshd_permit_empty_passwords | bool) else 'no' }}
           - PermitRootLogin {{ 'yes' if (sshd_permit_root_login | bool) else 'no' }}

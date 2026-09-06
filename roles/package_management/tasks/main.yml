@@ -14,10 +14,10 @@
         create: true
         regexp: '^{{ item.split(" ") | first | regex_escape }}\s'
         line: "{{ item }}"
-      loop: "{{ apt_options }}"
+      loop: "{{ package_management_apt_options }}"
       when: >-
         item != 'APT::Sandbox::Seccomp "1";' or
-        ansible_facts.distribution_release not in apt_seccomp_broken_releases
+        ansible_facts.distribution_release not in package_management_apt_seccomp_broken_releases
 
     - name: Remove APT seccomp sandboxing on affected Debian releases
       ansible.builtin.lineinfile:
@@ -28,14 +28,14 @@
         line: 'APT::Sandbox::Seccomp "1";'
         state: absent
       when:
-        - ansible_facts.distribution_release in apt_seccomp_broken_releases
+        - ansible_facts.distribution_release in package_management_apt_seccomp_broken_releases
 
     - name: Run apt upgrade
       ansible.builtin.apt:
         upgrade: safe
         update_cache: true
       when:
-        - system_upgrade | bool
+        - package_management_system_upgrade | bool
       notify:
         - Run apt-get clean
         - Run apt-get autoremove
@@ -96,7 +96,7 @@
       with_items:
         - /etc/yum.repos.d/almalinux-crb.repo
         - /etc/yum.repos.d/almalinux-powertools.repo
-      register: powertools_repo
+      register: package_management_powertools_repo
 
     - name: Enable the PowerTools repository
       ansible.builtin.replace:
@@ -104,7 +104,7 @@
         replace: enabled=1
         dest: "{{ item.stat.path }}"
       with_items:
-        - "{{ powertools_repo.results }}"
+        - "{{ package_management_powertools_repo.results }}"
       when:
         - item.stat.exists
 
@@ -120,6 +120,6 @@
         security: true
         nobest: true
       when:
-        - system_upgrade | bool
+        - package_management_system_upgrade | bool
       notify:
         - Run dnf autoremove

@@ -15,7 +15,7 @@ timesyncd_conflicting_services:
   - "openntpd.service"
 
 # A list of NTP server host names or IP addresses to be used as the fallback NTP servers.
-fallback_ntp: ["ntp.netnod.se", "ntp.ubuntu.com"]
+timesyncd_fallback_ntp: ["ntp.netnod.se", "ntp.ubuntu.com"]
 
 # A list of NTP server host names or IP addresses to be used as the primary NTP servers.
-ntp: ["2.pool.ntp.org", "time.nist.gov"]
+timesyncd_ntp: ["2.pool.ntp.org", "time.nist.gov"]

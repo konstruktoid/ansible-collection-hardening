@@ -6,6 +6,8 @@
     line: PATH="/usr/local/bin:/usr/sbin:/usr/bin:/bin:/snap/bin"
     dest: /etc/environment
     mode: "0644"
+    owner: root
+    group: root
     state: present
     create: false
 

@@ -71,6 +71,9 @@ LoginGraceTime {{ sshd_login_grace_time | int }}
 MaxAuthTries {{ sshd_max_auth_tries | int }}
 MaxSessions {{ sshd_max_sessions | int }}
 MaxStartups {{ sshd_max_startups }}
+{% if ssh_installed_version is version('9.8', '>=') %}
+PerSourceMaxStartups {{ sshd_per_source_max_startups }}
+{% endif %}
 PubkeyAuthentication yes
 IgnoreRhosts {{ 'yes' if (sshd_ignore_rhosts | bool) else 'no' }}
 IgnoreUserKnownHosts {{ 'yes' if (sshd_ignore_user_known_hosts | bool) else 'no' }}

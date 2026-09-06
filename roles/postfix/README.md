@@ -29,6 +29,8 @@ This role has no configurable variables.
 5. Configure Postfix inet_interfaces
 6. Configure Postfix smtpd_banner
 7. Configure Postfix smtpd_client_restrictions
+8. Configure Postfix smtpd_data_restrictions
+9. Configure Postfix smtpd_discard_ehlo_keywords
 
 ## Handlers
 

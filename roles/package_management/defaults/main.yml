@@ -1,6 +1,6 @@
 ---
 # Options used to configure the APT suite of tools.
-apt_options:
+package_management_apt_options:
   - 'Acquire::AllowDowngradeToInsecureRepositories "0";'
   - 'Acquire::AllowInsecureRepositories "0";'
   - 'Acquire::AllowWeakRepositories "0";'
@@ -17,9 +17,9 @@ apt_options:
 
 # Debian releases where APT's seccomp sandbox aborts the acquire methods, C(E:Method file has died
 # unexpectedly!), and where C(APT::Sandbox::Seccomp) therefore has to be left off.
-apt_seccomp_broken_releases:
+package_management_apt_seccomp_broken_releases:
   - "forky"
   - "trixie"
 
 # If True, then the installed packages will be upgraded to the latest version using C(apt) or C(dnf).
-system_upgrade: true
+package_management_system_upgrade: true

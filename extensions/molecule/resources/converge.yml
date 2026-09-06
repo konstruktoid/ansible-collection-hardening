@@ -27,7 +27,7 @@
     # idempotence check fails on a moving target rather than on a role.
     - role: konstruktoid.hardening.package_management
       vars:
-        system_upgrade: >-
+        package_management_system_upgrade: >-
           {{ molecule_system_upgrade |
              default(false if ansible_facts.distribution == "Debian" else true) }}
     - role: konstruktoid.hardening.packages

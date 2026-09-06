@@ -13,3 +13,5 @@
     - inet_interfaces = loopback-only
     - smtpd_banner = \$myhostname - ESMTP
     - smtpd_client_restrictions = permit_mynetworks,reject
+    - smtpd_data_restrictions = reject_unauth_pipelining
+    - smtpd_discard_ehlo_keywords = chunking, silent-discard

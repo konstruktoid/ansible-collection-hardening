@@ -11,7 +11,7 @@ argument_specs:
         description: "systemd logind.conf template location."
         type: "path"
         default: "etc/systemd/logind.conf.j2"
-      logind:
+      logindconf_logind:
         type: "dict"
         default:
           - killuserprocesses: true
@@ -50,7 +50,7 @@ argument_specs:
           removeipc:
             description: "Controls whether System V and POSIX IPC objects belonging to the user shall be removed when the user fully logs out."
             type: "bool"
-      session_timeout:
+      logindconf_session_timeout:
         description: "Sets, in seconds, the StopIdleSessionSec if systemd version 252 or newer"
         type: "int"
         default: 900

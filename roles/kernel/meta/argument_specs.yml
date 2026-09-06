@@ -8,17 +8,17 @@ argument_specs:
       - "Thomas Sjögren (@konstruktoid)"
     options:
       allow_virtual_system_calls:
-        description: "Allow virtual system calls (vsyscall)."
+        description: "Allow virtual system calls (vsyscall). False sets vsyscall=none, the strictest option; very old binary-only software may need emulate."
         type: "bool"
-        default: true
+        default: false
       enable_page_poisoning:
         description: "Enable kernel page poisoning."
         type: "bool"
         default: true
       kernel_lockdown:
-        description: "Configures kernel_lockdown."
+        description: "Configures kernel_lockdown. confidentiality is the strictest mode."
         type: "str"
-        default: "False"
+        default: "confidentiality"
         choices:
           - "confidentiality"
           - "False"
@@ -32,4 +32,4 @@ argument_specs:
       slub_debugger_poisoning:
         description: "Enable SLUB debugger poisoning."
         type: "bool"
-        default: false
+        default: true

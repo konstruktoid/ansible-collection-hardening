@@ -20,11 +20,11 @@ Defined in `roles/logindconf/defaults/main.yml`.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `logind` | mapping, see below | Configure systemd-logind settings. |
 | `logind_conf_template` | `"etc/systemd/logind.conf.j2"` | systemd logind.conf template location. |
-| `session_timeout` | `900` | Sets, in seconds, the StopIdleSessionSec if systemd version 252 or newer |
+| `logindconf_logind` | mapping, see below | Configure systemd-logind settings. |
+| `logindconf_session_timeout` | `900` | Sets, in seconds, the StopIdleSessionSec if systemd version 252 or newer |
 
-`logind` default value:
+`logindconf_logind` default value:
 
 ```yaml
 killuserprocesses: true

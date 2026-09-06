@@ -9,11 +9,11 @@
   changed_when: false
   failed_when: logind_conf.rc != 0
   with_items:
-    - KillUserProcesses={{ 'true' if logind.killuserprocesses else 'false' }}
-    - KillExcludeUsers={{ logind.killexcludeusers | join(' ') }}
-    - IdleAction={{ logind.idleaction }}
-    - IdleActionSec={{ logind.idleactionsec }}
-    - RemoveIPC={{ 'true' if logind.removeipc else 'false' }}
+    - KillUserProcesses={{ 'true' if logindconf_logind.killuserprocesses else 'false' }}
+    - KillExcludeUsers={{ logindconf_logind.killexcludeusers | join(' ') }}
+    - IdleAction={{ logindconf_logind.idleaction }}
+    - IdleActionSec={{ logindconf_logind.idleactionsec }}
+    - RemoveIPC={{ 'true' if logindconf_logind.removeipc else 'false' }}
   when:
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
 
@@ -27,7 +27,7 @@
   changed_when: false
   failed_when: stopidlesession.rc != 0
   with_items:
-    - StopIdleSessionSec={{ session_timeout }}
+    - StopIdleSessionSec={{ logindconf_session_timeout }}
   when:
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
     - ansible_facts.systemd.version | int >= 252

@@ -9,6 +9,10 @@ argument_specs:
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:
+      packages_needrestart_disable_interpscan:
+        description: "If True, disable needrestart's interpreter scanners (Python, Ruby, etc.), which have been affected by local privilege escalation vulnerabilities such as CVE-2024-48990 and CVE-2024-48991."
+        type: "bool"
+        default: true
       packages_blocklist:
         description: "Packages that will be removed from the system if they are installed."
         type: "list"

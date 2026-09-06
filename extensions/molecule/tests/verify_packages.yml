@@ -11,3 +11,15 @@
   ansible.builtin.assert:
     that:
       - blocked_installed_packages | length == 0
+
+- name: Verify needrestart interpreter scanners are disabled
+  when:
+    - '"needrestart" in ansible_facts.packages'
+    - packages_needrestart_disable_interpscan
+  block:
+    - name: Check needrestart interpreter scanner configuration
+      ansible.builtin.command:
+        cmd: grep -Rqo "$nrconf{interpscan} = 0;" /etc/needrestart/conf.d/
+      register: needrestart_interpscan_check
+      changed_when: false
+      failed_when: needrestart_interpscan_check.rc != 0

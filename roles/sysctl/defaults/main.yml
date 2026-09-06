@@ -96,3 +96,12 @@ usr_lib_sysctl_d_dir: false
 
 # If 0, restrict loading TTY line disciplines to the CAP_SYS_MODULE capability.
 sysctl_dev_tty_ldisc_autoload: 0
+
+# Controls io_uring availability for unprivileged users. 0 allows io_uring for
+# all, 1 restricts it to CAP_SYS_ADMIN, 2 disables it entirely. Only applied
+# when the running kernel exposes kernel.io_uring_disabled. 2 is the strictest
+# option and mitigates io_uring-based local privilege escalation chains such
+# as CVE-2025-40364 and CVE-2026-43494, at the cost of breaking any software
+# that relies on io_uring (e.g. newer io_uring-based storage/network I/O in
+# some databases and container runtimes).
+sysctl_io_uring_disabled: 2

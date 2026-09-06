@@ -20,11 +20,11 @@ Defined in `roles/kernel/defaults/main.yml`.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `allow_virtual_system_calls` | `true` | Allow virtual system calls (vsyscall). |
+| `allow_virtual_system_calls` | `false` | Allow virtual system calls (vsyscall). False sets vsyscall=none, the strictest option; some very old glibc/binary-only software may need emulate instead. |
 | `enable_page_poisoning` | `true` | Enable kernel page poisoning. |
-| `kernel_lockdown` | `false` | Configures kernel_lockdown. |
+| `kernel_lockdown` | `"confidentiality"` | Configures kernel_lockdown. confidentiality is the strictest mode. |
 | `page_table_isolation` | `true` | Enable page table isolation (PTI). |
-| `slub_debugger_poisoning` | `false` | Enable SLUB debugger poisoning. |
+| `slub_debugger_poisoning` | `true` | Enable SLUB debugger poisoning. |
 
 ## Tasks
 

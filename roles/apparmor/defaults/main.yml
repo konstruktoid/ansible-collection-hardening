@@ -2,11 +2,17 @@
 # AppArmor sysctl settings.
 apparmor_sysctl_settings:
   kernel.apparmor_display_secid_mode: 0 # If 1, AppArmor will provide a human-readable mapping of internal security IDs.
-  kernel.apparmor_restrict_unprivileged_io_uring: 0 # If 1, restrict unprivileged io_uring operations.
+  kernel.apparmor_restrict_unprivileged_io_uring: 1 # If 1, restrict unprivileged io_uring operations.
   kernel.apparmor_restrict_unprivileged_unconfined: 1 # If 1, enforces extra security restrictions on unprivileged unconfined processes.
   kernel.apparmor_restrict_unprivileged_userns: 1 # If 1, restricts unprivileged user namespaces.
   kernel.apparmor_restrict_unprivileged_userns_complain: 0 # If 1, unprivileged user namespaces will be put into complain mode.
-  kernel.apparmor_restrict_unprivileged_userns_force: 0 # If 1, all confined applications will have the user namespace mediation enforced.
+  # If 1, all confined applications have user namespace mediation enforced,
+  # ignoring any 'userns' allow rule in their own profile. Closes the
+  # profile-based bypass used by the 2026 "CrackArmor" local-root disclosures
+  # (for example CVE-2026-23268/23269/23403-23411), at the cost of breaking
+  # any confined application (some container/sandbox tooling) whose profile
+  # deliberately allows unprivileged user namespace creation.
+  kernel.apparmor_restrict_unprivileged_userns_force: 1
   kernel.unprivileged_userns_apparmor_policy: 1 # If 1, unprivileged user namespaces will be restricted to the AppArmor policy.
 
 # AppArmor sysctl configuration template location.

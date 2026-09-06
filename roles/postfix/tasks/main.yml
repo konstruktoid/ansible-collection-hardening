@@ -44,3 +44,20 @@
         regexp: ^smtpd_client_restrictions
         dest: /etc/postfix/main.cf
         line: smtpd_client_restrictions = permit_mynetworks,reject
+
+    # Mitigates SMTP smuggling (CVE-2023-51764): without these, a remote SMTP
+    # client can pipeline a fake end-of-DATA sequence that other MTAs parse
+    # differently, letting mail with a spoofed MAIL FROM slip past SPF. This
+    # is the fix recommended for every Postfix version, see
+    # https://www.postfix.org/smtp-smuggling.html.
+    - name: Configure Postfix smtpd_data_restrictions
+      ansible.builtin.lineinfile:
+        regexp: ^smtpd_data_restrictions
+        dest: /etc/postfix/main.cf
+        line: smtpd_data_restrictions = reject_unauth_pipelining
+
+    - name: Configure Postfix smtpd_discard_ehlo_keywords
+      ansible.builtin.lineinfile:
+        regexp: ^smtpd_discard_ehlo_keywords
+        dest: /etc/postfix/main.cf
+        line: smtpd_discard_ehlo_keywords = chunking, silent-discard

@@ -7,7 +7,7 @@ argument_specs:
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:
-      apt_options:
+      package_management_apt_options:
         description: "Options used to configure the APT suite of tools."
         type: "list"
         elements: "str"
@@ -25,7 +25,7 @@ argument_specs:
           - 'APT::Sandbox::Seccomp "1";'
           - 'Unattended-Upgrade::Remove-Unused-Dependencies "true";'
           - 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";'
-      apt_seccomp_broken_releases:
+      package_management_apt_seccomp_broken_releases:
         description: >-
           Debian releases where APT's seccomp sandbox aborts the acquire methods,
           C(E:Method file has died unexpectedly!), and where C(APT::Sandbox::Seccomp)
@@ -35,7 +35,7 @@ argument_specs:
         default:
           - "forky"
           - "trixie"
-      system_upgrade:
+      package_management_system_upgrade:
         description: "If True, then the installed packages will be upgraded to the latest version using C(apt) or C(dnf)."
         type: "bool"
         default: true

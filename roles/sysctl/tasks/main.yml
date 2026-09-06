@@ -13,6 +13,16 @@
   ansible.builtin.set_fact:
     system_has_ipv6: "{{ stat_ipv6.stat.exists }}"
 
+- name: Stat io_uring_disabled availability
+  become: true
+  ansible.builtin.stat:
+    path: /proc/sys/kernel/io_uring_disabled
+  register: stat_io_uring_disabled
+
+- name: Set io_uring fact
+  ansible.builtin.set_fact:
+    system_has_io_uring_disabled: "{{ stat_io_uring_disabled.stat.exists }}"
+
 - name: Ensure sysctl configuration dir has the correct permissions
   become: true
   ansible.builtin.file:

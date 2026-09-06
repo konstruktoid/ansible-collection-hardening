@@ -2,7 +2,7 @@
 
 Role to manage configuration of APT and DNF.
 
-Apply any role that adds a package repository before this one when `system_upgrade` is
+Apply any role that adds a package repository before this one when `package_management_system_upgrade` is
 enabled. `timesyncd` installs `epel-release` on the RedHat family, for example. A
 repository added after the upgrade has run leaves its packages upgradable, so the next
 run of this role reports changed again.
@@ -25,9 +25,9 @@ Defined in `roles/package_management/defaults/main.yml`.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `apt_options` | `['Acquire::AllowDowngradeToInsecureRepositories "0";', 'Acquire::AllowInsecureRepositories "0";', 'Acquire::AllowWeakRepositories "0";', 'Acquire::Check-Date "true";', 'Acquire::http::AllowRedirect "false";', 'APT::Get::AllowUnauthenticated "false";', 'APT::Get::AutomaticRemove "true";', 'APT::Install-Recommends "0";', 'APT::Install-Suggests "0";', 'APT::Periodic::AutocleanInterval "7";', 'APT::Sandbox::Seccomp "1";', 'Unattended-Upgrade::Remove-Unused-Dependencies "true";', 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";']` | Options used to configure the APT suite of tools. |
-| `apt_seccomp_broken_releases` | `['forky', 'trixie']` | Debian releases where APT's seccomp sandbox aborts the acquire methods, `E:Method file has died unexpectedly!`, and where `APT::Sandbox::Seccomp` therefore has to be left off. |
-| `system_upgrade` | `true` | If True, then the installed packages will be upgraded to the latest version using `apt` or `dnf`. |
+| `package_management_apt_options` | `['Acquire::AllowDowngradeToInsecureRepositories "0";', 'Acquire::AllowInsecureRepositories "0";', 'Acquire::AllowWeakRepositories "0";', 'Acquire::Check-Date "true";', 'Acquire::http::AllowRedirect "false";', 'APT::Get::AllowUnauthenticated "false";', 'APT::Get::AutomaticRemove "true";', 'APT::Install-Recommends "0";', 'APT::Install-Suggests "0";', 'APT::Periodic::AutocleanInterval "7";', 'APT::Sandbox::Seccomp "1";', 'Unattended-Upgrade::Remove-Unused-Dependencies "true";', 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";']` | Options used to configure the APT suite of tools. |
+| `package_management_apt_seccomp_broken_releases` | `['forky', 'trixie']` | Debian releases where APT's seccomp sandbox aborts the acquire methods, `E:Method file has died unexpectedly!`, and where `APT::Sandbox::Seccomp` therefore has to be left off. |
+| `package_management_system_upgrade` | `true` | If True, then the installed packages will be upgraded to the latest version using `apt` or `dnf`. |
 
 ## Tasks
 

@@ -34,10 +34,10 @@ Defined in `roles/timesyncd/defaults/main.yml`.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `fallback_ntp` | `["ntp.netnod.se", "ntp.ubuntu.com"]` | A list of NTP server host names or IP addresses to be used as the fallback NTP servers. |
-| `ntp` | `["2.pool.ntp.org", "time.nist.gov"]` | A list of NTP server host names or IP addresses to be used as the primary NTP servers. |
 | `timesyncd_conf_template` | `"etc/systemd/timesyncd.conf.j2"` | systemd timesyncd.conf template location. |
 | `timesyncd_conflicting_services` | `["chrony.service", "chronyd-restricted.service", "chronyd.service", "ntp.service", "ntpd-rs.service", "ntpd.service", "ntpsec.service", "openntpd.service"]` | Services that also synchronize the system clock. They are stopped and disabled so that systemd-timesyncd is the only time synchronization service on the host. |
+| `timesyncd_fallback_ntp` | `["ntp.netnod.se", "ntp.ubuntu.com"]` | A list of NTP server host names or IP addresses to be used as the fallback NTP servers. |
+| `timesyncd_ntp` | `["2.pool.ntp.org", "time.nist.gov"]` | A list of NTP server host names or IP addresses to be used as the primary NTP servers. |
 
 ## Tasks
 

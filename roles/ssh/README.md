@@ -67,6 +67,7 @@ Defined in `roles/ssh/defaults/main.yml`.
 | `sshd_max_auth_tries` | `3` | Specifies the maximum number of authentication attempts permitted per connection. |
 | `sshd_max_sessions` | `3` | Specifies the maximum number of open sessions permitted per network connection. |
 | `sshd_max_startups` | `"10:30:60"` | Specifies the maximum number of concurrent unauthenticated connections to the SSH daemon. |
+| `sshd_per_source_max_startups` | `1` | Specifies the maximum number of unauthenticated connections permitted from any single source address. Requires OpenSSH >= 9.8, ignored on older versions. |
 | `sshd_password_authentication` | `false` | Specifies whether password authentication is allowed. |
 | `sshd_permit_empty_passwords` | `false` | Specifies whether the server allows login to accounts with empty password strings. |
 | `sshd_permit_root_login` | `false` | Specifies whether root can log in using ssh, if True then the option is set to prohibit-password. |
