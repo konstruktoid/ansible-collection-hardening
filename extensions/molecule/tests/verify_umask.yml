@@ -1,58 +1,58 @@
 ---
-- name: Verify umask
+- name: "Verify umask"
   become: true
   block:
-    - name: Verify UMASK in login.defs
+    - name: "Verify UMASK in login.defs"
       ansible.builtin.lineinfile:
-        path: /etc/login.defs
-        line: UMASK {{ umask_value }}
-        regexp: ^\s*UMASK(\s+.*)$
-        state: present
+        path: "/etc/login.defs"
+        line: "UMASK {{ umask_value }}"
+        regexp: "^\\s*UMASK(\\s+.*)$"
+        state: "present"
       check_mode: true
-      register: umask_login_defs
+      register: "umask_login_defs"
       failed_when: umask_login_defs is changed
 
-    - name: Stat login.defs
+    - name: "Stat login.defs"
       ansible.builtin.stat:
-        path: /etc/login.defs
-      register: umask_login_defs_stat
+        path: "/etc/login.defs"
+      register: "umask_login_defs_stat"
 
-    - name: Assert login.defs ownership
+    - name: "Assert login.defs ownership"
       ansible.builtin.assert:
         that:
-          - umask_login_defs_stat.stat.pw_name == 'root'
-          - umask_login_defs_stat.stat.gr_name == 'root'
+          - "umask_login_defs_stat.stat.pw_name == 'root'"
+          - "umask_login_defs_stat.stat.gr_name == 'root'"
 
-    - name: Verify umask in /etc/profile
+    - name: "Verify umask in /etc/profile"
       ansible.builtin.lineinfile:
-        path: /etc/profile
-        line: umask {{ umask_value }}
-        regexp: umask(\s+.*)
-        state: present
+        path: "/etc/profile"
+        line: "umask {{ umask_value }}"
+        regexp: "umask(\\s+.*)"
+        state: "present"
       check_mode: true
-      register: umask_profile
+      register: "umask_profile"
       failed_when: umask_profile is changed
 
-    - name: Find PAM files containing pam_umask.so
+    - name: "Find PAM files containing pam_umask.so"
       ansible.builtin.find:
-        paths: /etc/pam.d
-        file_type: file
-        contains: pam_umask\.so
-      register: umask_pam_files
+        paths: "/etc/pam.d"
+        file_type: "file"
+        contains: "pam_umask\\.so"
+      register: "umask_pam_files"
 
-    - name: Verify pam_umask.so lines carry the configured umask
+    - name: "Verify pam_umask.so lines carry the configured umask"
       ansible.builtin.command:
-        cmd: grep -Eq "pam_umask\.so.*umask={{ umask_value }}" {{ item.path }}
+        cmd: 'grep -Eq "pam_umask\.so.*umask={{ umask_value }}" {{ item.path }}'
       changed_when: false
       loop: "{{ umask_pam_files.files }}"
       loop_control:
         label: "{{ item.path }}"
 
-    - name: Assert PAM files managed by the role are owned by root
+    - name: "Assert PAM files managed by the role are owned by root"
       ansible.builtin.assert:
         that:
-          - item.uid == 0
-          - item.gid == 0
+          - "item.uid == 0"
+          - "item.gid == 0"
       loop: "{{ umask_pam_files.files }}"
       loop_control:
         label: "{{ item.path }}"

@@ -35,8 +35,8 @@
         line: "RuleFile={{ usbguard_rulefile }}"
         state: present
         mode: "0600"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
 
     - name: Configure ImplicitPolicyTarget
       ansible.builtin.lineinfile:
@@ -45,8 +45,8 @@
         line: "ImplicitPolicyTarget={{ usbguard_implicitpolicytarget }}"
         state: present
         mode: "0600"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
 
     - name: Configure PresentDevicePolicy
       ansible.builtin.lineinfile:
@@ -55,8 +55,8 @@
         line: "PresentDevicePolicy={{ usbguard_presentdevicepolicy }}"
         state: present
         mode: "0600"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
     - name: Configure PresentControllerPolicy
       ansible.builtin.lineinfile:
         regexp: "^(#\\s*)?PresentControllerPolicy"
@@ -64,8 +64,8 @@
         line: "PresentControllerPolicy={{ usbguard_presentcontrollerpolicy }}"
         state: present
         mode: "0600"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
 
     - name: Configure InsertedDevicePolicy
       ansible.builtin.lineinfile:
@@ -74,8 +74,8 @@
         line: "InsertedDevicePolicy={{ usbguard_inserteddevicepolicy }}"
         state: present
         mode: "0600"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
 
     - name: Configure AuthorizedDefault
       ansible.builtin.lineinfile:
@@ -84,8 +84,8 @@
         line: "AuthorizedDefault={{ usbguard_authorizeddefault }}"
         state: present
         mode: "0600"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
     - name: Configure RestoreControllerDeviceState
       ansible.builtin.lineinfile:
         regexp: "^(#\\s*)?RestoreControllerDeviceState"
@@ -93,8 +93,8 @@
         line: "RestoreControllerDeviceState={{ 'true' if (usbguard_restorecontrollerdevicestate | bool) else 'false' }}"
         state: present
         mode: "0600"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
 
     - name: Configure DeviceManagerBackend
       ansible.builtin.lineinfile:
@@ -103,8 +103,8 @@
         line: "DeviceManagerBackend={{ usbguard_devicemanagerbackend }}"
         state: present
         mode: "0600"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
 
     - name: Configure IPCAllowedUsers
       ansible.builtin.lineinfile:
@@ -113,8 +113,8 @@
         line: "IPCAllowedUsers={{ usbguard_ipcallowedusers | join(' ') }}"
         state: present
         mode: "0600"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
     - name: Configure IPCAllowedGroups
       ansible.builtin.lineinfile:
         regexp: (^|^#)IPCAllowedGroups
@@ -123,8 +123,8 @@
         state: present
         backrefs: true
         mode: "0600"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
 
     - name: Configure IPCAccessControlFiles
       ansible.builtin.lineinfile:
@@ -134,8 +134,8 @@
         state: present
         backrefs: true
         mode: "0600"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
 
     - name: Configure DeviceRulesWithPort
       ansible.builtin.lineinfile:
@@ -145,8 +145,8 @@
         state: present
         backrefs: true
         mode: "0600"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
 
     - name: Configure AuditBackend
       ansible.builtin.lineinfile:
@@ -156,8 +156,8 @@
         state: present
         backrefs: true
         mode: "0600"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
 
     - name: Configure AuditFilePath
       ansible.builtin.lineinfile:
@@ -167,8 +167,8 @@
         state: present
         backrefs: true
         mode: "0600"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
 
     - name: Configure HidePII
       ansible.builtin.lineinfile:
@@ -178,8 +178,8 @@
         state: present
         backrefs: true
         mode: "0600"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
 
     - name: Manage USBGuard service
       become: true

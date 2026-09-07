@@ -223,6 +223,7 @@
       become: false
       changed_when: false
       failed_when: false
+      timeout: 300
 
     - name: Check instance access
       ansible.builtin.raw: /bin/true

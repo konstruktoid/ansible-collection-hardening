@@ -61,8 +61,8 @@
         line: action_mail_acct = {{ auditd_action_mail_acct }}
         dest: /etc/audit/auditd.conf
         mode: "0640"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
         state: present
         create: false
 
@@ -72,8 +72,8 @@
         line: admin_space_left_action = {{ auditd_admin_space_left_action }}
         dest: /etc/audit/auditd.conf
         mode: "0640"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
         state: present
         create: false
 
@@ -83,8 +83,8 @@
         line: disk_error_action = {{ auditd_disk_error_action }}
         dest: /etc/audit/auditd.conf
         mode: "0640"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
         state: present
         create: false
 
@@ -94,8 +94,8 @@
         line: disk_full_action = {{ auditd_disk_full_action }}
         dest: /etc/audit/auditd.conf
         mode: "0640"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
         state: present
         create: false
 
@@ -105,8 +105,8 @@
         line: flush = {{ auditd_flush }}
         dest: /etc/audit/auditd.conf
         mode: "0640"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
         state: present
         create: false
 
@@ -116,8 +116,8 @@
         line: max_log_file = {{ auditd_max_log_file }}
         dest: /etc/audit/auditd.conf
         mode: "0640"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
         state: present
         create: false
 
@@ -127,8 +127,8 @@
         line: max_log_file_action = {{ auditd_max_log_file_action }}
         dest: /etc/audit/auditd.conf
         mode: "0640"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
         state: present
         create: false
 
@@ -138,8 +138,8 @@
         line: num_logs = {{ auditd_num_logs }}
         dest: /etc/audit/auditd.conf
         mode: "0640"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
         state: present
         create: false
 
@@ -149,8 +149,8 @@
         line: space_left = {{ auditd_space_left }}
         dest: /etc/audit/auditd.conf
         mode: "0640"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
         state: present
         create: false
 
@@ -160,8 +160,8 @@
         line: space_left_action = {{ auditd_space_left_action }}
         dest: /etc/audit/auditd.conf
         mode: "0640"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
         state: present
         create: false
 
@@ -171,8 +171,8 @@
         line: name_format = hostname
         dest: /etc/audit/auditd.conf
         mode: "0640"
-        owner: root
-        group: root
+        owner: "root"
+        group: "root"
         state: present
         create: false
 

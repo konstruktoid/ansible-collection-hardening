@@ -96,7 +96,7 @@
       with_items:
         - /etc/yum.repos.d/almalinux-crb.repo
         - /etc/yum.repos.d/almalinux-powertools.repo
-      register: package_management_powertools_repo
+      register: "package_management_powertools_repo"
 
     - name: Enable the PowerTools repository
       ansible.builtin.replace:

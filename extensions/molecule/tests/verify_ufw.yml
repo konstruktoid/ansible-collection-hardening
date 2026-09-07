@@ -56,14 +56,14 @@
           - ufw_not_managed.stdout == ""
         fail_msg: "There are UFW rules not managed by Ansible: {{ ufw_not_managed.stdout_lines }}"
 
-    - name: Stat /etc/default/ufw
+    - name: "Stat /etc/default/ufw"
       ansible.builtin.stat:
-        path: /etc/default/ufw
-      register: ufw_default_stat
+        path: "/etc/default/ufw"
+      register: "ufw_default_stat"
 
-    - name: Assert /etc/default/ufw ownership and mode
+    - name: "Assert /etc/default/ufw ownership and mode"
       ansible.builtin.assert:
         that:
-          - ufw_default_stat.stat.pw_name == 'root'
-          - ufw_default_stat.stat.gr_name == 'root'
-          - ufw_default_stat.stat.mode == '0640'
+          - "ufw_default_stat.stat.pw_name == 'root'"
+          - "ufw_default_stat.stat.gr_name == 'root'"
+          - "ufw_default_stat.stat.mode == '0640'"

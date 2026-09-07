@@ -25,17 +25,17 @@
         - space_left = {{ auditd_space_left }}
         - space_left_action = {{ auditd_space_left_action }}
 
-    - name: Stat auditd.conf
+    - name: "Stat auditd.conf"
       ansible.builtin.stat:
-        path: /etc/audit/auditd.conf
-      register: auditd_conf_stat
+        path: "/etc/audit/auditd.conf"
+      register: "auditd_conf_stat"
 
-    - name: Assert auditd.conf ownership and mode
+    - name: "Assert auditd.conf ownership and mode"
       ansible.builtin.assert:
         that:
-          - auditd_conf_stat.stat.pw_name == 'root'
-          - auditd_conf_stat.stat.gr_name == 'root'
-          - auditd_conf_stat.stat.mode == '0640'
+          - "auditd_conf_stat.stat.pw_name == 'root'"
+          - "auditd_conf_stat.stat.gr_name == 'root'"
+          - "auditd_conf_stat.stat.mode == '0640'"
 
     - name: Verify auditd rules
       become: true
