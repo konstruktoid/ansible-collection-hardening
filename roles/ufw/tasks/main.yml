@@ -105,6 +105,8 @@
     line: IPT_SYSCTL={{ ufw_sysctl_conf_dir }}/zz-ufw-hardening.conf
     dest: /etc/default/ufw
     mode: "0640"
+    owner: root
+    group: root
     state: present
     create: false
     backrefs: true

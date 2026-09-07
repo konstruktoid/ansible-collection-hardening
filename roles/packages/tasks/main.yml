@@ -223,3 +223,26 @@
       when:
         - needrestart_directory.stat.exists
         - needrestart_restart_set.rc != 0
+
+    - name: Get needrestart interpreter scanner value
+      ansible.builtin.command:
+        cmd: grep -Rqo "$nrconf{interpscan} = 0;" /etc/needrestart/conf.d/
+      register: needrestart_interpscan_set
+      when:
+        - needrestart_directory.stat.exists
+        - packages_needrestart_disable_interpscan
+      changed_when: needrestart_interpscan_set.rc != 0
+      failed_when: needrestart_interpscan_set.rc > 1
+
+    - name: Disable needrestart interpreter scanners
+      ansible.builtin.lineinfile:
+        path: /etc/needrestart/conf.d/01-interpscan.conf
+        line: $nrconf{interpscan} = 0;
+        create: true
+        owner: root
+        group: root
+        mode: "0644"
+      when:
+        - needrestart_directory.stat.exists
+        - packages_needrestart_disable_interpscan
+        - needrestart_interpscan_set.rc != 0

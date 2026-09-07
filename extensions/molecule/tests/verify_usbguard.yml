@@ -35,6 +35,25 @@
     - usb_devices.stat.exists
     - usb_devices.stat.isdir
 
+- name: Stat usbguard daemon configuration file
+  become: true
+  ansible.builtin.stat:
+    path: "{{ usbguard_configuration_file }}"
+  register: usbguard_conf_stat
+  when:
+    - usb_devices.stat.exists
+    - usb_devices.stat.isdir
+
+- name: Assert usbguard daemon configuration file ownership and mode
+  ansible.builtin.assert:
+    that:
+      - usbguard_conf_stat.stat.pw_name == 'root'
+      - usbguard_conf_stat.stat.gr_name == 'root'
+      - usbguard_conf_stat.stat.mode == '0600'
+  when:
+    - usb_devices.stat.exists
+    - usb_devices.stat.isdir
+
 - name: Gather service facts
   ansible.builtin.service_facts:
   when:

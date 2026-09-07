@@ -130,6 +130,14 @@ argument_specs:
         description: "If 0, restrict loading TTY line disciplines to the CAP_SYS_MODULE capability."
         type: "int"
         default: 0
+      sysctl_io_uring_disabled:
+        description: "Controls io_uring availability for unprivileged users. Only applied when the running kernel exposes kernel.io_uring_disabled."
+        type: "int"
+        default: 2
+        choices:
+          - 0
+          - 1
+          - 2
       generic_sysctl_settings:
         type: "dict"
         default:

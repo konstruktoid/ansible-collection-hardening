@@ -1,4 +1,7 @@
 ---
+# If True, disable needrestart's interpreter scanners.
+packages_needrestart_disable_interpscan: true
+
 # Packages that will be removed from the system if they are installed.
 packages_blocklist:
   - "apport"

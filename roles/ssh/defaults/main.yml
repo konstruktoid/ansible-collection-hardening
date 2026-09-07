@@ -169,6 +169,9 @@ sshd_max_sessions: 3
 # Specifies the maximum number of concurrent unauthenticated connections to the SSH daemon.
 sshd_max_startups: "10:30:60"
 
+# Specifies the maximum number of unauthenticated connections from any single source address.
+sshd_per_source_max_startups: 10
+
 # Specifies whether password authentication is allowed.
 sshd_password_authentication: false
 

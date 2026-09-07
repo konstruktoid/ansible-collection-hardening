@@ -96,3 +96,6 @@ usr_lib_sysctl_d_dir: false
 
 # If 0, restrict loading TTY line disciplines to the CAP_SYS_MODULE capability.
 sysctl_dev_tty_ldisc_autoload: 0
+
+# Controls io_uring. 0 allows it, 1 restricts it to CAP_SYS_ADMIN, 2 disables it entirely.
+sysctl_io_uring_disabled: 2

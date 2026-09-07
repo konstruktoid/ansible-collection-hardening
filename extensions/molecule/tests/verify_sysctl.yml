@@ -136,6 +136,42 @@
         - system_has_ipv6
         - disable_ipv6
 
+- name: Stat io_uring_disabled availability
+  become: true
+  ansible.builtin.stat:
+    path: /proc/sys/kernel/io_uring_disabled
+  register: stat_io_uring_disabled
+
+- name: Set io_uring fact
+  ansible.builtin.set_fact:
+    system_has_io_uring_disabled: "{{ stat_io_uring_disabled.stat.exists }}"
+
+- name: IO_uring sysctl configuration
+  become: true
+  when:
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+    - system_has_io_uring_disabled
+  block:
+    - name: Verify io_uring sysctl configuration
+      ansible.builtin.shell: |
+        set -o pipefail
+        /lib/systemd/systemd-sysctl --cat-config | grep -F -- {{ ("kernel.io_uring_disabled = " ~ sysctl_io_uring_disabled) | quote }}
+      args:
+        executable: /bin/bash
+      register: sysctl_io_uring_config
+      changed_when: false
+      failed_when: sysctl_io_uring_config.rc != 0
+
+    - name: Verify io_uring sysctl runtime configuration
+      ansible.builtin.shell: |
+        set -o pipefail
+        sysctl -a | grep -F -- {{ ("kernel.io_uring_disabled = " ~ sysctl_io_uring_disabled) | quote }}
+      args:
+        executable: /bin/bash
+      register: sysctl_io_uring_runtime
+      changed_when: false
+      failed_when: sysctl_io_uring_runtime.rc != 0
+
 - name: Verify an explicitly configured sysctl_conf_dir is preserved
   block:
     - name: Set an explicit sysctl_conf_dir

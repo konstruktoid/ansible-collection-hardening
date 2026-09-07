@@ -92,6 +92,9 @@
           #cloud-config
           hostname: {{ item.name }}
           fqdn: {{ item.name }}
+          # Without a local entry sudo's hostname lookup stalls for seconds.
+          bootcmd:
+            - [sh, -c, "grep -q ' {{ item.name }}$' /etc/hosts || echo '127.0.1.1 {{ item.name }} {{ item.name }}' >> /etc/hosts"]
           users:
             - name: {{ item.ssh_user }}
               sudo: ALL=(ALL) NOPASSWD:ALL
@@ -214,6 +217,12 @@
     - name: Wait for SSH to accept connections
       ansible.builtin.wait_for_connection:
         timeout: 450
+
+    - name: Wait for cloud-init to finish
+      ansible.builtin.raw: cloud-init status --wait
+      become: false
+      changed_when: false
+      failed_when: false
 
     - name: Check instance access
       ansible.builtin.raw: /bin/true

@@ -12,6 +12,19 @@
       - initpath_stat.stat.gr_name == 'root'
       - initpath_stat.stat.mode == '0644'
 
+- name: Stat /etc/environment
+  ansible.builtin.stat:
+    path: /etc/environment
+  register: environment_stat
+
+- name: Assert /etc/environment ownership and mode
+  ansible.builtin.assert:
+    that:
+      - environment_stat.stat.exists
+      - environment_stat.stat.pw_name == 'root'
+      - environment_stat.stat.gr_name == 'root'
+      - environment_stat.stat.mode == '0644'
+
 - name: Capture effective PATH for root
   ansible.builtin.command: echo "${PATH}"
   become: true

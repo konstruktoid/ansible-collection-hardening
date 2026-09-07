@@ -135,6 +135,9 @@
     regexp: "^(.*pam_umask\\.so).*$"
     line: "\\1 umask={{ umask_value }}"
     backrefs: true
+    mode: "0644"
+    owner: root
+    group: root
   loop: "{{ pam_files.files }}"
   loop_control:
     label: "{{ item.path }}"
