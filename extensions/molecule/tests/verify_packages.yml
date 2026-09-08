@@ -17,9 +17,14 @@
     - '"needrestart" in ansible_facts.packages'
     - packages_needrestart_disable_interpscan
   block:
-    - name: Check needrestart interpreter scanner configuration
-      ansible.builtin.command:
-        cmd: grep -Rqo "$nrconf{interpscan} = 0;" /etc/needrestart/conf.d/
+    - name: Check the effective needrestart interpreter scanner setting
+      ansible.builtin.shell:
+        cmd: >-
+          set -o pipefail;
+          grep -hoE '^[[:space:]]*\$nrconf\{interpscan\}[[:space:]]*=[[:space:]]*[0-9]+' /dev/null
+          $(find /etc/needrestart/conf.d/ -name '*.conf' 2>/dev/null | sort)
+          | tail -n1
+        executable: /bin/bash
       register: needrestart_interpscan_check
       changed_when: false
-      failed_when: needrestart_interpscan_check.rc != 0
+      failed_when: needrestart_interpscan_check.stdout is not search('= *0$')

@@ -366,6 +366,19 @@
           }}
       loop: "{{ sshd_config.stdout_lines }}"
 
+    # OpenSSH built without GSSAPI or Kerberos support (Debian 14 and newer) omits
+    # these keywords from "sshd -T" entirely, so only check them where sshd reports
+    # them and the "no"/"yes" value can actually be asserted.
+    - name: Drop GSSAPI and Kerberos parameters that sshd does not report
+      ansible.builtin.set_fact:
+        sshd_config_parameters_runtime: "{{ sshd_config_parameters_runtime | reject('regex', '^' + item + ' ') | list }}"
+      when:
+        - sshd_config_runtime | select('match', '^' + item + ' ') | list | length == 0
+      loop:
+        - gssapiauthentication
+        - gssapicleanupcredentials
+        - kerberosauthentication
+
     - name: Verify sshd runtime configuration
       ansible.builtin.assert:
         that:

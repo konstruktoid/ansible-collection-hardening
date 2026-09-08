@@ -24,9 +24,14 @@
   `allow_virtual_system_calls: true` on those hosts.
 - Disable needrestart's interpreter scanners in the `packages` role, behind the new
   `packages_needrestart_disable_interpscan` variable (default `true`), by writing
-  `$nrconf{interpscan} = 0;` to `/etc/needrestart/conf.d/01-interpscan.conf`. The Python,
+  `$nrconf{interpscan} = 0;` to `/etc/needrestart/conf.d/99-interpscan.conf`, named to sort
+  after any vendor snippet so the override is the effective value. The Python,
   Ruby and Perl scanners parsed attacker-controlled process data and were the vector for
   local privilege escalation such as CVE-2024-48990 and CVE-2024-48991.
+- Move the `packages` role's needrestart `restart` override to
+  `/etc/needrestart/conf.d/99-restart.conf` (from `00-restart.conf`, which is now removed
+  on upgrade) and anchor it with a `regexp`, so a higher-numbered vendor snippet cannot
+  re-enable automatic service restarts.
 - Mitigate SMTP smuggling in the `postfix` role (CVE-2023-51764) by adding
   `smtpd_data_restrictions = reject_unauth_pipelining` and
   `smtpd_discard_ehlo_keywords = chunking, silent-discard` to `main.cf`.
@@ -45,11 +50,14 @@
 - Rename the `powertools_repo` register variable in the `package_management` role to
   `package_management_powertools_repo`, matching the role-name prefix convention.
 - Molecule: run `cloud-init status --wait` as the login user before the first `become` in
-  `resources/create_qemu.yml`, and seed a `127.0.1.1` line into `/etc/hosts` from cloud-init
+  `resources/create_qemu.yml`, failing the create phase if cloud-init reports an error, and
+  seed a `127.0.1.1` line into `/etc/hosts` from cloud-init
   `bootcmd`, so the first `sudo` no longer stalls on a hostname lookup while first-boot work
   is still running. Set an Ansible `timeout: 60` in the `default` and `prerelease`
   scenarios. Extend the `apparmor`, `auditd`, `packages`, `paths`, `postfix`, `ssh`,
-  `sysctl`, `ufw`, `umask` and `usbguard` verifiers to cover the changes above.
+  `sysctl`, `ufw`, `umask` and `usbguard` verifiers to cover the changes above. The `ssh`
+  verifier skips the `sshd -T` GSSAPI and Kerberos assertions on OpenSSH builds compiled
+  without that support (Debian 14 and newer), where the keywords are absent from the output.
 
 ## 0.3.2 (2026-08-19)
 

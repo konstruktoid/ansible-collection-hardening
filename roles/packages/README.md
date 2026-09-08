@@ -65,8 +65,9 @@ otherwise the role removes the package and the service with it.
 23. Pre register needrestart configuration directory
 24. Create needrestart directory
 25. Stat needrestart configuration directory
-26. Get needrestart restart value
-27. Configure needrestart
+26. Remove superseded needrestart restart override
+27. Configure needrestart restart mode
+28. Disable needrestart interpreter scanners
 
 ## Handlers
 

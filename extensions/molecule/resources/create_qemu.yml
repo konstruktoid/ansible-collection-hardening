@@ -222,7 +222,6 @@
       ansible.builtin.raw: cloud-init status --wait
       become: false
       changed_when: false
-      failed_when: false
       timeout: 300
 
     - name: Check instance access
