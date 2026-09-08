@@ -31,6 +31,7 @@ Defined in `roles/sysctl/defaults/main.yml`.
 | `sysctl_conf_dir` | `""` | Sets the sysctl configuration directory. A value set here is honoured as-is, and is not overwritten by detection. If empty, the directory is `/usr/lib/sysctl.d` when `usr_lib_sysctl_d_dir` is True or when `/usr/lib/sysctl.d` exists, otherwise `/etc/sysctl.d`. |
 | `usr_lib_sysctl_d_dir` | `false` | If True, use `/usr/lib/sysctl.d` as the sysctl configuration directory. If False, the directory is detected. Ignored if `sysctl_conf_dir` is set. |
 | `sysctl_dev_tty_ldisc_autoload` | `0` | If 0, restrict loading TTY line disciplines to the CAP_SYS_MODULE capability. |
+| `sysctl_io_uring_disabled` | `2` | Controls io_uring availability for unprivileged users (0 allowed, 1 restricted to CAP_SYS_ADMIN, 2 fully disabled). Only applied when the running kernel exposes `kernel.io_uring_disabled`. |
 
 `generic_sysctl_settings` default value:
 

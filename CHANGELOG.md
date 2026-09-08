@@ -1,5 +1,64 @@
 # Change Log
 
+## 0.4.0 (2026-09-07)
+
+- Restrict `io_uring` in the `sysctl` role through the new `sysctl_io_uring_disabled`
+  variable, default `2` (feature disabled for every user). The setting is written only when
+  the running kernel exposes `/proc/sys/kernel/io_uring_disabled`, so older kernels are left
+  untouched. `io_uring` has been the source of a long run of kernel privilege-escalation
+  bugs; workloads that genuinely need it (recent container runtimes, some databases) must
+  set the variable to `1` (CAP_SYS_ADMIN only) or `0`.
+- Set `kernel.apparmor_restrict_unprivileged_io_uring` to `1` in the `apparmor` role, so
+  `io_uring` is also denied to unconfined unprivileged processes on AppArmor kernels that
+  predate `kernel.io_uring_disabled`.
+- Set `kernel.apparmor_restrict_unprivileged_userns_force` to `1` in the `apparmor` role.
+  This enforces user-namespace mediation on every confined application and ignores any
+  `userns` allow rule in a profile, closing the profile-based bypass used by the 2026
+  CrackArmor local-root disclosures (CVE-2026-23268, CVE-2026-23269 and CVE-2026-23403
+  through CVE-2026-23411). Confined container or sandbox tooling whose profile deliberately
+  allows unprivileged user namespaces needs the variable set back to `0`.
+- Change three `kernel` role defaults to their strict values: `kernel_lockdown` from `false`
+  to `"confidentiality"`, `allow_virtual_system_calls` from `true` to `false`
+  (`vsyscall=none`) and `slub_debugger_poisoning` from `false` to `true`. Binary-only
+  software built against very old glibc may need `vsyscall=emulate`; set
+  `allow_virtual_system_calls: true` on those hosts.
+- Disable needrestart's interpreter scanners in the `packages` role, behind the new
+  `packages_needrestart_disable_interpscan` variable (default `true`), by writing
+  `$nrconf{interpscan} = 0;` to `/etc/needrestart/conf.d/99-interpscan.conf`, named to sort
+  after any vendor snippet so the override is the effective value. The Python,
+  Ruby and Perl scanners parsed attacker-controlled process data and were the vector for
+  local privilege escalation such as CVE-2024-48990 and CVE-2024-48991.
+- Move the `packages` role's needrestart `restart` override to
+  `/etc/needrestart/conf.d/99-restart.conf` (from `00-restart.conf`, which is now removed
+  on upgrade) and anchor it with a `regexp`, so a higher-numbered vendor snippet cannot
+  re-enable automatic service restarts.
+- Mitigate SMTP smuggling in the `postfix` role (CVE-2023-51764) by adding
+  `smtpd_data_restrictions = reject_unauth_pipelining` and
+  `smtpd_discard_ehlo_keywords = chunking, silent-discard` to `main.cf`.
+- Add `PerSourceMaxStartups` to the generated `sshd_config`, set from the new
+  `sshd_per_source_max_startups` variable (default `10`). It caps unauthenticated
+  connections per source address so one client cannot consume the whole `MaxStartups`
+  budget. The directive requires OpenSSH 9.8, and the template emits it only when the
+  installed version is new enough.
+- Set an explicit `owner: root` and `group: root` alongside the existing `mode` on the
+  files managed with `lineinfile`/`replace` in the `aide`, `auditd`, `paths`, `ufw`,
+  `umask` and `usbguard` roles, so a pre-existing wrong owner is corrected rather than
+  preserved. The `usbguard` daemon configuration file is also tightened to `0600`.
+- Drop the `Update GRUB` handler notification from the `apparmor` role's `Configure
+  pam_apparmor` task. Writing `/etc/pam.d/apparmor` does not change the kernel command line,
+  so the GRUB rebuild it queued was spurious.
+- Rename the `powertools_repo` register variable in the `package_management` role to
+  `package_management_powertools_repo`, matching the role-name prefix convention.
+- Molecule: run `cloud-init status --wait` as the login user before the first `become` in
+  `resources/create_qemu.yml`, failing the create phase if cloud-init reports an error, and
+  seed a `127.0.1.1` line into `/etc/hosts` from cloud-init
+  `bootcmd`, so the first `sudo` no longer stalls on a hostname lookup while first-boot work
+  is still running. Set an Ansible `timeout: 60` in the `default` and `prerelease`
+  scenarios. Extend the `apparmor`, `auditd`, `packages`, `paths`, `postfix`, `ssh`,
+  `sysctl`, `ufw`, `umask` and `usbguard` verifiers to cover the changes above. The `ssh`
+  verifier skips the `sshd -T` GSSAPI and Kerberos assertions on OpenSSH builds compiled
+  without that support (Debian 14 and newer), where the keywords are absent from the output.
+
 ## 0.3.2 (2026-08-19)
 
 - Sync `build_ignore` in `galaxy.yml` with `.gitignore`, so that the built collection artifact

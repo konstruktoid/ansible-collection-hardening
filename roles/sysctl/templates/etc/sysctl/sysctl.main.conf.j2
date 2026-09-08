@@ -10,6 +10,9 @@
 {% if (ansible_facts.kernel is version("5", ">=")) %}
 dev.tty.ldisc_autoload = {{ sysctl_dev_tty_ldisc_autoload | int }}
 {% endif %}
+{% if system_has_io_uring_disabled %}
+kernel.io_uring_disabled = {{ sysctl_io_uring_disabled | int }}
+{% endif %}
 {% for key, value in generic_sysctl_settings.items() %}
 {{ key }} = {{ value }}
 {% endfor %}

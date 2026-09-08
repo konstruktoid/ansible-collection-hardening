@@ -44,6 +44,7 @@ provisioner:
       # interleaved noise, and keep a readable per host transcript on disk.
       display_skipped_hosts: false
       interpreter_python: "auto_silent"
+      timeout: 60
     callback_log_plays:
       log_folder: "${MOLECULE_PROJECT_DIRECTORY}/molecule-logs/${MOLECULE_SCENARIO_NAME}"
   env:

@@ -26,11 +26,11 @@ Defined in `roles/apparmor/defaults/main.yml`.
 
 ```yaml
 kernel.apparmor_display_secid_mode: 0
-kernel.apparmor_restrict_unprivileged_io_uring: 0
+kernel.apparmor_restrict_unprivileged_io_uring: 1
 kernel.apparmor_restrict_unprivileged_unconfined: 1
 kernel.apparmor_restrict_unprivileged_userns: 1
 kernel.apparmor_restrict_unprivileged_userns_complain: 0
-kernel.apparmor_restrict_unprivileged_userns_force: 0
+kernel.apparmor_restrict_unprivileged_userns_force: 1
 kernel.unprivileged_userns_apparmor_policy: 1
 ```
 

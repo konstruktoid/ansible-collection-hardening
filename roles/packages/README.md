@@ -20,6 +20,7 @@ Defined in `roles/packages/defaults/main.yml`.
 
 | Variable | Default | Description |
 | --- | --- | --- |
+| `packages_needrestart_disable_interpscan` | `true` | If True, disable needrestart's interpreter scanners (Python, Ruby, etc.), which have been affected by local privilege escalation vulnerabilities. |
 | `packages_blocklist` | `["apport", "autofs", "avahi", "beep", "bind", "bind9", "cups", "cups-browsed", "cups-daemon", "cyrus-imapd", "dhcp-server", "dnsmasq", "dovecot", "dovecot-core", "ftp", "git", "inetutils-telnet", "inetutils-telnetd", "isc-dhcp-server", "net-snmp", "nfs-kernel-server", "nis", "openldap-servers", "pastebinit", "popularity-contest", "prelink", "rpcbind", "rsh", "rsh-redone-client", "rsh-redone-server", "rsh-server", "rsync", "rsync-daemon", "rusersd", "rwho", "samba", "slapd", "snmpd", "squid", "talk", "telnet", "telnet-server", "telnetd", "tftp", "tftp-server", "tftpd", "tigervnc-server", "tnftp", "tuned", "vsftpd", "whoopsie", "xinetd", "yp-tools", "ypbind", "ypserv"]` | Packages that will be removed from the system if they are installed. |
 | `packages_debian` | `["acct", "apparmor-profiles", "apparmor-utils", "apt-listchanges", "apt-show-versions", "audispd-plugins", "auditd", "cracklib-runtime", "curl", "debsums", "gnupg2", "libpam-apparmor", "libpam-cap", "libpam-modules", "libpam-tmpdir", "lsb-release", "needrestart", "openssh-server", "postfix", "rsyslog", "sysstat", "systemd-journal-remote", "tcpd", "vlock", "wamerican"]` | Packages to install on Debian-based systems. |
 | `packages_redhat` | `["audispd-plugins", "audit", "cracklib", "curl", "gnupg2", "openssh-server", "postfix", "psacct", "python3-dnf-plugin-post-transaction-actions", "rsyslog", "rsyslog-gnutls", "systemd-journal-remote", "vlock", "words"]` | Packages to install on Red Hat-based systems. |
@@ -64,8 +65,9 @@ otherwise the role removes the package and the service with it.
 23. Pre register needrestart configuration directory
 24. Create needrestart directory
 25. Stat needrestart configuration directory
-26. Get needrestart restart value
-27. Configure needrestart
+26. Remove superseded needrestart restart override
+27. Configure needrestart restart mode
+28. Disable needrestart interpreter scanners
 
 ## Handlers
 

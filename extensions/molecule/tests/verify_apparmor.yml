@@ -65,8 +65,8 @@
     - name: Assert io_uring sysctl setting
       ansible.builtin.assert:
         that:
-          - "'kernel.apparmor_restrict_unprivileged_io_uring = 0' in sysctl_output.stdout"
+          - "'kernel.apparmor_restrict_unprivileged_io_uring = 1' in sysctl_output.stdout"
           - "'kernel.apparmor_restrict_unprivileged_userns = 1' in sysctl_output.stdout"
           - "'kernel.apparmor_restrict_unprivileged_userns_complain = 0' in sysctl_output.stdout"
-          - "'kernel.apparmor_restrict_unprivileged_userns_force = 0' in sysctl_output.stdout"
+          - "'kernel.apparmor_restrict_unprivileged_userns_force = 1' in sysctl_output.stdout"
       when: ansible_facts['distribution'] == 'Ubuntu'
