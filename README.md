@@ -141,7 +141,8 @@ role. See each role's `README.md` for its variables and example usage.
   platforms as genericcloud qcow2 images directly under
   `qemu-system-x86_64`, instead of containers. It requires
   `qemu-system-x86_64`, `qemu-img`, `genisoimage`, and OVMF UEFI firmware
-  installed on the host.
+  installed on the host. After `molecule converge`, use
+  `molecule login --host resolute` to open an SSH session to the Ubuntu guest.
 - The `prerelease` scenario (`extensions/molecule/prerelease`), run with
   `molecule test -s prerelease` or `tox -e prerelease`, uses the same QEMU
   provisioning and the same converge and verify playbooks, but against the

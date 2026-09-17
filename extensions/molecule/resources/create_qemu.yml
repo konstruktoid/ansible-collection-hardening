@@ -8,6 +8,7 @@
         children:
           molecule:
             hosts: {}
+    molecule_instance_config: []
     qemu_image_cache_dir: "{{ lookup('env', 'HOME') }}/.cache/molecule-qemu/images"
     qemu_ssh_key_file: "{{ molecule_ephemeral_directory }}/ssh_key"
     qemu_ovmf_code: "/usr/share/OVMF/OVMF_CODE_4M.fd"
@@ -195,10 +196,25 @@
       loop_control:
         label: "{{ item.name }}"
 
+    - name: Build Molecule instance configuration
+      ansible.builtin.set_fact:
+        molecule_instance_config: >-
+          {{ molecule_instance_config + [{"instance": item.name, "address": "127.0.0.1",
+          "port": item.ssh_port, "user": item.ssh_user, "identity_file": qemu_ssh_key_file}] }}
+      loop: "{{ molecule_yml.platforms }}"
+      loop_control:
+        label: "{{ item.name }}"
+
     - name: Write molecule inventory
       ansible.builtin.copy:
         content: "{{ molecule_inventory | to_yaml }}"
         dest: "{{ molecule_ephemeral_directory }}/inventory/molecule_inventory.yml"
+        mode: "0600"
+
+    - name: Write Molecule instance configuration
+      ansible.builtin.copy:
+        content: "{{ molecule_instance_config | to_yaml }}"
+        dest: "{{ molecule_ephemeral_directory }}/instance_config.yml"
         mode: "0600"
 
     - name: Force inventory refresh
