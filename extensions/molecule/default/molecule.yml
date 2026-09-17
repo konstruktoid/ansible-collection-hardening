@@ -3,6 +3,9 @@ dependency:
   name: galaxy
 driver:
   name: default
+  ssh_connection_options:
+    - "-o StrictHostKeyChecking=no"
+    - "-o UserKnownHostsFile=/dev/null"
 platforms:
   - name: almalinux10
     image_url: "https://repo.almalinux.org/almalinux/10/cloud/x86_64/images/AlmaLinux-10-GenericCloud-latest.x86_64.qcow2"
