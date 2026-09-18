@@ -17,6 +17,11 @@
   ansible.builtin.debug:
     msg: "sudo-rs is present: {{ sudo_rs_present }}"
 
+- name: Check netplan command exists
+  ansible.builtin.stat:
+    path: "/usr/sbin/netplan"
+  register: "sudo_netplan_command"
+
 - name: Register sudo settings
   become: true
   ansible.builtin.command:
@@ -40,6 +45,13 @@
       - "'!targetpw' in sudo_settings_output.stdout"
   when:
     - not sudo_rs_present
+
+- name: Assert Netplan-specific sudo umask
+  ansible.builtin.assert:
+    that:
+      - "'Defaults!/usr/sbin/netplan umask=0027,umask_override' in sudo_settings_output.stdout"
+  when:
+    - sudo_netplan_command.stat.exists
 
 - name: Assert sudo-rs settings
   ansible.builtin.assert:

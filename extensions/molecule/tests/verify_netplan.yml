@@ -48,3 +48,64 @@
           {{ item.stat.path }} permissions or ownership are incorrect:
           {{ item.stat.mode }} {{ item.stat.pw_name }}:{{ item.stat.gr_name }}
       loop: "{{ netplan_configuration_stats.results }}"
+
+- name: Verify netplan-generated networkd file permissions with umask 0077
+  become: false
+  when:
+    - ansible_facts.distribution == "Ubuntu"
+    - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+  block:
+    - name: Check netplan command exists
+      ansible.builtin.stat:
+        path: "/usr/sbin/netplan"
+      register: "netplan_command"
+
+    - name: Generate networkd configuration through sudo with umask 0077
+      ansible.builtin.shell:
+        cmd: |
+          umask 0077
+          /usr/bin/sudo -n /usr/sbin/netplan generate
+        executable: "/bin/bash"
+      changed_when: false
+      when:
+        - netplan_command.stat.exists
+
+    - name: Find generated netplan networkd files
+      ansible.builtin.find:
+        paths: "/run/systemd/network"
+        file_type: "file"
+        patterns: "10-netplan-*.network"
+      register: "netplan_networkd_files"
+      when:
+        - netplan_command.stat.exists
+
+    - name: Assert generated netplan networkd files exist
+      ansible.builtin.assert:
+        that:
+          - "netplan_networkd_files.matched | int > 0"
+        fail_msg: >-
+          Netplan did not generate a networkd configuration file after being
+          invoked with umask 0077.
+      when:
+        - netplan_command.stat.exists
+
+    - name: Gather generated netplan networkd file metadata
+      ansible.builtin.stat:
+        path: "{{ item.path }}"
+      loop: "{{ netplan_networkd_files.files | default([]) }}"
+      register: "netplan_networkd_file_stats"
+      when:
+        - netplan_command.stat.exists
+
+    - name: Assert generated netplan networkd files are readable by systemd-network
+      ansible.builtin.assert:
+        that:
+          - "item.stat.mode == '0640'"
+          - "item.stat.pw_name == 'root'"
+          - "item.stat.gr_name == 'systemd-network'"
+        fail_msg: >-
+          Netplan-generated networkd files must be mode 0640 and owned by
+          root:systemd-network when netplan is invoked with umask 0077.
+      loop: "{{ netplan_networkd_file_stats.results | default([]) }}"
+      when:
+        - netplan_command.stat.exists
