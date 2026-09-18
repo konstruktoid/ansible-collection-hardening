@@ -18,6 +18,14 @@ Ensure netplan configuration permissions.
 
 This role has no configurable variables.
 
+## Operational notes
+
+Netplan-generated files in `/run/systemd/network` are runtime state and are
+not managed by this role. When the `sudo` and `umask` roles are both applied
+where `/usr/sbin/netplan` is installed, the `sudo` role uses a
+Netplan-specific `0027` umask so generated `root:systemd-network` files
+remain readable by `systemd-networkd` without weakening the system-wide umask.
+
 ## Tasks
 
 `tasks/main.yml` executes, in order:
