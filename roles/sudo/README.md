@@ -40,9 +40,9 @@ Defined in `roles/sudo/defaults/main.yml`.
 10. Configure sudo passwd_timeout
 11. Configure sudo timestamp_timeout
 12. Configure sudo timestamp_type
-13. Configure sudo netplan command umask
-14. Configure sudo to disable rootpw and targetpw
-15. Configure sudo to disable runaspw
+13. Configure sudo to disable rootpw and targetpw
+14. Configure sudo to disable runaspw
+15. Configure sudo netplan command umask
 16. Create su group sugroup
 17. Configure su group
 

@@ -107,23 +107,10 @@
       when:
         - not sudo_rs_present
 
-    - name: Configure sudo netplan command umask
-      ansible.builtin.lineinfile:
-        line: Defaults!/usr/sbin/netplan umask=0027,umask_override
-        dest: /etc/sudoers.d/018_netplan_umask
-        mode: "0440"
-        state: present
-        create: true
-        owner: root
-        group: root
-        validate: visudo -cf %s
-      when:
-        - sudo_netplan_command.stat.exists
-
     - name: Configure sudo to disable rootpw and targetpw
       ansible.builtin.lineinfile:
         line: Defaults {{ item }}
-        dest: /etc/sudoers.d/019_userpassword
+        dest: /etc/sudoers.d/018_userpassword
         mode: "0440"
         state: present
         create: true
@@ -137,7 +124,7 @@
     - name: Configure sudo to disable runaspw
       ansible.builtin.lineinfile:
         line: Defaults !runaspw
-        dest: /etc/sudoers.d/019_userpassword
+        dest: /etc/sudoers.d/018_userpassword
         mode: "0440"
         state: present
         create: true
@@ -146,6 +133,19 @@
         validate: visudo -cf %s
       when:
         - not sudo_rs_present
+
+    - name: Configure sudo netplan command umask
+      ansible.builtin.lineinfile:
+        line: Defaults!/usr/sbin/netplan umask=0027,umask_override
+        dest: /etc/sudoers.d/019_netplan_umask
+        mode: "0440"
+        state: present
+        create: true
+        owner: root
+        group: root
+        validate: visudo -cf %s
+      when:
+        - sudo_netplan_command.stat.exists
 
 - name: Create su group sugroup
   become: true
