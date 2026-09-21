@@ -21,6 +21,11 @@
       ansible.builtin.set_fact:
         sudo_rs_present: "{{ 'sudo-rs' in sudo_type_check.stdout or 'sudo-rs' in sudo_type_check.stderr }}"
 
+    - name: Check netplan command exists
+      ansible.builtin.stat:
+        path: "/usr/sbin/netplan"
+      register: "sudo_netplan_command"
+
     - name: Configure sudo use_pty
       ansible.builtin.lineinfile:
         line: Defaults use_pty
@@ -128,6 +133,19 @@
         validate: visudo -cf %s
       when:
         - not sudo_rs_present
+
+    - name: Configure sudo netplan command umask
+      ansible.builtin.lineinfile:
+        line: Defaults!/usr/sbin/netplan umask=0027,umask_override
+        dest: /etc/sudoers.d/019_netplan_umask
+        mode: "0440"
+        state: present
+        create: true
+        owner: root
+        group: root
+        validate: visudo -cf %s
+      when:
+        - sudo_netplan_command.stat.exists
 
 - name: Create su group sugroup
   become: true
