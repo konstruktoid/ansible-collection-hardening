@@ -127,7 +127,12 @@
         name: "{{ item }}"
         state: present
       loop:
-        - "{{ 'rng-tools5' if (ansible_facts.os_family == 'Debian') else 'rng-tools' }}"
+        - >-
+          {{ 'rng-tools5' if
+          (ansible_facts.distribution == 'Ubuntu' or
+          (ansible_facts.os_family == 'Debian' and
+          ansible_facts.distribution_release in ['bookworm', 'trixie']))
+          else 'rng-tools' }}
 
     - name: Start and enable rngd service
       ansible.builtin.systemd_service:
