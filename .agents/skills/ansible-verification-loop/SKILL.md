@@ -3,6 +3,15 @@ name: ansible-verification-loop
 description: Implements and verifies changes to Ansible roles, playbooks, and tasks in this hardening collection through a bounded lint-test-fix loop. Use when reviewing or modifying anything under roles/, playbooks, or other Ansible collection content in this repository.
 ---
 
+<!--
+Adapted from https://github.com/konstruktoid/agent-instructions-skills
+skills/ansible/ansible-verification-loop/SKILL.md
+This is a repo-specific rewrite, not a synced copy: it hardcodes this collection's own commands
+(tox -e docker, the konstruktoid-hardening tarball name, meta/main.yml platforms) where upstream
+generalizes across repos. Diff against upstream periodically rather than editing blind; the three
+references/ files in this directory are synced copies and carry their own upstream-commit headers.
+-->
+
 # ansible-verification-loop
 
 ## When to use
@@ -23,7 +32,7 @@ Ansible change progress:
 - [ ] Step 2: Apply the change, following repo conventions and security rules
 - [ ] Step 3: Sync galaxy_info.platforms, argument_specs.yml, and docs if OS logic or defaults changed
 - [ ] Step 4: Update verify_<role>.yml / converge.yml if role behavior or variables changed
-- [ ] Step 5: If .gitignore or galaxy.yml changed, check build_ignore/artifact hygiene
+- [ ] Step 5: If .gitignore/galaxy.yml changed or preparing for publication, check build_ignore/artifact hygiene
 - [ ] Step 6: Run the verification loop until clean or 3 attempts are exhausted
 - [ ] Step 7: Report the result, including any unresolved issues
 ```
@@ -52,7 +61,14 @@ sexagesimal-looking `NN:NN` strings, etc). Do not use tabs for indentation. See
 place that restates them: README, role docs, and `meta/argument_specs.yml` where the role has one.
 Check the argument spec explicitly — a variable added to `defaults/main.yml` and documented in the
 README but absent from `meta/argument_specs.yml` is the omission that survives review, because
-nothing fails without it.
+nothing fails without it. Adding or quoting a description there can push its line past the repo's
+line-length limit; fold it with `>-` rather than leaving it long or letting an existing suppression
+absorb it.
+
+When a change makes an existing convention consistent across many files rather than fixing one
+instance, measure the current ratio first (how many files already use each form) and report it,
+rather than assuming which form was intended before editing every file that uses the other one. See
+[references/style-sweeps.md](references/style-sweeps.md).
 
 **Step 4: Update test coverage.** This repo has no per-role test setup — all roles are exercised
 together via `extensions/molecule/resources/converge.yml` and verified via
@@ -60,13 +76,17 @@ together via `extensions/molecule/resources/converge.yml` and verified via
 changing a role, add/update its `verify_<role>.yml` and, if it needs scenario-specific variables,
 its `vars:` block in `converge.yml`.
 
-**Step 5: Artifact hygiene (only when `.gitignore` or `galaxy.yml` changed).** `.gitignore` decides
+**Step 5: Artifact hygiene (when `.gitignore` or `galaxy.yml` changed, or the collection is being
+prepared for publication).** `.gitignore` decides
 what enters the repository; `build_ignore` in `galaxy.yml` decides what enters the tarball
 `ansible-galaxy collection build` writes. The build never reads `.gitignore`, so a working copy
 that has run molecule once ships whatever local state a `build_ignore` pattern fails to exclude —
 and a pattern written with a trailing slash, such as `.ansible/`, excludes nothing. Give every
-`.gitignore` entry a `build_ignore` counterpart, without a trailing slash, and confirm the result by
-building the collection and reading the file list rather than by reading the configuration. See
+`.gitignore` entry a `build_ignore` counterpart, without a trailing slash, and also add the tracked
+development files a consumer has no use for (`.github`, `.agents`, `ansible.cfg`, `.ansible-lint`,
+`.ansible-lint-ignore`, `.yamllint`, and similar) — `.gitignore` mirroring alone only ever excludes
+untracked state. Confirm the result by building the collection and reading the file list rather
+than by reading the configuration. See
 [references/artifact-hygiene.md](references/artifact-hygiene.md).
 
 ## Step 6: Verification loop (run validator → fix → repeat)
@@ -91,20 +111,31 @@ building the collection and reading the file list rather than by reading the con
      (or `molecule test -s docker`, after installing `requirements.yml` and running `ansible-lint`
      yourself) before treating the change as verified.
    - A full cycle can run for tens of minutes, long enough to outlive the process that started it.
-     Detach it so the run does not depend on whatever is watching it, and poll for a sentinel file
-     rather than for the watcher:
+     Detach it so the run does not depend on whatever is watching it, bound it with a deadline so a
+     hung `tox` or Molecule process cannot run forever, and poll for a sentinel file rather than for
+     the watcher:
 
      ```sh
      run_dir="$(mktemp -d -t ansible-verify-XXXXXXXX)"
      setsid bash -c "tox -e docker > \"${run_dir}/run.log\" 2>&1; echo \$? > \"${run_dir}/run.done\"" \
        < /dev/null > /dev/null 2>&1 &
+     run_pgid=$!
      ```
 
-     Poll `${run_dir}/run.done` and read `${run_dir}/run.log`. Use a directory from `mktemp -d`
-     rather than one inside the repository, so the run's own log and sentinel don't become the next
-     thing the leftover check has to exclude. If the watcher dies, look for the still-running
-     process and the sentinel before relaunching — a blind relaunch spends the full cycle again and
-     risks two runs racing on the same containers.
+     `setsid` makes `run_pgid` the process group leader for everything the run spawns, so
+     `kill -TERM -- "-${run_pgid}"` (and `kill -KILL -- "-${run_pgid}"` if it survives a short grace
+     period) reaches the whole group, not just the shell. Poll `${run_dir}/run.done` against a
+     deadline — 5400s (90 minutes) covers the documented tens-of-minutes runtime with headroom — and
+     read `${run_dir}/run.log`. Use a directory from `mktemp -d` rather than one inside the
+     repository, so the run's own log and sentinel don't become the next thing the leftover check
+     has to exclude. If the deadline passes without `run.done`, kill the process group, treat the
+     attempt as failed, and count it toward the six-attempt cap before relaunching — a blind
+     relaunch spends the full cycle again and risks two runs racing on the same containers. The same
+     applies if the watcher dies: look for the still-running process and the sentinel before
+     relaunching. The `ansible-verify-XXXXXXXX` name template is what makes that possible after
+     `${run_dir}` is lost along with the shell that held it — a replacement watcher finds the run by
+     globbing `ansible-verify-*` under the temporary directory and takes the newest match with no
+     `run.done` in it as a run still going.
 4. If **any** of steps 1-3 fails: fix the issue and return to step 1. All are required gates, and a
    lint failure counts against the budget exactly as a test failure does. This counts as one
    attempt. One **attempt** is one full fix-and-rerun cycle: apply fixes for the findings from the
@@ -123,20 +154,34 @@ building the collection and reading the file list rather than by reading the con
    cycle clears one finding out of many, and every cycle here costs a full container converge.
    Count findings per check rather than as one total, since `ansible-lint` and `molecule` report
    unrelated things: progress means the check that failed improved and no other check regressed.
-6. If Step 5 applied (`.gitignore` or `galaxy.yml` changed), verify the artifact rather than the
-   configuration:
+6. If Step 5 applied (`.gitignore` or `galaxy.yml` changed, or the collection is being prepared for
+   publication), verify the artifact rather than the configuration:
 
    ```sh
+   set -euo pipefail
+   rm -f ./konstruktoid-hardening-*.tar.gz
    ansible-galaxy collection build --force
    out="$(mktemp -d)"
-   tar -tzf konstruktoid-hardening-*.tar.gz | grep -v '/$' | sort > "${out}/artifact"
+   archives=(./konstruktoid-hardening-*.tar.gz)
+   [ "${#archives[@]}" -eq 1 ] && [ -e "${archives[0]}" ]
+   tar -tzf "${archives[0]}" | grep -v '/$' | sort > "${out}/artifact"
    git ls-files | sort > "${out}/tracked"
    comm -23 "${out}/artifact" "${out}/tracked"
    ```
 
-   Apart from the generated `MANIFEST.json` and `FILES.json`, every line that prints is local state
-   a `build_ignore` pattern failed to exclude. Keep the comparison files outside the collection root
-   and remove the tarball afterwards.
+   `set -euo pipefail`, the pre-build cleanup, and the exactly-one-archive check make this fail
+   closed: a failed build, a missing archive, or a stale leftover tarball no longer lets the
+   pipeline compare an empty or stale list and report a clean result. Apart from the generated
+   `MANIFEST.json` and `FILES.json`, every line `comm -23` prints is local state a `build_ignore`
+   pattern failed to exclude.
+
+   That comparison only catches untracked state; a tracked development file that reached the
+   artifact despite a `build_ignore` entry is tracked by git and so won't appear in it. Also grep
+   `${out}/artifact` for the tracked-development-file categories in
+   [references/artifact-hygiene.md](references/artifact-hygiene.md) (`.github`, `.agents`,
+   `ansible.cfg`, `.ansible-lint`, `.ansible-lint-ignore`, `.yamllint`, and similar) and confirm none
+   of them made it in. Keep the comparison files outside the collection root and remove the tarball
+   afterwards.
 
 ## Reporting and redaction
 
@@ -170,9 +215,10 @@ success:
 - [ ] `meta/main.yml` `galaxy_info.platforms` still matches any OS-conditional logic
 - [ ] `meta/argument_specs.yml`, the README, and the role docs all list any variable that was
       added, renamed, or had its default changed
-- [ ] If `.gitignore` or `galaxy.yml` changed: every `.gitignore` entry has a `build_ignore`
-      counterpart without a trailing slash, and the built artifact was read and compared against
-      `git ls-files` rather than inferred from the configuration
+- [ ] If `.gitignore` or `galaxy.yml` changed, or the collection is being prepared for publication:
+      every `.gitignore` entry has a `build_ignore` counterpart without a trailing slash, and the
+      built artifact was read and compared against `git ls-files` rather than inferred from the
+      configuration
 - [ ] No user or system information committed: inventories, host vars, templates, and any captured
       lint or molecule output use placeholder hosts and addresses, with no real hostname, home
       directory path, username, or internal IP
