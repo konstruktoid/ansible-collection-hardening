@@ -82,8 +82,9 @@ what enters the repository; `build_ignore` in `galaxy.yml` decides what enters t
 `ansible-galaxy collection build` writes. The build never reads `.gitignore`, so a working copy
 that has run molecule once ships whatever local state a `build_ignore` pattern fails to exclude —
 and a pattern written with a trailing slash, such as `.ansible/`, excludes nothing. Give every
-`.gitignore` entry a `build_ignore` counterpart, without a trailing slash, and also add the tracked
-development files a consumer has no use for (`.github`, `.agents`, `ansible.cfg`, `.ansible-lint`,
+`.gitignore` exclusion pattern a `build_ignore` counterpart, without a trailing slash. Comments and
+`!` negations have no counterpart; resolve negations by narrowing the positive pattern. Also add the
+tracked development files a consumer has no use for (`.github`, `.agents`, `ansible.cfg`, `.ansible-lint`,
 `.ansible-lint-ignore`, `.yamllint`, and similar) — `.gitignore` mirroring alone only ever excludes
 untracked state. Confirm the result by building the collection and reading the file list rather
 than by reading the configuration. See
@@ -216,8 +217,9 @@ success:
 - [ ] `meta/argument_specs.yml`, the README, and the role docs all list any variable that was
       added, renamed, or had its default changed
 - [ ] If `.gitignore` or `galaxy.yml` changed, or the collection is being prepared for publication:
-      every `.gitignore` entry has a `build_ignore` counterpart without a trailing slash, and the
-      built artifact was read and compared against `git ls-files` rather than inferred from the
+      every `.gitignore` exclusion pattern has a `build_ignore` counterpart without a trailing
+      slash; comments and `!` negations are handled by narrowing positive patterns, and the built
+      artifact was read and compared against `git ls-files` rather than inferred from the
       configuration
 - [ ] No user or system information committed: inventories, host vars, templates, and any captured
       lint or molecule output use placeholder hosts and addresses, with no real hostname, home
