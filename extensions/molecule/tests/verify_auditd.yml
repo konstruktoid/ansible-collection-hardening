@@ -25,6 +25,15 @@
         - space_left = {{ auditd_space_left }}
         - space_left_action = {{ auditd_space_left_action }}
 
+    - name: Verify auditd syslog plugin configuration
+      ansible.builtin.lineinfile:
+        dest: /etc/audit/plugins.d/syslog.conf
+        line: "active = {{ 'yes' if auditd_syslog_plugin | bool else 'no' }}"
+        state: present
+      check_mode: true
+      register: auditd_syslog_conf
+      failed_when: auditd_syslog_conf is changed
+
     - name: "Stat auditd.conf"
       ansible.builtin.stat:
         path: "/etc/audit/auditd.conf"

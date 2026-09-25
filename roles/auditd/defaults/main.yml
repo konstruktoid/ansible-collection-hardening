@@ -41,6 +41,9 @@ auditd_space_left: 75
 # This parameter tells the system what action to take when the system has detected that it is starting to get low on disk space.
 auditd_space_left_action: "email"
 
+# If True, the auditd syslog plugin is enabled and audit events are also sent to syslog. If False, the plugin is disabled.
+auditd_syslog_plugin: true
+
 # Set the audit backlog limit in the GRUB command line.
 grub_audit_backlog_cmdline: "audit_backlog_limit=8192"
 
