@@ -25,14 +25,16 @@
         - space_left = {{ auditd_space_left }}
         - space_left_action = {{ auditd_space_left_action }}
 
-    - name: Verify auditd syslog plugin configuration
-      ansible.builtin.lineinfile:
-        dest: /etc/audit/plugins.d/syslog.conf
-        line: "active = {{ 'yes' if auditd_syslog_plugin | bool else 'no' }}"
-        state: present
-      check_mode: true
-      register: auditd_syslog_conf
-      failed_when: auditd_syslog_conf is changed
+    - name: Get effective auditd syslog plugin setting
+      ansible.builtin.command:
+        cmd: "awk '$1==\"active\"{v=$3} END{print v}' /etc/audit/plugins.d/syslog.conf"
+      changed_when: false
+      register: auditd_syslog_active
+
+    - name: Assert effective auditd syslog plugin setting
+      ansible.builtin.assert:
+        that:
+          - auditd_syslog_active.stdout == ('yes' if auditd_syslog_plugin | bool else 'no')
 
     - name: "Stat auditd.conf"
       ansible.builtin.stat:
