@@ -34,6 +34,7 @@ Defined in `roles/auditd/defaults/main.yml`.
 | `auditd_num_logs` | `5` | Specifies the number of log files to keep if rotate is given as the max_log_file_action. |
 | `auditd_space_left` | `75` | If the free space in the filesystem containing log_file drops below this value (in mb), the audit daemon takes the action specified by space_left_action. |
 | `auditd_space_left_action` | `"email"` | This parameter tells the system what action to take when the system has detected that it is starting to get low on disk space. |
+| `auditd_syslog_plugin` | `true` | If True, the auditd syslog plugin is enabled and audit events are also sent to syslog. If False, the plugin is disabled. |
 | `grub_audit_backlog_cmdline` | `"audit_backlog_limit=8192"` | Set the audit backlog limit in the GRUB command line. |
 | `grub_audit_cmdline` | `"audit=1"` | Enable auditd in the GRUB command line. |
 | `hardening_rules_template` | `"etc/audit/rules.d/hardening.rules.j2"` | auditd rules template location. |
@@ -60,7 +61,7 @@ Defined in `roles/auditd/defaults/main.yml`.
 16. Configure auditd space_left
 17. Configure auditd space_left_action
 18. Configure auditd name_format
-19. Enable auditd syslog plugin
+19. Configure auditd syslog plugin
 20. Add auditd rules
 
 ## Handlers
