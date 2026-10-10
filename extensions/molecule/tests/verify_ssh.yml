@@ -219,6 +219,14 @@
             {%- if ssh_installed_version is version('9.8', '>=') -%}
               PerSourceMaxStartups {{ sshd_per_source_max_startups }}
             {%- endif -%}
+          - >-
+            {%- if ssh_installed_version is version('9.8', '>=') -%}
+              PerSourcePenalties {{ sshd_per_source_penalties }}
+            {%- endif -%}
+          - >-
+            {%- if ssh_installed_version is version('9.8', '>=') and sshd_per_source_penalty_exempt_list | length > 0 -%}
+              {{ 'PerSourcePenaltyExemptList ' + sshd_per_source_penalty_exempt_list | join(',') }}
+            {%- endif -%}
           - PasswordAuthentication {{ 'yes' if (sshd_password_authentication | bool) else 'no' }}
           - PermitEmptyPasswords {{ 'yes' if (sshd_permit_empty_passwords | bool) else 'no' }}
           - PermitRootLogin {{ 'yes' if (sshd_permit_root_login | bool) else 'no' }}
@@ -338,6 +346,7 @@
       loop:
         - debianbanner
         - listenaddress
+        - persourcepenalties
         - rekeylimit
 
     - name: Print sshd_config_parameters_runtime
@@ -385,6 +394,20 @@
           - item in sshd_config_runtime
         fail_msg: "{{ item }} was not found in the sshd -T output"
       loop: "{{ sshd_config_parameters_runtime }}"
+
+    # "persourcepenalties" is excluded from the exact-match check above because
+    # sshd -T fills in every unconfigured penalty keyword with its own default
+    # and reorders them, so the effective value is checked here instead: each
+    # keyword:value pair this role configured must appear in the single runtime
+    # line, regardless of what sshd appended around it.
+    - name: Verify sshd PerSourcePenalties runtime configuration
+      ansible.builtin.assert:
+        that:
+          - item in (sshd_config_runtime | select('match', '^persourcepenalties ') | first).split(' ')[1:]
+        fail_msg: "{{ item }} was not found in the sshd -T PerSourcePenalties output"
+      loop: "{{ sshd_per_source_penalties.split(' ') }}"
+      when:
+        - ssh_installed_version is version('9.8', '>=')
 
     - name: Verify ssh client configuration
       become: true

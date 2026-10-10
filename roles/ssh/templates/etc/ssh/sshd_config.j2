@@ -73,6 +73,10 @@ MaxSessions {{ sshd_max_sessions | int }}
 MaxStartups {{ sshd_max_startups }}
 {% if ssh_installed_version is version('9.8', '>=') %}
 PerSourceMaxStartups {{ sshd_per_source_max_startups }}
+PerSourcePenalties {{ sshd_per_source_penalties }}
+{% if sshd_per_source_penalty_exempt_list %}
+PerSourcePenaltyExemptList {{ sshd_per_source_penalty_exempt_list | join(',') }}
+{% endif %}
 {% endif %}
 PubkeyAuthentication yes
 IgnoreRhosts {{ 'yes' if (sshd_ignore_rhosts | bool) else 'no' }}
