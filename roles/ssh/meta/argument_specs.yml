@@ -254,7 +254,7 @@ argument_specs:
         type: "str"
         default: "crash:90 authfail:5 noauth:1 grace-exceeded:10 max:600"
       sshd_per_source_penalty_exempt_list:
-        description: "Specifies a list of addresses, CIDR ranges, or hostnames exempted from sshd_per_source_penalties. Requires OpenSSH >= 9.8, ignored on older versions."
+        description: "Specifies a list of addresses, wildcards, or CIDR ranges exempted from sshd_per_source_penalties. Requires OpenSSH >= 9.8, ignored on older versions."
         type: "list"
         elements: "str"
         default: []

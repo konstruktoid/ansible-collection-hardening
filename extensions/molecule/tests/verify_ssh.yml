@@ -395,6 +395,20 @@
         fail_msg: "{{ item }} was not found in the sshd -T output"
       loop: "{{ sshd_config_parameters_runtime }}"
 
+    # "persourcepenalties" is excluded from the exact-match check above because
+    # sshd -T fills in every unconfigured penalty keyword with its own default
+    # and reorders them, so the effective value is checked here instead: each
+    # keyword:value pair this role configured must appear in the single runtime
+    # line, regardless of what sshd appended around it.
+    - name: Verify sshd PerSourcePenalties runtime configuration
+      ansible.builtin.assert:
+        that:
+          - item in (sshd_config_runtime | select('match', '^persourcepenalties ') | first)
+        fail_msg: "{{ item }} was not found in the sshd -T PerSourcePenalties output"
+      loop: "{{ sshd_per_source_penalties.split(' ') }}"
+      when:
+        - ssh_installed_version is version('9.8', '>=')
+
     - name: Verify ssh client configuration
       become: true
       ansible.builtin.lineinfile:
