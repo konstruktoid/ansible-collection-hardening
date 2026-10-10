@@ -175,6 +175,9 @@ sshd_per_source_max_startups: 10
 # Specifies the penalties applied to a source address for triggering sshd(8) connection abuse detection.
 sshd_per_source_penalties: "crash:90 authfail:5 noauth:1 grace-exceeded:10 max:600"
 
+# Specifies a list of addresses, CIDR ranges, or hostnames exempted from sshd_per_source_penalties.
+sshd_per_source_penalty_exempt_list: []
+
 # Specifies whether password authentication is allowed.
 sshd_password_authentication: false
 

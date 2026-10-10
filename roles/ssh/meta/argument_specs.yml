@@ -249,6 +249,15 @@ argument_specs:
         description: "Specifies the maximum number of unauthenticated connections permitted from any single source address, in line with the burst allowance of sshd_max_startups. Requires OpenSSH >= 9.8, ignored on older versions."
         type: "int"
         default: 10
+      sshd_per_source_penalties:
+        description: "Specifies the penalties applied to a source address for triggering sshd(8) connection abuse detection, such as crashing sshd or failing authentication. Requires OpenSSH >= 9.8, ignored on older versions."
+        type: "str"
+        default: "crash:90 authfail:5 noauth:1 grace-exceeded:10 max:600"
+      sshd_per_source_penalty_exempt_list:
+        description: "Specifies a list of addresses, CIDR ranges, or hostnames exempted from sshd_per_source_penalties. Requires OpenSSH >= 9.8, ignored on older versions."
+        type: "list"
+        elements: "str"
+        default: []
       sshd_password_authentication:
         description: "Specifies whether password authentication is allowed."
         type: "bool"
