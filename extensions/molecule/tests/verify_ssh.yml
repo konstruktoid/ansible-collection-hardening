@@ -403,7 +403,7 @@
     - name: Verify sshd PerSourcePenalties runtime configuration
       ansible.builtin.assert:
         that:
-          - item in (sshd_config_runtime | select('match', '^persourcepenalties ') | first)
+          - item in (sshd_config_runtime | select('match', '^persourcepenalties ') | first).split(' ')[1:]
         fail_msg: "{{ item }} was not found in the sshd -T PerSourcePenalties output"
       loop: "{{ sshd_per_source_penalties.split(' ') }}"
       when:
