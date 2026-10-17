@@ -366,12 +366,20 @@
     # Lowercase the keyword only, exactly as the expected parameters are
     # normalized above, and keep the value as-is. Newer OpenSSH releases print
     # the canonical mixed-case keyword names, older ones print them lowercase.
+    # OpenSSH 10.x also reports TCPKeepAlive's effective value as "true"/
+    # "false" where every other boolean keyword still uses "yes"/"no", so
+    # only that keyword's value is normalized to match, leaving any other
+    # directive whose value happens to be the literal string "true"/"false"
+    # untouched.
     - name: Set runtime parameters for runtime check
       ansible.builtin.set_fact:
         sshd_config_runtime: >-
           {{
             sshd_config_runtime | default([]) +
-            [(item.split(' ')[0] | lower) + ' ' + (item.split(' ')[1:] | join(' '))]
+            [(item.split(' ')[0] | lower) + ' ' +
+             ((item.split(' ')[1:] | join(' ') | regex_replace('^true$', 'yes') | regex_replace('^false$', 'no'))
+              if (item.split(' ')[0] | lower) == 'tcpkeepalive'
+              else (item.split(' ')[1:] | join(' ')))]
           }}
       loop: "{{ sshd_config.stdout_lines }}"
 
@@ -399,11 +407,13 @@
     # sshd -T fills in every unconfigured penalty keyword with its own default
     # and reorders them, so the effective value is checked here instead: each
     # keyword:value pair this role configured must appear in the single runtime
-    # line, regardless of what sshd appended around it.
+    # line, regardless of what sshd appended around it. OpenSSH 10.x also prints
+    # the numeric values with a trailing ".000000", so that suffix is stripped
+    # before comparing.
     - name: Verify sshd PerSourcePenalties runtime configuration
       ansible.builtin.assert:
         that:
-          - item in (sshd_config_runtime | select('match', '^persourcepenalties ') | first).split(' ')[1:]
+          - item in ((sshd_config_runtime | select('match', '^persourcepenalties ') | first).split(' ')[1:] | map('regex_replace', '\.0+$', '') | list)
         fail_msg: "{{ item }} was not found in the sshd -T PerSourcePenalties output"
       loop: "{{ sshd_per_source_penalties.split(' ') }}"
       when:
