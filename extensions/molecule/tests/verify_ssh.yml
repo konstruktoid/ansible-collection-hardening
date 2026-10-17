@@ -368,14 +368,18 @@
     # the canonical mixed-case keyword names, older ones print them lowercase.
     # OpenSSH 10.x also reports TCPKeepAlive's effective value as "true"/
     # "false" where every other boolean keyword still uses "yes"/"no", so
-    # that single value is normalized to match.
+    # only that keyword's value is normalized to match, leaving any other
+    # directive whose value happens to be the literal string "true"/"false"
+    # untouched.
     - name: Set runtime parameters for runtime check
       ansible.builtin.set_fact:
         sshd_config_runtime: >-
           {{
             sshd_config_runtime | default([]) +
             [(item.split(' ')[0] | lower) + ' ' +
-             (item.split(' ')[1:] | join(' ') | regex_replace('^true$', 'yes') | regex_replace('^false$', 'no'))]
+             ((item.split(' ')[1:] | join(' ') | regex_replace('^true$', 'yes') | regex_replace('^false$', 'no'))
+              if (item.split(' ')[0] | lower) == 'tcpkeepalive'
+              else (item.split(' ')[1:] | join(' ')))]
           }}
       loop: "{{ sshd_config.stdout_lines }}"
 
