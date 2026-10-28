@@ -11,6 +11,9 @@ fs_modules_blocklist:
 
 # Misc kernel modules to block and blacklist.
 misc_modules_blocklist:
+  - "act_pedit"
+  - "ah4"
+  - "ah6"
   - "algif_aead"
   - "bluetooth"
   - "bnep"
@@ -24,6 +27,7 @@ misc_modules_blocklist:
   - "ksmbd"
   - "n_hdlc"
   - "net-pf-31"
+  - "nlmon"
   - "pcspkr"
   - "rxrpc"
   - "soundcore"
@@ -37,6 +41,7 @@ misc_modules_blocklist:
 net_modules_blocklist:
   - "atm"
   - "dccp"
+  - "pppoe"
   - "sctp"
   - "rds"
   - "tipc"

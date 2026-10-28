@@ -24,6 +24,9 @@ argument_specs:
         type: "list"
         elements: "str"
         default:
+          - "act_pedit"
+          - "ah4"
+          - "ah6"
           - "algif_aead"
           - "bluetooth"
           - "bnep"
@@ -37,6 +40,7 @@ argument_specs:
           - "ksmbd"
           - "n_hdlc"
           - "net-pf-31"
+          - "nlmon"
           - "pcspkr"
           - "rxrpc"
           - "soundcore"
@@ -52,6 +56,7 @@ argument_specs:
         default:
           - "atm"
           - "dccp"
+          - "pppoe"
           - "sctp"
           - "rds"
           - "tipc"
