@@ -222,6 +222,9 @@
           - >-
             {%- if ssh_installed_version is version('9.8', '>=') -%}
               PerSourcePenalties {{ sshd_per_source_penalties }}
+              {%- if ssh_installed_version is version('10.3', '>=') -%}
+                {{ ' invaliduser:' ~ sshd_per_source_penalty_invaliduser | int }}
+              {%- endif -%}
             {%- endif -%}
           - >-
             {%- if ssh_installed_version is version('9.8', '>=') and sshd_per_source_penalty_exempt_list | length > 0 -%}
@@ -415,7 +418,9 @@
         that:
           - item in ((sshd_config_runtime | select('match', '^persourcepenalties ') | first).split(' ')[1:] | map('regex_replace', '\.0+$', '') | list)
         fail_msg: "{{ item }} was not found in the sshd -T PerSourcePenalties output"
-      loop: "{{ sshd_per_source_penalties.split(' ') }}"
+      loop: >-
+        {{ sshd_per_source_penalties.split(' ') +
+        (['invaliduser:' ~ sshd_per_source_penalty_invaliduser | int] if ssh_installed_version is version('10.3', '>=') else []) }}
       when:
         - ssh_installed_version is version('9.8', '>=')
 

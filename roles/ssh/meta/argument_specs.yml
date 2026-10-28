@@ -253,6 +253,12 @@ argument_specs:
         description: "Specifies the penalties applied to a source address for triggering sshd(8) connection abuse detection, such as crashing sshd or failing authentication. Requires OpenSSH >= 9.8, ignored on older versions."
         type: "str"
         default: "crash:90 authfail:5 noauth:1 grace-exceeded:10 max:600"
+      sshd_per_source_penalty_invaliduser:
+        description: >-
+          Specifies the penalty in seconds for a source address attempting to log in as a nonexistent user,
+          appended to sshd_per_source_penalties as invaliduser. Requires OpenSSH >= 10.3, ignored on older versions.
+        type: "int"
+        default: 30
       sshd_per_source_penalty_exempt_list:
         description: "Specifies a list of addresses, wildcards, or CIDR ranges exempted from sshd_per_source_penalties. Requires OpenSSH >= 9.8, ignored on older versions."
         type: "list"

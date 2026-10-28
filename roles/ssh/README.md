@@ -69,6 +69,7 @@ Defined in `roles/ssh/defaults/main.yml`.
 | `sshd_max_startups` | `"10:30:60"` | Specifies the maximum number of concurrent unauthenticated connections to the SSH daemon. |
 | `sshd_per_source_max_startups` | `10` | Specifies the maximum number of unauthenticated connections permitted from any single source address, in line with the burst allowance of `sshd_max_startups`. Requires OpenSSH >= 9.8, ignored on older versions. |
 | `sshd_per_source_penalties` | `"crash:90 authfail:5 noauth:1 grace-exceeded:10 max:600"` | Specifies the penalties applied to a source address for triggering sshd(8) connection abuse detection, such as crashing sshd or failing authentication. Requires OpenSSH >= 9.8, ignored on older versions. |
+| `sshd_per_source_penalty_invaliduser` | `30` | Specifies the penalty in seconds for a source address attempting to log in as a nonexistent user, appended to `sshd_per_source_penalties` as `invaliduser`. Requires OpenSSH >= 10.3, ignored on older versions. |
 | `sshd_per_source_penalty_exempt_list` | `[]` | Specifies a list of addresses, wildcards, or CIDR ranges exempted from `sshd_per_source_penalties`. Requires OpenSSH >= 9.8, ignored on older versions. |
 | `sshd_password_authentication` | `false` | Specifies whether password authentication is allowed. |
 | `sshd_permit_empty_passwords` | `false` | Specifies whether the server allows login to accounts with empty password strings. |
