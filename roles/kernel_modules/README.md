@@ -21,8 +21,8 @@ Defined in `roles/kernel_modules/defaults/main.yml`.
 | Variable | Default | Description |
 | --- | --- | --- |
 | `fs_modules_blocklist` | `["cramfs", "freevxfs", "hfs", "hfsplus", "jffs2", "squashfs", "udf"]` | Filesystem kernel modules to block and blacklist. |
-| `misc_modules_blocklist` | `["algif_aead", "bluetooth", "bnep", "btusb", "can", "cpia2", "esp4", "esp6", "firewire-core", "floppy", "ksmbd", "n_hdlc", "net-pf-31", "pcspkr", "rxrpc", "soundcore", "thunderbolt", "usb-midi", "usb-storage", "uvcvideo", "v4l2_common"]` | Misc kernel modules to block and blacklist. |
-| `net_modules_blocklist` | `["atm", "dccp", "sctp", "rds", "tipc"]` | Network kernel modules to block and blacklist. |
+| `misc_modules_blocklist` | `["act_pedit", "ah4", "ah6", "algif_aead", "bluetooth", "bnep", "btusb", "can", "cpia2", "esp4", "esp6", "firewire-core", "floppy", "ksmbd", "n_hdlc", "net-pf-31", "nlmon", "pcspkr", "rxrpc", "soundcore", "thunderbolt", "usb-midi", "usb-storage", "uvcvideo", "v4l2_common"]` | Misc kernel modules to block and blacklist. |
+| `net_modules_blocklist` | `["atm", "dccp", "pppoe", "sctp", "rds", "tipc"]` | Network kernel modules to block and blacklist. |
 
 ## Tasks
 
