@@ -32,10 +32,12 @@ argument_specs:
         choices:
           - "all"
           - "False"
+          - "false"
           - "local"
           - "no"
           - "remote"
           - "True"
+          - "true"
           - "yes"
       sshd_allow_users:
         description: "If specified, login is allowed only for users whose user name matches one of the patterns."
