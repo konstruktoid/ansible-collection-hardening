@@ -20,6 +20,7 @@ Defined in `roles/apparmor/defaults/main.yml`.
 | Variable | Default | Description |
 | --- | --- | --- |
 | `apparmor_sysctl_settings` | mapping, see below | AppArmor sysctl settings. |
+| `apparmor_unenforced_flags_regex` | `"^(?!\\s*#).*flags\\s*=\\s*\\([^)]*\\b(unconfined\|prompt\|default_allow)\\b"` | Profiles matching this expression are left alone by the enforce task. |
 | `sysctl_apparmor_config_template` | `"etc/sysctl/sysctl.apparmor.conf.j2"` | AppArmor sysctl configuration template location. |
 
 `apparmor_sysctl_settings` default value:
@@ -50,7 +51,11 @@ kernel.unprivileged_userns_apparmor_policy: 1
 10. Configure pam_apparmor
 11. Get AppArmor status
 12. Enforce AppArmor profiles
-13. Enable apparmor
+13. Find AppArmor profiles
+14. Find AppArmor profiles that are deliberately not enforced
+15. Enforce AppArmor profiles not flagged as unenforced
+16. Warn about AppArmor profiles that could not be enforced
+17. Enable apparmor
 
 ## Handlers
 

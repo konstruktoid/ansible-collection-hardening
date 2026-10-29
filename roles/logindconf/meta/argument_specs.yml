@@ -14,12 +14,12 @@ argument_specs:
       logind:
         type: "dict"
         default:
-          - killuserprocesses: true
-          - killexcludeusers:
-              - "root"
-          - idleaction: "lock"
-          - idleactionsec: "15min"
-          - removeipc: true
+          killuserprocesses: true
+          killexcludeusers:
+            - "root"
+          idleaction: "lock"
+          idleactionsec: "15min"
+          removeipc: true
         description: "Configure systemd-logind settings."
         options:
           killuserprocesses:

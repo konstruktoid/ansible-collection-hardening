@@ -11,7 +11,7 @@ SELinux installation and configuration.
 
 | Platform | Versions |
 | --- | --- |
-| AlmaLinux / EL | 10 |
+| EL | 10 |
 
 ## Role variables
 
@@ -46,13 +46,14 @@ setroubleshoot-server
 
 ## Tasks
 
-`tasks/main.yml` executes, in order, on AlmaLinux/EL hosts:
+`tasks/main.yml` executes, in order, on EL hosts:
 
-1. Install SELinux packages
-2. Remove SELinux-related packages
-3. Configure SELinux state and policy
-4. Remove selinux=0 and enforcing=0 from the kernel command line
-5. Notify if a reboot is required for the SELinux state to take effect
+1. Configure and enable SELinux
+2. Install SELinux packages
+3. Remove SELinux related packages
+4. Configure SELinux state and policy
+5. Remove selinux=0 and enforcing=0 from the kernel command line
+6. Notify if a reboot is required for the SELinux state to take effect
 
 The state, policy, and kernel-command-line steps are skipped inside
 containers, since a container's kernel is shared with the host and

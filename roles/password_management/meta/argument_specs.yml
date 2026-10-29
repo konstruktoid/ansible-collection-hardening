@@ -43,18 +43,18 @@ argument_specs:
       faillock:
         type: "dict"
         default:
-          - admin_group: ""
-          - audit: true
-          - deny: 5
-          - dir: "/var/run/faillock"
-          - even_deny_root: true
-          - fail_interval: 900
-          - local_users_only: true
-          - no_log_info: false
-          - nodelay: true
-          - root_unlock_time: 600
-          - silent: false
-          - unlock_time: 600
+          admin_group: ""
+          audit: true
+          deny: 5
+          dir: "/var/run/faillock"
+          even_deny_root: true
+          fail_interval: 900
+          local_users_only: true
+          no_log_info: false
+          nodelay: true
+          root_unlock_time: 600
+          silent: false
+          unlock_time: 600
         description: "Faillock configuration options."
         options:
           admin_group:
@@ -96,25 +96,25 @@ argument_specs:
       pwquality:
         type: "dict"
         default:
-          - dcredit: -1
-          - dictcheck: true
-          - dictpath: ""
-          - difok: 8
-          - enforce_for_root: true
-          - enforcing: true
-          - gecoscheck: true
-          - lcredit: -1
-          - local_users_only: true
-          - maxclassrepeat: 4
-          - maxrepeat: 3
-          - maxsequence: 3
-          - minclass: 4
-          - minlen: 15
-          - ocredit: -1
-          - retry: 3
-          - ucredit: -1
-          - usercheck: true
-          - usersubstr: 3
+          dcredit: -1
+          dictcheck: true
+          dictpath: ""
+          difok: 8
+          enforce_for_root: true
+          enforcing: true
+          gecoscheck: true
+          lcredit: -1
+          local_users_only: true
+          maxclassrepeat: 4
+          maxrepeat: 3
+          maxsequence: 3
+          minclass: 4
+          minlen: 15
+          ocredit: -1
+          retry: 3
+          ucredit: -1
+          usercheck: true
+          usersubstr: 3
         description: "pwquality configuration options."
         options:
           dcredit:

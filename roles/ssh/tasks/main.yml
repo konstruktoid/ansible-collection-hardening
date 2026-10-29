@@ -98,7 +98,7 @@
   failed_when: false
   check_mode: false
 
-- name: Check if sshd_config.d exits
+- name: Check if sshd_config.d exists
   ansible.builtin.stat:
     path: /etc/ssh/sshd_config.d
   register: sshd_config_d
@@ -342,7 +342,7 @@
   tags:
     - ssh
   block:
-    - name: Check if ssh_config.d exits
+    - name: Check if ssh_config.d exists
       ansible.builtin.stat:
         path: /etc/ssh/ssh_config.d
       register: ssh_config_d
