@@ -36,6 +36,7 @@ build_ignore:
   - .env
   - .env.yml
   - .github
+  - .gitignore
   - .nox
   - .tox
   - .venv
@@ -43,4 +44,9 @@ build_ignore:
   - CLAUDE.md
   - ansible.cfg
   - ansible_collections
+  - extensions
   - molecule-logs
+  - requirements.txt
+  - scripts
+  - tox.ini
+  - upstream-requirements.txt

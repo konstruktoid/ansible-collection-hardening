@@ -1,6 +1,7 @@
 *.gz
 .ansible/
 .cache
+.claude/STATE.md
 .claude/settings.local.json
 .env
 .env.yml
