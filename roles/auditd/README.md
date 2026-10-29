@@ -62,7 +62,9 @@ Defined in `roles/auditd/defaults/main.yml`.
 17. Configure auditd space_left_action
 18. Configure auditd name_format
 19. Configure auditd syslog plugin
-20. Add auditd rules
+20. Check which recent syscall names the audit userspace resolves
+21. Set facts for the resolvable syscall names
+22. Add auditd rules
 
 ## Handlers
 

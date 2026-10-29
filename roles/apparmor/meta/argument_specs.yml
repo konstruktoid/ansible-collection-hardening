@@ -11,16 +11,20 @@ argument_specs:
         description: "AppArmor sysctl configuration template location."
         type: "path"
         default: "etc/sysctl/sysctl.apparmor.conf.j2"
+      apparmor_unenforced_flags_regex:
+        description: "Profiles matching this expression are left alone by the enforce task."
+        type: "str"
+        default: "^(?!\\s*#).*flags\\s*=\\s*\\([^)]*\\b(unconfined|prompt|default_allow)\\b"
       apparmor_sysctl_settings:
         type: "dict"
         default:
-          - kernel.apparmor_display_secid_mode: 0
-          - kernel.apparmor_restrict_unprivileged_io_uring: 1
-          - kernel.apparmor_restrict_unprivileged_unconfined: 1
-          - kernel.apparmor_restrict_unprivileged_userns: 1
-          - kernel.apparmor_restrict_unprivileged_userns_complain: 0
-          - kernel.apparmor_restrict_unprivileged_userns_force: 1
-          - kernel.unprivileged_userns_apparmor_policy: 1
+          kernel.apparmor_display_secid_mode: 0
+          kernel.apparmor_restrict_unprivileged_io_uring: 1
+          kernel.apparmor_restrict_unprivileged_unconfined: 1
+          kernel.apparmor_restrict_unprivileged_userns: 1
+          kernel.apparmor_restrict_unprivileged_userns_complain: 0
+          kernel.apparmor_restrict_unprivileged_userns_force: 1
+          kernel.unprivileged_userns_apparmor_policy: 1
         description: "AppArmor sysctl settings."
         options:
           kernel.apparmor_display_secid_mode:

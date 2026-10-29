@@ -120,15 +120,17 @@ chronyd rejects it.
 5. Install chrony
 6. Stat the leap second list
 7. Set the NTS server key and certificate ownership and permissions
-8. Configure chrony
-9. Validate the chrony configuration
-10. Parse the chrony configuration
-11. Restore the previous chrony configuration
-12. Fail because chronyd rejected the configuration
-13. Gather service facts
-14. Stop conflicting time synchronization services
-15. Disable conflicting time synchronization services
-16. Start chrony
+8. Stat the chrony configuration before rendering it
+9. Configure chrony
+10. Validate the chrony configuration
+11. Parse the chrony configuration
+12. Restore the previous chrony configuration
+13. Remove the rejected chrony configuration
+14. Fail because chronyd rejected the configuration
+15. Gather service facts
+16. Stop conflicting time synchronization services
+17. Disable conflicting time synchronization services
+18. Start chrony
 
 ## Handlers
 

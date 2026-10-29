@@ -12,7 +12,7 @@ An Ansible role to manage firewalld default-deny zone rules.
 
 | Platform | Versions |
 | --- | --- |
-| AlmaLinux/EL | 10 |
+| EL | 10 |
 
 ## Role variables
 
@@ -64,16 +64,23 @@ zone model differs from ufw's in a way that changes what can be mirrored:
 
 `tasks/main.yml` executes, in order:
 
-1. Determine sysctl configuration directory
-2. Install firewalld packages
-3. Add the nf_conntrack module
-4. Enable nf_conntrack_tcp_be_liberal to keep connections alive
-5. Enable and start the firewalld service
-6. Remove default zone services
-7. Set log-denied packets
-8. Allow incoming from administrator networks
-9. Set default zone target to DROP
-10. Configure conntrack sysctl
+1. Set sysctl configuration directory as fact
+2. Stat /usr/lib/sysctl.d/ exists
+3. Set sysctl fact
+4. Determine sysctl configuration directory
+5. Configure and enable firewalld
+6. Install firewalld packages
+7. Add the nf_conntrack module
+8. Stat nf_conntrack_tcp_be_liberal
+9. Enable nf_conntrack_tcp_be_liberal to keep connections alive
+10. Enable and start the firewalld service
+11. Get zone services enabled by default
+12. Remove default zone services so only explicit rules control access
+13. Get current log-denied setting
+14. Set log-denied packets
+15. Allow incoming from administrator networks
+16. Set default zone target to DROP
+17. Configure conntrack sysctl
 
 ## Handlers
 

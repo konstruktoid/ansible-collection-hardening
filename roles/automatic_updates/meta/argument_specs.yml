@@ -10,11 +10,11 @@ argument_specs:
       automatic_updates:
         type: "dict"
         default:
-          - only_security: true
-          - reboot: false
-          - reboot_from_time: "2:00"
-          - reboot_time_margin_mins: 20
-          - custom_origins: []
+          only_security: true
+          reboot: false
+          reboot_from_time: "2:00"
+          reboot_time_margin_mins: 20
+          custom_origins: []
         description: "Configure automatic updates."
         options:
           only_security:

@@ -14,15 +14,15 @@ argument_specs:
       login_defs:
         type: "dict"
         default:
-          - home_mode: "0700"
-          - login_retries: 5
-          - login_timeout: 60
-          - pass_max_days: 60
-          - pass_min_days: 1
-          - pass_min_length: 15
-          - pass_warn_age: 7
-          - umask_value: "0077"
-          - usergroups_enabled: true
+          home_mode: "0700"
+          login_retries: 5
+          login_timeout: 60
+          pass_max_days: 60
+          pass_min_days: 1
+          pass_min_length: 15
+          pass_warn_age: 7
+          umask_value: "0077"
+          usergroups_enabled: true
         description: "login.defs configuration options."
         options:
           home_mode:

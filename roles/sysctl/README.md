@@ -122,9 +122,11 @@ net.ipv6.conf.default.use_tempaddr: 2
 1. Resolve the sysctl configuration directory
 2. Stat IPv6 status
 3. Set IPv6 fact
-4. Ensure sysctl configuration dir has the correct permissions
-5. Template the sysctl file with general sysctl hardening settings
-6. Template sysctl file with IPv6 settings
+4. Stat io_uring_disabled availability
+5. Set io_uring fact
+6. Ensure sysctl configuration dir has the correct permissions
+7. Template the sysctl file with general sysctl hardening settings
+8. Template sysctl file with IPv6 settings
 
 ## Handlers
 

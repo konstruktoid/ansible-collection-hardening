@@ -110,39 +110,40 @@ Defined in `roles/ssh/defaults/main.yml`.
 2. Get installed sshd version
 3. Set ssh version as fact
 4. Print SSH version fact
-5. Ensure privilege separation directories exist
-6. Configure sshd using sshd_config.d
-7. Stat sysconfig sshd configuration
-8. Remove sshd system crypto policy
-9. Get sshd Include config
-10. Check if sshd_config.d exists
-11. Clear pre-existing custom configurations in /etc/ssh/sshd_config.d
-12. Search pre-existing custom configurations in /etc/ssh/sshd_config.d
-13. Clear pre-existing custom configurations in /etc/ssh/sshd_config.d
-14. Ensure /etc/ssh/sshd_config permissions
-15. SSH moduli file
-16. Stat moduli file
-17. Update moduli file
-18. Find DSA host files
-19. Remove DSA host files
-20. Set default for sshd_host_keys_files if not supplied
-21. Generate SSH RSA keypair
-22. Generate SSH ECDSA keypair
-23. Generate SSH Ed25519 keypair
-24. Set hostkeys according to openssh-version if openssh >= 5.3
-25. Set hostkeys according to openssh-version if openssh >= 6.0
-26. Set hostkeys according to openssh-version if openssh >= 6.5
-27. Disable PAM dynamic MOTD
-28. Check variable sshd_config_force_replace
-29. Create trusted ca keys
-30. Configure sshd
-31. Configure sshd using sshd_config.d
-32. Remove possible Subsystem duplicate
-33. Stat sshd host keys
-34. Set sshd host key permissions
-35. Configure ssh
-36. Check if ssh_config.d exists
-37. Configure ssh client
+5. Assert that no Match rule conflicts with sshd_disable_forwarding
+6. Ensure privilege separation directories exist
+7. Configure sshd using sshd_config.d
+8. Stat sysconfig sshd configuration
+9. Remove sshd system crypto policy
+10. Get sshd Include config
+11. Check if sshd_config.d exists
+12. Clear pre-existing custom configurations in /etc/ssh/sshd_config.d
+13. Search pre-existing custom configurations in /etc/ssh/sshd_config.d
+14. Clear pre-existing custom configurations in /etc/ssh/sshd_config.d
+15. Ensure /etc/ssh/sshd_config permissions
+16. SSH moduli file
+17. Stat moduli file
+18. Update moduli file
+19. Find DSA host files
+20. Remove DSA host files
+21. Set default for sshd_host_keys_files if not supplied
+22. Generate SSH RSA keypair
+23. Generate SSH ECDSA keypair
+24. Generate SSH Ed25519 keypair
+25. Set hostkeys according to openssh-version if openssh >= 5.3
+26. Set hostkeys according to openssh-version if openssh >= 6.0
+27. Set hostkeys according to openssh-version if openssh >= 6.5
+28. Disable PAM dynamic MOTD
+29. Check variable sshd_config_force_replace
+30. Create trusted ca keys
+31. Configure sshd
+32. Configure sshd using sshd_config.d
+33. Remove possible Subsystem duplicate
+34. Stat sshd host keys
+35. Set sshd host key permissions
+36. Configure ssh
+37. Check if ssh_config.d exists
+38. Configure ssh client
 
 ## Handlers
 

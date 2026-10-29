@@ -1,5 +1,41 @@
 # Change Log
 
+## 0.5.0 (2026-10-28)
+
+- Add `PerSourcePenalties` to the generated `sshd_config` on OpenSSH 9.8 and later, set from
+  the new `sshd_per_source_penalties` variable (default
+  `crash:90 authfail:5 noauth:1 grace-exceeded:10 max:600`). Source addresses that crash
+  sshd, fail authentication or exceed `LoginGraceTime` are refused for a growing period,
+  capped at ten minutes.
+- Add `invaliduser:` to `PerSourcePenalties` on OpenSSH 10.3 and later, set from the new
+  `sshd_per_source_penalty_invaliduser` variable (default `30`, upstream default `5`), to
+  slow down username spraying. Clients behind shared NAT that mistype a username are
+  blocked for longer, still within the `max:` cap.
+- Add `PerSourcePenaltyExemptList`, set from the new `sshd_per_source_penalty_exempt_list`
+  variable (default `[]`, directive omitted). Use it for monitoring or jump hosts that
+  must never be penalised.
+- Block the `act_pedit`, `ah4`, `ah6`, `nlmon` and `pppoe` kernel modules in the
+  `kernel_modules` role. The public ZDI-CAN-33367 `skb_zerocopy` root exploit needs
+  `nlmon` and `act_pedit`, and DirtyAH6 (CVE-2026-80844) and PPPoEject (CVE-2026-68121)
+  are reachable through `ah6` and `pppoe`. Hosts that use IPsec AH, PPPoE or `tc pedit`
+  must remove the module from `kernel_modules_blocklist`; the role README describes how.
+- Add the `auditd_syslog_plugin` variable (default `true`, unchanged behaviour) to the
+  `auditd` role so the audit syslog plugin can be turned off, and reload auditd when the
+  setting changes.
+- Run `/usr/sbin/netplan` under sudo with `umask=0027` through
+  `/etc/sudoers.d/019_netplan_umask` when netplan is installed, so the `root:systemd-network`
+  files it generates stay readable by `systemd-networkd` without loosening the system-wide
+  umask.
+- Install `rng-tools` instead of `rng-tools5` on Debian releases after trixie, which renamed
+  the package back.
+- Correct `argument_specs.yml` defaults for dict variables in the `apparmor`,
+  `automatic_updates`, `disable_ipv6`, `login_defs`, `logindconf`, `password_management` and
+  `sysctl` roles, which were written as lists, document `apparmor_unenforced_flags_regex`,
+  and bring the role README task lists in line with the tasks they run.
+- Leave `.gitignore`, `extensions/`, `scripts/`, `tox.ini`, `requirements.txt` and
+  `upstream-requirements.txt` out of the built collection; they are only used for development
+  and testing.
+
 ## 0.4.0 (2026-09-07)
 
 - Restrict `io_uring` in the `sysctl` role through the new `sysctl_io_uring_disabled`
