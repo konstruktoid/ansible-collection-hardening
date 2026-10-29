@@ -26,7 +26,7 @@ Defined in `roles/ssh/defaults/main.yml`.
 | `sshd_accept_env` | `"LANG LC_*"` | Specifies what environment variables sent by the client will be copied into the session. |
 | `sshd_allow_agent_forwarding` | `false` | Specifies whether ssh-agent forwarding is permitted. |
 | `sshd_allow_groups` | `["sudo"]` | If specified, login is allowed only for users whose primary group or supplementary group list matches one of the patterns. |
-| `sshd_allow_tcp_forwarding` | `false` | Specifies whether TCP forwarding is permitted. |
+| `sshd_allow_tcp_forwarding` | `false` | Specifies whether TCP forwarding is permitted: `yes` or `true`, `no` or `false`, `local`, `remote` or `all`. |
 | `sshd_allow_users` | `[]` | If specified, login is allowed only for users whose user name matches one of the patterns. |
 | `sshd_authentication_methods` | `"any"` | The authentication methods that must be successfully completed in order to grant access to a user. |
 | `sshd_authorized_principals_file` | `"/etc/ssh/auth_principals/%u"` | Specifies a file that lists principal names that are accepted for certificate authentication. |
