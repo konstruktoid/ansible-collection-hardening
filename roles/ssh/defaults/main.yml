@@ -11,7 +11,7 @@ sshd_allow_agent_forwarding: false
 # If specified, login is allowed only for users whose primary group or supplementary group list matches one of the patterns.
 sshd_allow_groups: ["sudo"]
 
-# Specifies whether TCP forwarding is permitted.
+# Specifies whether TCP forwarding is permitted: yes or true, no or false, local, remote or all.
 sshd_allow_tcp_forwarding: false
 
 # If specified, login is allowed only for users whose user name matches one of the patterns.

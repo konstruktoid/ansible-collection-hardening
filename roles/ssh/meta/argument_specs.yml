@@ -26,15 +26,19 @@ argument_specs:
         default:
           - "sudo"
       sshd_allow_tcp_forwarding:
-        description: "Specifies whether TCP forwarding is permitted."
+        description: "Specifies whether TCP forwarding is permitted: C(yes) or C(true), C(no) or C(false), C(local), C(remote) or C(all)."
         type: "str"
         default: "False"
         choices:
           - "all"
           - "False"
+          - "false"
           - "local"
+          - "no"
           - "remote"
           - "True"
+          - "true"
+          - "yes"
       sshd_allow_users:
         description: "If specified, login is allowed only for users whose user name matches one of the patterns."
         type: "list"
