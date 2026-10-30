@@ -32,6 +32,10 @@
   `automatic_updates`, `disable_ipv6`, `login_defs`, `logindconf`, `password_management` and
   `sysctl` roles, which were written as lists, document `apparmor_unenforced_flags_regex`,
   and bring the role README task lists in line with the tasks they run.
+- Accept `yes`, `no`, `true` and `false` for `sshd_allow_tcp_forwarding` in the `ssh` role
+  argument spec. The `sshd_config` template already handled them, but argument validation
+  rejected them, and only `True`, `False`, `local`, `remote` and `all` passed. The README,
+  argument spec and defaults now list the accepted values.
 - Leave `.gitignore`, `extensions/`, `scripts/`, `tox.ini`, `requirements.txt` and
   `upstream-requirements.txt` out of the built collection; they are only used for development
   and testing.
