@@ -13,7 +13,7 @@ jobs:
       contents: read
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c  # v2.21.0
+        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43  # v2.22.3
         with:
           egress-policy: block
           allowed-endpoints: >
@@ -41,6 +41,6 @@ jobs:
           python3 -m pip install --user -U jmespath passlib
 
       - name: Lint Ansible Playbook
-        uses: ansible/ansible-lint@665d9e07a1943254d2910faffc106adaf7ea7294  # v26.8.0
+        uses: ansible/ansible-lint@9bce2bfb8f4a984e6b13767bc0d6bf0a49492164  # v26.10.1
         with:
           requirements_file: "requirements.yml"

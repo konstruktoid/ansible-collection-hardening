@@ -12,11 +12,11 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@05e31511f85b41b11d1cf0ef85d0992719546e2c  # v2.21.0
+        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43  # v2.22.3
         with:
           egress-policy: audit
 
       - name: 'auto-assign issue'
-        uses: pozil/auto-assign-issue@af6beea6bdf1e8eb373f061c5bc168681fc6d011  # v4.0.1
+        uses: pozil/auto-assign-issue@d6e511896e5f1d2408e74db74416647d8ff80c8c  # v4.1.0
         with:
           assignees: konstruktoid
