@@ -12,9 +12,13 @@ fs_modules_blocklist:
 # Misc kernel modules to block and blacklist.
 misc_modules_blocklist:
   - "act_pedit"
+  - "af_alg"
   - "ah4"
   - "ah6"
   - "algif_aead"
+  - "algif_hash"
+  - "algif_rng"
+  - "algif_skcipher"
   - "bluetooth"
   - "bnep"
   - "btusb"
@@ -41,7 +45,9 @@ misc_modules_blocklist:
 net_modules_blocklist:
   - "atm"
   - "dccp"
+  - "ebt_snat"
   - "pppoe"
   - "sctp"
   - "rds"
   - "tipc"
+  - "tls"

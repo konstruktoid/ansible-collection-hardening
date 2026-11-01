@@ -1,5 +1,18 @@
 # Change Log
 
+## Unreleased
+
+- Block the `af_alg`, `algif_hash`, `algif_rng`, `algif_skcipher`, `ebt_snat` and `tls` kernel
+  modules in the `kernel_modules` role, for the CISA KEV entries added on 2026-09-18:
+  CVE-2025-39964 in the shared AF_ALG core (`algif_aead` was already blocked),
+  CVE-2026-53266 in the ebtables SNAT target, and CVE-2025-39682 in the kernel TLS receive
+  path. Hosts that use AF_ALG (for example `iwd`), ebtables SNAT on bridges, or kernel TLS
+  (kTLS in nginx or HAProxy, NFS over TLS) must remove the module from the list that contains
+  it; the role README describes how.
+- Set `net.mptcp.enabled: 0` in the `sysctl` role's `generic_sysctl_settings`, so applications
+  cannot open Multipath TCP sockets in the host network namespace. This removes the MPTCP
+  listener path used by the public CVE-2026-98432 exploit but is not a fix for that flaw.
+
 ## 0.5.0 (2026-10-28)
 
 - Add `PerSourcePenalties` to the generated `sshd_config` on OpenSSH 9.8 and later, set from

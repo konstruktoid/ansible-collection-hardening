@@ -54,6 +54,7 @@ kernel.unprivileged_bpf_disabled: 1
 kernel.unprivileged_userns_clone: 0
 kernel.yama.ptrace_scope: 2
 net.core.bpf_jit_harden: 2
+net.mptcp.enabled: 0
 user.max_user_namespaces: 0
 ```
 
@@ -114,6 +115,16 @@ net.ipv6.conf.default.max_addresses: 1
 net.ipv6.conf.default.router_solicitations: 0
 net.ipv6.conf.default.use_tempaddr: 2
 ```
+
+## Notes
+
+`net.mptcp.enabled: 0` stops applications from opening Multipath TCP sockets; programs that ask for
+MPTCP, such as Go listeners, are expected to fall back to plain TCP. It removes the MPTCP listener
+path used by the public exploit for CVE-2026-98432, but the advisories do not state that disabling
+MPTCP mitigates that flaw, so a patched kernel is still required. The setting is per network
+namespace and applies to the host namespace only; namespaces created later, such as those of
+containers, start with the kernel default of `1`. Set `net.mptcp.enabled: 1` in
+`generic_sysctl_settings` on hosts that use MPTCP.
 
 ## Tasks
 
