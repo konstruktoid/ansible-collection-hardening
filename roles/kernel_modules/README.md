@@ -21,17 +21,23 @@ Defined in `roles/kernel_modules/defaults/main.yml`.
 | Variable | Default | Description |
 | --- | --- | --- |
 | `fs_modules_blocklist` | `["cramfs", "freevxfs", "hfs", "hfsplus", "jffs2", "squashfs", "udf"]` | Filesystem kernel modules to block and blacklist. |
-| `misc_modules_blocklist` | `["act_pedit", "ah4", "ah6", "algif_aead", "bluetooth", "bnep", "btusb", "can", "cpia2", "esp4", "esp6", "firewire-core", "floppy", "ksmbd", "n_hdlc", "net-pf-31", "nlmon", "pcspkr", "rxrpc", "soundcore", "thunderbolt", "usb-midi", "usb-storage", "uvcvideo", "v4l2_common"]` | Misc kernel modules to block and blacklist. |
-| `net_modules_blocklist` | `["atm", "dccp", "pppoe", "sctp", "rds", "tipc"]` | Network kernel modules to block and blacklist. |
+| `misc_modules_blocklist` | `["act_pedit", "af_alg", "ah4", "ah6", "algif_aead", "algif_hash", "algif_rng", "algif_skcipher", "bluetooth", "bnep", "btusb", "can", "cpia2", "esp4", "esp6", "firewire-core", "floppy", "ksmbd", "n_hdlc", "net-pf-31", "nlmon", "pcspkr", "rxrpc", "soundcore", "thunderbolt", "usb-midi", "usb-storage", "uvcvideo", "v4l2_common"]` | Misc kernel modules to block and blacklist. |
+| `net_modules_blocklist` | `["atm", "dccp", "ebt_snat", "pppoe", "sctp", "rds", "tipc", "tls"]` | Network kernel modules to block and blacklist. |
 
 ## Notes
 
 Every listed module is both blacklisted and blocked, so the feature it provides is unavailable on
 the host. Among the defaults, `act_pedit` disables `tc` packet-editing actions, `ah4`, `ah6`, `esp4`
 and `esp6` disable IPsec, `nlmon` disables netlink monitoring interfaces, and `pppoe` disables PPP
-over Ethernet. `act_pedit` and `nlmon` are blocked because the public ZDI-CAN-33367 root exploit
-depends on them; `ah6` and `pppoe` because of CVE-2026-80844 (DirtyAH6) and CVE-2026-68121
-(PPPoEject).
+over Ethernet. `af_alg` and the `algif_*` modules disable the AF_ALG userspace crypto socket
+interface, which some tools such as `iwd` and parts of `cryptsetup` use, `ebt_snat` disables the
+ebtables SNAT target on bridges, and `tls` disables kernel TLS offload, used for example by nginx
+or HAProxy with kTLS and by NFS over TLS (`tlshd`). `act_pedit` and `nlmon` are blocked because the
+public ZDI-CAN-33367 root exploit depends on them; `ah6` and `pppoe` because of CVE-2026-80844
+(DirtyAH6) and CVE-2026-68121 (PPPoEject); `af_alg` and the `algif_*` modules because of
+CVE-2026-31431 (Copy Fail) and CVE-2025-39964; `ebt_snat` because of CVE-2026-53266; and `tls`
+because of CVE-2025-39682. CVE-2025-39964, CVE-2025-39682 and CVE-2026-53266 are in the CISA Known
+Exploited Vulnerabilities catalog.
 
 To keep a module available, set the list that contains it to a complete list that omits it.
 Lists replace the defaults rather than merging with them.
