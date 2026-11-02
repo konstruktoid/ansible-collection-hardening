@@ -31,3 +31,12 @@
       when:
         - ansible_facts.os_family == "RedHat"
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Install compilers for the compilers role to restrict
+      become: true
+      ansible.builtin.package:
+        name:
+          - binutils
+          - gcc
+          - make
+        state: present

@@ -1,33 +1,59 @@
 ---
 - name: Assert compiler permissions
   block:
-    - name: Stat available compilers
+    - name: Find available compilers
       ansible.builtin.find:
         paths: [/usr/local/sbin, /usr/local/bin, /usr/sbin, /usr/bin, /sbin, /bin, /snap/bin]
         patterns: "{{ compilers }}"
-        file_type: file
+        file_type: any
         recurse: true
         depth: 5
         follow: true
       register: compiler
 
-    - name: Check file ownership
+    - name: Assert that the test hosts have compilers installed
+      ansible.builtin.assert:
+        that:
+          - compiler.files | rejectattr('isdir') | length > 0
+        fail_msg: No compilers found, the symlink checks below would pass without testing anything.
+
+    - name: Stat compiler matches, following symlinks to the files they point to
       ansible.builtin.stat:
-        path: "{{ item.path }}"
+        path: "{{ item }}"
         follow: true
       register: file_stat
-      with_items:
-        - "{{ compiler.files }}"
+      loop: >-
+        {{ compiler.files | rejectattr('isdir') | map(attribute='path') | reject('match', '^/snap/bin/') | list }}
 
     - name: Assert compiler ownership, group, mode, and state
       ansible.builtin.assert:
         that:
-          - item.stat.exists
           - item.stat.mode == '0750'
           - item.stat.uid == 0
           - item.stat.gid == 0
-        fail_msg: File {{ item.stat.path }} does not have the expected permissions.
-      with_items:
-        - "{{ file_stat.results }}"
+        fail_msg: File {{ item.item }} does not have the expected permissions.
+      loop: "{{ file_stat.results }}"
+      loop_control:
+        label: "{{ item.item }}"
       when:
-        - not item.stat.islnk
+        - item.stat.exists
+        - item.stat.isreg
+
+    - name: Resolve compiler matches to the files dpkg tracks
+      ansible.builtin.command:
+        argv: "{{ ['realpath', '--quiet', '--canonicalize-existing', '--'] + compilers_candidates }}"
+      register: compilers_realpath
+      changed_when: false
+      vars:
+        compilers_candidates: >-
+          {{ compiler.files | rejectattr('isdir') | map(attribute='path') | reject('match', '^/snap/bin/') | list }}
+
+    - name: Check dpkg-statoverride for the resolved compiler files
+      ansible.builtin.command:
+        cmd: dpkg-statoverride --list {{ item }}
+      register: dpkg_statoverride
+      changed_when: false
+      failed_when: dpkg_statoverride.stdout != 'root root 750 ' ~ item
+      loop: "{{ compilers_realpath.stdout_lines | unique }}"
+      when:
+        - ansible_facts.os_family == 'Debian'

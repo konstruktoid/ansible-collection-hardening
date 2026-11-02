@@ -4,6 +4,9 @@ argument_specs:
     short_description: "Restrict compilers to the root user."
     description:
       - "Restrict the use of certain compilers to the root user."
+      - >-
+        Symlinks matching the compiler names are resolved and the files they point to are
+        restricted. Symlinks in /snap/bin are skipped.
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:
