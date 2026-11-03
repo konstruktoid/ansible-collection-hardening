@@ -24,6 +24,31 @@
           - "'/usr/local/bin/cc-98' in (compiler.files | map(attribute='path'))"
         fail_msg: The prepare play fixtures were not found, the snap and dangling link checks would pass without testing anything.
 
+    - name: Stat the compiler-named fixture links
+      ansible.builtin.stat:
+        path: "{{ item }}"
+        follow: false
+      loop:
+        - /usr/local/bin/cc-99
+        - /usr/local/bin/cc-98
+      register: compilers_fixture_links
+
+    - name: Stat the dangling link, following it
+      ansible.builtin.stat:
+        path: /usr/local/bin/cc-98
+        follow: true
+      register: compilers_dangling_link
+
+    - name: Assert that the compiler-named links point to the expected targets
+      ansible.builtin.assert:
+        that:
+          - compilers_fixture_links.results[0].stat.islnk
+          - compilers_fixture_links.results[0].stat.lnk_target == '/usr/lib/snapd/snap-fixture'
+          - compilers_fixture_links.results[1].stat.islnk
+          - compilers_fixture_links.results[1].stat.lnk_target == '/nonexistent/compiler-fixture'
+          - not compilers_dangling_link.stat.exists
+        fail_msg: The compiler-named fixture links do not point to their expected targets.
+
     - name: Stat the snap launcher stand-in
       ansible.builtin.stat:
         path: /usr/lib/snapd/snap-fixture
