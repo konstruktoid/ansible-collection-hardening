@@ -32,7 +32,8 @@
         get_checksum: false
         get_mime: false
         get_attributes: false
-      loop: "{{ compilers_realpath.stdout_lines | default([]) | unique }}"
+      loop: >-
+        {{ compilers_realpath.stdout_lines | default([]) | reject('match', '^(/snap/|/var/lib/snapd/|/usr/lib/snapd/|/usr/bin/snap$)') | unique }}
       register: compilers_stat
 
     - name: Set the list of compiler files to restrict

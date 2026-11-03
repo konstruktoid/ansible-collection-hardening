@@ -17,36 +17,65 @@
           - compiler.files | rejectattr('isdir') | length > 0
         fail_msg: No compilers found, the symlink checks below would pass without testing anything.
 
-    - name: Stat compiler matches, following symlinks to the files they point to
+    - name: Assert that the snap stand-in and the dangling link are among the matches
+      ansible.builtin.assert:
+        that:
+          - "'/usr/local/bin/cc-99' in (compiler.files | map(attribute='path'))"
+          - "'/usr/local/bin/cc-98' in (compiler.files | map(attribute='path'))"
+        fail_msg: The prepare play fixtures were not found, the snap and dangling link checks would pass without testing anything.
+
+    - name: Stat the snap launcher stand-in
+      ansible.builtin.stat:
+        path: /usr/lib/snapd/snap-fixture
+      register: compilers_snap_fixture
+
+    - name: Assert that a compiler-named link to the snap launcher stand-in is not restricted
+      ansible.builtin.assert:
+        that:
+          - compilers_snap_fixture.stat.mode == '0755'
+        fail_msg: The snap launcher stand-in was restricted through a compiler-named symlink.
+
+    - name: Resolve compiler matches to the files they point to
+      ansible.builtin.command:
+        argv: "{{ ['realpath', '--quiet', '--canonicalize-existing', '--'] + compilers_candidates }}"
+      register: compilers_realpath
+      changed_when: false
+      failed_when: compilers_realpath.rc not in [0, 1]
+      vars:
+        compilers_candidates: >-
+          {{ compiler.files | rejectattr('isdir') | map(attribute='path') | reject('match', '^/snap/bin/') | list }}
+
+    - name: Stat resolved compilers
       ansible.builtin.stat:
         path: "{{ item }}"
-        follow: true
-      register: file_stat
+        follow: false
+      register: compilers_stat
       loop: >-
-        {{ compiler.files | rejectattr('isdir') | map(attribute='path') | reject('match', '^/snap/bin/') | list }}
+        {{ compilers_realpath.stdout_lines | reject('match', '^(/snap/|/var/lib/snapd/|/usr/lib/snapd/|/usr/bin/snap$)') | unique }}
 
-    - name: Assert compiler ownership, group, mode, and state
+    - name: Set the list of resolved compiler files
+      ansible.builtin.set_fact:
+        compilers_verify_paths: >-
+          {{ compilers_stat.results | map(attribute='stat') | selectattr('exists') | selectattr('isreg') | map(attribute='path') | list }}
+
+    - name: Assert that at least one compiler file was resolved
+      ansible.builtin.assert:
+        that:
+          - compilers_verify_paths | length > 0
+        fail_msg: No compiler matches resolved to a regular file.
+
+    - name: Assert compiler ownership, group and mode
       ansible.builtin.assert:
         that:
           - item.stat.mode == '0750'
           - item.stat.uid == 0
           - item.stat.gid == 0
         fail_msg: File {{ item.item }} does not have the expected permissions.
-      loop: "{{ file_stat.results }}"
+      loop: "{{ compilers_stat.results }}"
       loop_control:
         label: "{{ item.item }}"
       when:
-        - item.stat.exists
-        - item.stat.isreg
-
-    - name: Resolve compiler matches to the files dpkg tracks
-      ansible.builtin.command:
-        argv: "{{ ['realpath', '--quiet', '--canonicalize-existing', '--'] + compilers_candidates }}"
-      register: compilers_realpath
-      changed_when: false
-      vars:
-        compilers_candidates: >-
-          {{ compiler.files | rejectattr('isdir') | map(attribute='path') | reject('match', '^/snap/bin/') | list }}
+        - item.item in compilers_verify_paths
 
     - name: Check dpkg-statoverride for the resolved compiler files
       ansible.builtin.command:
@@ -54,6 +83,43 @@
       register: dpkg_statoverride
       changed_when: false
       failed_when: dpkg_statoverride.stdout != 'root root 750 ' ~ item
-      loop: "{{ compilers_realpath.stdout_lines | unique }}"
+      loop: "{{ compilers_verify_paths }}"
       when:
         - ansible_facts.os_family == 'Debian'
+
+    - name: Verify the DNF post-transaction actions for the resolved compiler files
+      when:
+        - ansible_facts.os_family == 'RedHat'
+      block:
+        - name: Read the DNF post-transaction actions
+          become: true
+          ansible.builtin.slurp:
+            src: /etc/dnf/plugins/post-transaction-actions.d/compilers.action
+          register: compilers_action_file
+
+        - name: Get the package that owns each resolved compiler file
+          ansible.builtin.command:
+            cmd: rpm --query --queryformat='%{NAME}' --file {{ item }} # noqa: command-instead-of-module
+          register: compilers_rpm_owner
+          changed_when: false
+          failed_when: false
+          loop: "{{ compilers_verify_paths }}"
+
+        - name: Assert that at least one resolved compiler file is owned by a package
+          ansible.builtin.assert:
+            that:
+              - compilers_rpm_owner.results | selectattr('rc', 'equalto', 0) | list | length > 0
+            fail_msg: No resolved compiler file is owned by a package, the action file checks would pass without testing anything.
+
+        - name: Assert the post-transaction action for each package-owned compiler file
+          ansible.builtin.assert:
+            that:
+              - >-
+                item.stdout ~ ':in:chown root:root "' ~ item.item ~ '" && chmod 0750 "' ~ item.item ~ '"'
+                in (compilers_action_file.content | b64decode).splitlines()
+            fail_msg: No post-transaction action restricts {{ item.item }}.
+          loop: "{{ compilers_rpm_owner.results }}"
+          loop_control:
+            label: "{{ item.item }}"
+          when:
+            - item.rc == 0
