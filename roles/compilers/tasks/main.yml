@@ -1,73 +1,99 @@
 ---
-- name: Stat available compilers
+- name: Restrict compiler binaries to the root user
   become: true
-  ansible.builtin.find:
-    paths: [/usr/local/sbin, /usr/local/bin, /usr/sbin, /usr/bin, /sbin, /bin, /snap/bin]
-    patterns: "{{ compilers }}"
-    file_type: file
-    follow: true
-    recurse: true
-    depth: 5
-  register: compiler
+  block:
+    - name: Find available compilers
+      ansible.builtin.find:
+        paths: [/usr/local/sbin, /usr/local/bin, /usr/sbin, /usr/bin, /sbin, /bin, /snap/bin]
+        patterns: "{{ compilers }}"
+        file_type: any
+        follow: true
+        recurse: true
+        depth: 5
+      register: compiler
 
-- name: Restrict compilers access
-  become: true
-  ansible.builtin.file:
-    path: "{{ item.path }}"
-    owner: root
-    group: root
-    mode: "0750"
-    state: file
-    follow: true
-  loop: "{{ compiler.files }}"
+    - name: Resolve compiler matches to the files they point to
+      ansible.builtin.command:
+        argv: "{{ ['realpath', '--quiet', '--canonicalize-existing', '--'] + compilers_candidates }}"
+      register: compilers_realpath
+      changed_when: false
+      check_mode: false
+      failed_when: compilers_realpath.rc not in [0, 1]
+      vars:
+        compilers_candidates: >-
+          {{ compiler.files | rejectattr('isdir') | map(attribute='path') | reject('match', '^/snap/bin/') | list }}
+      when:
+        - compilers_candidates | length > 0
 
-- name: Check dpkg-statoverride for restricted compilers access
-  become: true
-  ansible.builtin.command:
-    cmd: dpkg-statoverride --list "{{ item.path }}"
-  register: dpkg_statoverride_current
-  changed_when: false
-  failed_when: false
-  loop: "{{ compiler.files }}"
-  when:
-    - ansible_facts.os_family == 'Debian'
+    - name: Stat resolved compilers
+      ansible.builtin.stat:
+        path: "{{ item }}"
+        follow: false
+        get_checksum: false
+        get_mime: false
+        get_attributes: false
+      loop: >-
+        {{ compilers_realpath.stdout_lines | default([]) | reject('match', '^(/snap/|/var/lib/snapd/|/usr/lib/snapd/|/usr/bin/snap$)') | unique }}
+      register: compilers_stat
 
-- name: Ensure restrict compilers access via dpkg-statoverride
-  become: true
-  ansible.builtin.command:
-    cmd: dpkg-statoverride --update --force-all --add root root 0750 "{{ item.path }}"
-  loop: "{{ compiler.files }}"
-  register: dpkg_statoverride_update
-  changed_when: dpkg_statoverride_update.rc == 0
-  loop_control:
-    index_var: compiler_file_index
-  when:
-    - ansible_facts.os_family == 'Debian'
-    - dpkg_statoverride_current.results[compiler_file_index].rc != 0 or dpkg_statoverride_current.results[compiler_file_index].stdout != 'root root 750 ' ~
-      item.path
+    - name: Set the list of compiler files to restrict
+      ansible.builtin.set_fact:
+        compilers_paths: >-
+          {{ compilers_stat.results | map(attribute='stat') | selectattr('exists') | selectattr('isreg') | map(attribute='path') | list }}
 
-- name: Ensure DNF post-transaction-actions plugin is installed
-  become: true
-  ansible.builtin.package:
-    name: python3-dnf-plugin-post-transaction-actions
-    state: present
-  when:
-    - ansible_facts.os_family == 'RedHat'
+    - name: Restrict compilers access
+      ansible.builtin.file:
+        path: "{{ item }}"
+        owner: root
+        group: root
+        mode: "0750"
+        state: file
+        follow: true
+      loop: "{{ compilers_paths }}"
 
-- name: Ensure DNF post-transaction-actions plugin directory exists
-  become: true
-  ansible.builtin.file:
-    path: /etc/dnf/plugins/post-transaction-actions.d
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
-  when:
-    - ansible_facts.os_family == 'RedHat'
+    - name: Check dpkg-statoverride for restricted compilers access
+      ansible.builtin.command:
+        cmd: dpkg-statoverride --list "{{ item }}"
+      register: dpkg_statoverride_current
+      changed_when: false
+      failed_when: false
+      loop: "{{ compilers_paths }}"
+      when:
+        - ansible_facts.os_family == 'Debian'
 
-- name: Ensure restrict compilers access via DNF post-transaction-actions Plugin
-  ansible.builtin.include_tasks:
-    file: compilers_dnf_post_transaction_actions_plugin.yml
-  loop: "{{ compiler.files | map(attribute='path') | unique }}"
-  when:
-    - ansible_facts.os_family == 'RedHat'
+    - name: Ensure restrict compilers access via dpkg-statoverride
+      ansible.builtin.command:
+        cmd: dpkg-statoverride --update --force-all --add root root 0750 "{{ item }}"
+      loop: "{{ compilers_paths }}"
+      register: dpkg_statoverride_update
+      changed_when: dpkg_statoverride_update.rc == 0
+      loop_control:
+        index_var: compiler_file_index
+      when:
+        - ansible_facts.os_family == 'Debian'
+        - dpkg_statoverride_current.results[compiler_file_index].rc != 0 or dpkg_statoverride_current.results[compiler_file_index].stdout != 'root root 750 ' ~
+          item
+
+    - name: Ensure DNF post-transaction-actions plugin is installed
+      ansible.builtin.package:
+        name: python3-dnf-plugin-post-transaction-actions
+        state: present
+      when:
+        - ansible_facts.os_family == 'RedHat'
+
+    - name: Ensure DNF post-transaction-actions plugin directory exists
+      ansible.builtin.file:
+        path: /etc/dnf/plugins/post-transaction-actions.d
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+      when:
+        - ansible_facts.os_family == 'RedHat'
+
+    - name: Ensure restrict compilers access via DNF post-transaction-actions Plugin
+      ansible.builtin.include_tasks:
+        file: compilers_dnf_post_transaction_actions_plugin.yml
+      loop: "{{ compilers_paths }}"
+      when:
+        - ansible_facts.os_family == 'RedHat'

@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- Restrict symlinked compilers in the `compilers` role. The `find` task used `file_type: file`,
+  which never matches symlinks, so on Debian and Ubuntu `gcc`, `cc`, `as` and `gcc-[0-9]*`
+  stayed `0755` and only `make` was restricted. Matches are now resolved to the regular files
+  they point to, de-duplicated, and `0750` is applied to those files, with the
+  `dpkg-statoverride` entry and DNF post-transaction action recorded against the same files.
+  Symlinks in `/snap/bin` are skipped. A name in `compilers` that links to a multi-call
+  binary, such as `ccache`, now restricts that binary for non-root users. The Molecule verify
+  play follows the same rule and no longer skips symlinks, and the Molecule prepare play
+  installs `gcc`, `make` and `binutils` so the check has files to test (issue #110).
 - Block the `af_alg`, `algif_hash`, `algif_rng`, `algif_skcipher`, `ebt_snat` and `tls` kernel
   modules in the `kernel_modules` role, for the CISA KEV entries added on 2026-09-18:
   CVE-2025-39964 in the shared AF_ALG core (`algif_aead` was already blocked),

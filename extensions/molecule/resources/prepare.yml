@@ -31,3 +31,43 @@
       when:
         - ansible_facts.os_family == "RedHat"
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
+
+    - name: Install compilers for the compilers role to restrict
+      become: true
+      ansible.builtin.package:
+        name:
+          - binutils
+          - gcc
+          - make
+        state: present
+
+    - name: Create the snapd directory for the compilers role snap fixture
+      become: true
+      ansible.builtin.file:
+        path: /usr/lib/snapd
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Create a stand-in for the snap launcher
+      become: true
+      ansible.builtin.copy:
+        content: |
+          #!/bin/sh
+          exit 0
+        dest: /usr/lib/snapd/snap-fixture
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Create compiler-named symlinks to the snap stand-in and to a missing file
+      become: true
+      ansible.builtin.file:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        state: link
+        force: true
+      loop:
+        - { src: /usr/lib/snapd/snap-fixture, dest: /usr/local/bin/cc-99 }
+        - { src: /nonexistent/compiler-fixture, dest: /usr/local/bin/cc-98 }
