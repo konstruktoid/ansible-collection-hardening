@@ -1,4 +1,5 @@
 ---
+sudo_su_group: "sugroup"
 sudo_logfile: "/var/log/sudo.log"
 sudo_passwd_timeout: 1
 sudo_timestamp_timeout: 5
