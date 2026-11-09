@@ -18,5 +18,8 @@ llmnr: "no"
 # systemd v253.
 multicast_dns: "no"
 
+# Specify DNS search domains
+dns_domains: []
+
 # Systemd resolved.conf template location.
 resolved_conf_template: "etc/systemd/resolved.conf.j2"

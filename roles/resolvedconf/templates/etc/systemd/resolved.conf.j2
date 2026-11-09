@@ -10,3 +10,6 @@ DNSOverTLS={{ dns_over_tls }}
 {% endif %}
 LLMNR={{ llmnr }}
 MulticastDNS={{ multicast_dns }}
+{% if dns_domains is defined and dns_domains | length > 0 %}
+Domains={{ dns_domains | join(' ') }}
+{% endif %}
