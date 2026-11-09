@@ -1,4 +1,7 @@
 ---
+# Specify authorized keys file (eg, /etc/ssh/authorized_keys/%u)
+sshd_authorized_keys_file: ""
+
 # OpenSSH ssh_config template location.
 ssh_config_template: "etc/ssh/ssh_config.j2"
 
