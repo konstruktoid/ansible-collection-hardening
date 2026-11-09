@@ -54,7 +54,7 @@ RequiredRSASize {{ sshd_required_rsa_size }}
 # Authentication
 #######################################################
 
-{% if sshd_authorized_keys_file is defined %}
+{% if sshd_authorized_keys_file %}
 AuthorizedKeysFile {{ sshd_authorized_keys_file }}
 {% endif %}
 {% if sshd_authorized_principals_file %}
