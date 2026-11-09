@@ -150,7 +150,7 @@
 - name: Create su group sugroup
   become: true
   ansible.builtin.group:
-    name: sugroup
+    name: "{{ sudo_su_group }}"
     state: present
 
 - name: Configure su group
@@ -158,7 +158,7 @@
   ansible.builtin.lineinfile:
     dest: /etc/pam.d/su
     regexp: "^auth\\s+required\\s+pam_wheel\\.so(\\s+.*)?$"
-    line: auth required pam_wheel.so use_uid group=sugroup
+    line: "auth required pam_wheel.so use_uid group={{ sudo_su_group }}"
     insertbefore: BOF
     mode: "0644"
     state: present
