@@ -11,7 +11,6 @@
     - FallbackDNS={{ fallback_dns | join(' ') }}
     - DNSSEC={{ dnssec }}
     - DNSOverTLS={{ dns_over_tls }}
-    - Domains={{ dns_domains | join(' ') }}
   when:
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
 
@@ -25,3 +24,11 @@
   with_items:
     - LLMNR={{ llmnr }}
     - MulticastDNS={{ multicast_dns }}
+
+- name: Verify systemd resolved.conf Domains setting
+  become: true
+  ansible.builtin.command:
+    cmd: grep -Fx "Domains={{ dns_domains | join(' ') }}" /etc/systemd/resolved.conf
+  register: systemd_resolved_conf_domains
+  changed_when: false
+  failed_when: systemd_resolved_conf_domains.rc != 0

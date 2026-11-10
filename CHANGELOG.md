@@ -2,8 +2,9 @@
 
 ## Unreleased
 
-- Add `sudo_su_group` to the `sudo` role (default `sugroup`) so the group allowed to use `su`
-  through `pam_wheel` can be renamed. The Molecule scenarios set it to `suadmin`.
+- Add `sudo_su_group` to the `sudo` role (default `sugroup`) to select the group allowed to use
+  `su` through `pam_wheel`. The role does not migrate members. Before changing the setting, add
+  users who need `su` access to the new group. The Molecule scenarios set it to `suadmin`.
 - Add `dns_domains` to the `resolvedconf` role (default `[]`) to write search domains as
   `Domains=` in `resolved.conf`; the line is omitted when the list is empty.
 - Restrict symlinked compilers in the `compilers` role. The `find` task used `file_type: file`,
