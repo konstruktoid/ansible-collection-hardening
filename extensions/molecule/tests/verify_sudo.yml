@@ -77,4 +77,9 @@
 - name: Assert su group configuration output
   ansible.builtin.assert:
     that:
-      - "'auth required pam_wheel.so use_uid group=sugroup' in su_group_check.stdout_lines"
+      - "'auth required pam_wheel.so use_uid group=' ~ sudo_su_group in su_group_check.stdout_lines"
+
+- name: Get su group entry
+  ansible.builtin.getent:
+    database: group
+    key: "{{ sudo_su_group }}"
