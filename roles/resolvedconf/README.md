@@ -21,6 +21,7 @@ Defined in `roles/resolvedconf/defaults/main.yml`.
 | Variable | Default | Description |
 | --- | --- | --- |
 | `dns` | `["1.1.1.2", "9.9.9.9"]` | A list of addresses to use as system DNS servers. |
+| `dns_domains` | `[]` | A list of DNS search domains, written as `Domains=` in `resolved.conf`. Omitted when empty. |
 | `dns_over_tls` | `"opportunistic"` | Set the DNS over TLS mode for systemd-resolved. |
 | `dnssec` | `"allow-downgrade"` | Set the DNSSEC mode for systemd-resolved. |
 | `fallback_dns` | `["1.0.0.2", "149.112.112.112"]` | A list of addresses to use as the fallback DNS servers. |

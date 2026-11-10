@@ -11,6 +11,7 @@
     - FallbackDNS={{ fallback_dns | join(' ') }}
     - DNSSEC={{ dnssec }}
     - DNSOverTLS={{ dns_over_tls }}
+    - Domains={{ dns_domains | join(' ') }}
   when:
     - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
 

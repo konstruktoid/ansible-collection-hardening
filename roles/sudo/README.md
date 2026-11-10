@@ -20,6 +20,7 @@ Defined in `roles/sudo/defaults/main.yml`.
 
 | Variable | Default | Description |
 | --- | --- | --- |
+| `sudo_su_group` | `"sugroup"` | Group whose members may use `su`, enforced with `pam_wheel` in `/etc/pam.d/su`. |
 | `sudo_logfile` | `"/var/log/sudo.log"` | Path to the sudo log file. |
 | `sudo_passwd_timeout` | `1` | Number of minutes before sudo prompts for a password again. |
 | `sudo_timestamp_timeout` | `5` | Number of minutes sudo credential caching remains valid. |
@@ -43,7 +44,7 @@ Defined in `roles/sudo/defaults/main.yml`.
 13. Configure sudo to disable rootpw and targetpw
 14. Configure sudo to disable runaspw
 15. Configure sudo netplan command umask
-16. Create su group sugroup
+16. Create su group
 17. Configure su group
 
 When `/usr/sbin/netplan` is installed, the role configures a `0027` umask

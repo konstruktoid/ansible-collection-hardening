@@ -147,7 +147,7 @@
       when:
         - sudo_netplan_command.stat.exists
 
-- name: Create su group sugroup
+- name: Create su group
   become: true
   ansible.builtin.group:
     name: "{{ sudo_su_group }}"

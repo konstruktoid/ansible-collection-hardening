@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add `sudo_su_group` to the `sudo` role (default `sugroup`) so the group allowed to use `su`
+  through `pam_wheel` can be renamed. The Molecule scenarios set it to `suadmin`.
+- Add `dns_domains` to the `resolvedconf` role (default `[]`) to write search domains as
+  `Domains=` in `resolved.conf`; the line is omitted when the list is empty.
 - Restrict symlinked compilers in the `compilers` role. The `find` task used `file_type: file`,
   which never matches symlinks, so on Debian and Ubuntu `gcc`, `cc`, `as` and `gcc-[0-9]*`
   stayed `0755` and only `make` was restricted. Matches are now resolved to the regular files
