@@ -1,4 +1,10 @@
 ---
+# Specify authorized keys file (eg, /etc/ssh/authorized_keys/%u).
+# When configured, this replaces OpenSSH's default authorized keys file lookup.
+# Ensure users' public keys are provisioned at the new location before applying
+# this setting to avoid losing SSH access.
+sshd_authorized_keys_file: ""
+
 # OpenSSH ssh_config template location.
 ssh_config_template: "etc/ssh/ssh_config.j2"
 
