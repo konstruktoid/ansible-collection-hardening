@@ -21,6 +21,8 @@
       vars:
         firewalld_admin_net: ["0.0.0.0/0"]
     - role: konstruktoid.hardening.resolvedconf
+      vars:
+        dns_domains: ["example.test", "corp.example.test"]
     # A scenario booting rolling or development images sets
     # molecule_system_upgrade to false: their archives publish between the two
     # converges, so the upgrade legitimately finds work again and the
@@ -48,6 +50,8 @@
     - role: konstruktoid.hardening.logindconf
     - role: konstruktoid.hardening.netplan
     - role: konstruktoid.hardening.sudo
+      vars:
+        sudo_su_group: "suadmin"
     - role: konstruktoid.hardening.tcpwrappers
     - role: konstruktoid.hardening.login_defs
     - role: konstruktoid.hardening.limits

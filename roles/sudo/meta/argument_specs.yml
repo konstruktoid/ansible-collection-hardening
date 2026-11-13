@@ -7,6 +7,11 @@ argument_specs:
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:
+      sudo_su_group:
+        type: "str"
+        default: "sugroup"
+        description:
+          - "Name of the group whose members may use su, enforced with pam_wheel in /etc/pam.d/su."
       sudo_passwd_timeout:
         type: "int"
         default: 1

@@ -25,6 +25,11 @@ argument_specs:
         default:
           - "1.0.0.2"
           - "149.112.112.112"
+      dns_domains:
+        description: "A list of DNS search domains, written as Domains= in resolved.conf. Omitted when empty."
+        type: "list"
+        elements: "str"
+        default: []
       dnssec:
         description: "Set the DNSSEC mode for systemd-resolved."
         type: "str"

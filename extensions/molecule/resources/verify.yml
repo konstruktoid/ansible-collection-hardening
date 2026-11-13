@@ -49,6 +49,8 @@
     - name: Verify resolvedconf role
       ansible.builtin.include_tasks:
         file: ../tests/verify_resolvedconf.yml
+      vars:
+        dns_domains: ["example.test", "corp.example.test"]
 
     - name: Verify package_management role
       ansible.builtin.include_tasks:
@@ -115,6 +117,8 @@
     - name: Verify sudo role
       ansible.builtin.include_tasks:
         file: ../tests/verify_sudo.yml
+      vars:
+        sudo_su_group: "suadmin"
 
     - name: Verify tcpwrappers role
       ansible.builtin.include_tasks:
