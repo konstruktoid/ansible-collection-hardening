@@ -42,7 +42,10 @@ jobs:
 
   claude-review:
     needs: check-actor
-    if: needs.check-actor.outputs.has_write == 'true'
+    # Fork PRs get no OIDC token, so claude-code-action cannot authenticate.
+    if: >-
+      needs.check-actor.outputs.has_write == 'true' &&
+      github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-26.04
     timeout-minutes: 15
     permissions:
