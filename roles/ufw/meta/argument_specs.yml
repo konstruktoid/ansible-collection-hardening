@@ -32,7 +32,9 @@ argument_specs:
           - 853
           - { "port": 4460, "proto": "tcp" }
       ufw_rate_limit:
-        description: "If True, rate limiting is enabled for incoming connections."
+        description: >-
+          If True, connections from C(ufw_admin_net) to C(ufw_ports) are rate limited instead of allowed.
+          No other incoming traffic is accepted.
         type: "bool"
         default: false
       disable_ipv6:
