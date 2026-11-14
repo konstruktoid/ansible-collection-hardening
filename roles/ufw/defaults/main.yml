@@ -23,5 +23,5 @@ ufw_outgoing_traffic:
   - 853
   - { "port": 4460, "proto": "tcp" }
 
-# If True, rate limiting is enabled for incoming connections.
+# If True, connections from C(ufw_admin_net) to C(ufw_ports) are rate limited instead of allowed.
 ufw_rate_limit: false

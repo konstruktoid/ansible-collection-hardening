@@ -166,15 +166,14 @@
 - name: Create UFW rules
   become: true
   block:
-    - name: Set rate limit on physical interfaces
+    # An interface-wide limit rule is an allow rule that bypasses the default deny, so earlier releases are cleaned up.
+    - name: Remove interface-wide limit rule from physical interfaces
       community.general.ufw:
         rule: limit
         interface: "{{ item }}"
         direction: in
-        comment: ansible managed
+        delete: true
       loop: "{{ physical_interfaces.stdout_lines }}"
-      when:
-        - ufw_rate_limit
 
     - name: Allow outgoing specified ports
       community.general.ufw:

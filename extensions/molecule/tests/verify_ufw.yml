@@ -56,6 +56,56 @@
           - ufw_not_managed.stdout == ""
         fail_msg: "There are UFW rules not managed by Ansible: {{ ufw_not_managed.stdout_lines }}"
 
+    - name: Get UFW rules without a port or source
+      ansible.builtin.shell: |
+        set -o pipefail
+        ufw status verbose | grep -P '^Anywhere( \(v6\))? on (?!lo\b)\S+\s+(ALLOW|LIMIT) IN\s+Anywhere'
+      args:
+        executable: /bin/bash
+      register: ufw_open_rules
+      changed_when: false
+      failed_when: ufw_open_rules.rc > 1
+
+    - name: Assert no interface-wide allow or limit rule exists
+      ansible.builtin.assert:
+        that:
+          - ufw_open_rules.stdout == ""
+        fail_msg: "Interface-wide rules bypass the default deny: {{ ufw_open_rules.stdout_lines }}"
+
+    - name: Get rate limited admin rules
+      ansible.builtin.command:
+        cmd: ufw show added
+      changed_when: false
+      register: ufw_added
+
+    - name: Set the distinct expected admin rules
+      ansible.builtin.set_fact:
+        ufw_expected_admin_rules: >-
+          {% set rules = [] %}
+          {% for net in ufw_admin_net %}
+          {% for port in ufw_ports %}
+          {% set action = 'limit' if ufw_rate_limit | bool else 'allow' %}
+          {% set target = port ~ '/tcp' if net in ['0.0.0.0/0', '::/0'] else 'from ' ~ net ~ ' to any port ' ~ port ~ ' proto tcp' %}
+          {% set _ = rules.append('ufw ' ~ action ~ ' ' ~ target) %}
+          {% endfor %}
+          {% endfor %}
+          {{ rules | unique | list | to_json }}
+
+    - name: Assert each expected admin rule is present
+      ansible.builtin.assert:
+        that:
+          - item in (ufw_added.stdout_lines | map('regex_replace', ' comment .*$', '') | list)
+        fail_msg: "Missing admin rule {{ item }}: {{ ufw_added.stdout_lines }}"
+      loop: "{{ ufw_expected_admin_rules | from_json }}"
+
+    - name: Assert limit rules exist only for the admin rules
+      ansible.builtin.assert:
+        that:
+          - >-
+            (ufw_added.stdout_lines | select('match', '^ufw limit ') | list | length)
+            == (ufw_expected_admin_rules | from_json | length if ufw_rate_limit | bool else 0)
+        fail_msg: "Unexpected ufw limit rules: {{ ufw_added.stdout_lines }}"
+
     - name: "Stat /etc/default/ufw"
       ansible.builtin.stat:
         path: "/etc/default/ufw"

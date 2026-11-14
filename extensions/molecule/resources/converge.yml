@@ -14,6 +14,7 @@
         - ansible_facts.os_family == "Debian"
       vars:
         ufw_admin_net: ["0.0.0.0/0"]
+        ufw_rate_limit: true
     - role: konstruktoid.hardening.firewalld
       when:
         - ansible_facts.virtualization_type not in ["container", "docker", "podman"]
