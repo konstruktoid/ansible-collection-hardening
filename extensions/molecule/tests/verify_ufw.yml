@@ -59,7 +59,7 @@
     - name: Get UFW rules without a port or source
       ansible.builtin.shell: |
         set -o pipefail
-        ufw status | grep -E '^Anywhere on .*(ALLOW|LIMIT) IN +Anywhere'
+        ufw status verbose | grep -P '^Anywhere( \(v6\))? on (?!lo\b)\S+\s+(ALLOW|LIMIT) IN\s+Anywhere'
       args:
         executable: /bin/bash
       register: ufw_open_rules
@@ -78,11 +78,23 @@
       changed_when: false
       register: ufw_added
 
-    - name: Assert admin rules are rate limited when ufw_rate_limit is true
+    - name: Assert each admin rule uses the expected action, source, protocol and port
       ansible.builtin.assert:
         that:
-          - "('ufw limit' in ufw_added.stdout) == (ufw_rate_limit | bool)"
-        fail_msg: "ufw_rate_limit is {{ ufw_rate_limit }} but ufw show added disagrees"
+          - >-
+            ('ufw ' ~ ('limit' if ufw_rate_limit | bool else 'allow') ~ ' '
+            ~ (item.1 ~ '/tcp' if item.0 in ['0.0.0.0/0', '::/0'] else 'from ' ~ item.0 ~ ' to any port ' ~ item.1 ~ ' proto tcp'))
+            in (ufw_added.stdout_lines | map('regex_replace', ' comment .*$', '') | list)
+        fail_msg: "Missing admin rule for {{ item.0 }} port {{ item.1 }}: {{ ufw_added.stdout_lines }}"
+      loop: "{{ ufw_admin_net | product(ufw_ports) | list }}"
+
+    - name: Assert limit rules exist only for the admin rules
+      ansible.builtin.assert:
+        that:
+          - >-
+            (ufw_added.stdout_lines | select('match', '^ufw limit ') | list | length)
+            == ((ufw_admin_net | length) * (ufw_ports | length) if ufw_rate_limit | bool else 0)
+        fail_msg: "Unexpected ufw limit rules: {{ ufw_added.stdout_lines }}"
 
     - name: "Stat /etc/default/ufw"
       ansible.builtin.stat:
