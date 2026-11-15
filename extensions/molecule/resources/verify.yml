@@ -38,6 +38,7 @@
       when: ansible_facts.os_family == "Debian"
       vars:
         ufw_admin_net: ["0.0.0.0/0"]
+        ufw_rate_limit: true
 
     - name: Verify firewalld role
       ansible.builtin.include_tasks:

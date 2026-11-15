@@ -27,7 +27,7 @@ Defined in `roles/ufw/defaults/main.yml`.
 | `ufw_admin_net` | `["192.168.0.0/24", "192.168.1.0/24"]` | Only the network(s) defined in `ufw_admin_net` are allowed to connect to `ufw_ports`. |
 | `ufw_ports` | `[22]` | Specifies the port number that ufw should listen on for incoming connections. This is typically used for SSH (port 22) or other services you want to allow access to. |
 | `ufw_outgoing_traffic` | complex, see below | Allowed outgoing ports and protocols. |
-| `ufw_rate_limit` | `false` | If True, rate limiting is enabled for incoming connections. |
+| `ufw_rate_limit` | `false` | If True, connections from `ufw_admin_net` to `ufw_ports` are rate limited instead of allowed. No other incoming traffic is accepted. |
 
 `conntrack_sysctl_settings` default value:
 

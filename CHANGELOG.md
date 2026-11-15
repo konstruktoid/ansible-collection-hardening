@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Security fix: `ufw_rate_limit: true` in the `ufw` role no longer runs `ufw limit in on <iface>`
+  for every physical interface. That rule had no port or source, so it accepted all incoming
+  traffic on those interfaces and bypassed both the default deny and `ufw_admin_net` (issue #120).
+  The role now deletes that rule on every run, which also cleans up hosts converged by earlier
+  releases. `ufw_rate_limit` only rate limits the `ufw_admin_net` to `ufw_ports` rules. Anything
+  that relied on the open rule must be allowed explicitly.
+
 - Add `sudo_su_group` to the `sudo` role (default `sugroup`) to select the group allowed to use
   `su` through `pam_wheel`. The role does not migrate members. Before changing the setting, add
   users who need `su` access to the new group. The Molecule scenarios set it to `suadmin`.
