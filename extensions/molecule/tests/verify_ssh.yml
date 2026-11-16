@@ -102,6 +102,18 @@
       when:
         - sshd_config_directory.stat.exists
 
+    - name: Verify sshd AuthorizedKeysFile is not set by default
+      become: true
+      ansible.builtin.lineinfile:
+        dest: "{{ '/etc/ssh/sshd_config.d/01-hardening.conf' if sshd_config_directory.stat.exists else '/etc/ssh/sshd_config' }}"
+        regexp: "^AuthorizedKeysFile"
+        state: absent
+      check_mode: true
+      register: sshd_authorized_keys_file_check
+      failed_when: sshd_authorized_keys_file_check is changed
+      when:
+        - sshd_authorized_keys_file | default("") | length == 0
+
     - name: Print allow groups and users
       ansible.builtin.debug:
         msg:

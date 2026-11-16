@@ -47,6 +47,10 @@ argument_specs:
         description: "The authentication methods that must be successfully completed in order to grant access to a user."
         type: "str"
         default: "any"
+      sshd_authorized_keys_file:
+        description: "Specifies the file that contains the public keys used for user authentication. An empty value leaves the OpenSSH default lookup in place."
+        type: "str"
+        default: ""
       sshd_authorized_principals_file:
         description: "Specifies a file that lists principal names that are accepted for certificate authentication."
         type: "path"

@@ -29,6 +29,7 @@ Defined in `roles/ssh/defaults/main.yml`.
 | `sshd_allow_tcp_forwarding` | `false` | Specifies whether TCP forwarding is permitted: `yes` or `true`, `no` or `false`, `local`, `remote` or `all`. |
 | `sshd_allow_users` | `[]` | If specified, login is allowed only for users whose user name matches one of the patterns. |
 | `sshd_authentication_methods` | `"any"` | The authentication methods that must be successfully completed in order to grant access to a user. |
+| `sshd_authorized_keys_file` | `""` | Specifies the file that contains the public keys used for user authentication, for example `/etc/ssh/authorized_keys/%u`. An empty value writes no `AuthorizedKeysFile` directive. When set it replaces the OpenSSH default lookup, so provision keys there first and keep the files root-owned and not writable by users. |
 | `sshd_authorized_principals_file` | `"/etc/ssh/auth_principals/%u"` | Specifies a file that lists principal names that are accepted for certificate authentication. |
 | `sshd_banner` | `"/etc/issue.net"` | The contents of the specified file are sent to the remote user before authentication. |
 | `sshd_ca_signature_algorithms` | `["ecdsa-sha2-nistp384", "ecdsa-sha2-nistp521", "ssh-ed25519", "rsa-sha2-512"]` | Specifies which algorithms are allowed for signing of certificates by certificate authorities. |
