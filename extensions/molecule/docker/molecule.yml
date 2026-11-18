@@ -30,7 +30,8 @@ provisioner:
     verify: "../resources/verify.yml"
   config_options:
     defaults:
-      callbacks_enabled: "ansible.posix.profile_tasks,community.general.log_plays"
+      callbacks_enabled: "ansible.posix.profile_tasks,community.general.log_plays,task_coverage"
+      callback_plugins: "${MOLECULE_PROJECT_DIRECTORY}/extensions/molecule/plugins/callback"
       # The plays run with strategy free, so hosts no longer report in step.
       # Drop the skipped hosts from the terminal, they are the bulk of the
       # interleaved noise, and keep a readable per host transcript on disk.
