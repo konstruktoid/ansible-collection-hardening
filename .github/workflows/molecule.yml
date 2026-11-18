@@ -72,8 +72,8 @@ jobs:
   tox-qemu:
     name: Test stable releases on QEMU virtual machines
     runs-on: ubuntu-26.04
-    # Unmeasured: the prerelease job, which also converges three guests, gets 180 minutes.
-    timeout-minutes: 120
+    # The first run took 19 minutes, so this leaves room for slow image downloads and mirrors.
+    timeout-minutes: 45
     permissions:
       contents: read
     steps:
