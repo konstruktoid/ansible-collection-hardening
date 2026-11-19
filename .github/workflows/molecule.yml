@@ -68,3 +68,69 @@ jobs:
       - name: Test upstream code
         run: |
           tox run -e docker-upstream
+
+  tox-qemu:
+    name: Test stable releases on QEMU virtual machines
+    runs-on: ubuntu-26.04
+    # The first run took 19 minutes, so this leaves room for slow image downloads and mirrors.
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    steps:
+      # Audit rather than block: the guests reach distribution, EPEL and mirror
+      # endpoints through QEMU user networking, so the egress set is neither
+      # stable nor knowable in advance.
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@46b06cea07f9e64621fdf066ba77ac6915163d43  # v2.22.3
+        with:
+          egress-policy: audit
+
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e  # v10.3.2
+
+      - name: Install system dependencies
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get --assume-yes --no-install-recommends install \
+            genisoimage \
+            ovmf \
+            qemu-system-x86 \
+            qemu-utils
+          uv tool install tox --with tox-uv
+
+      # The device is handed to the workflow user by ownership rather than the
+      # widely copied world-writable MODE="0666" rule: adding the user to the
+      # kvm group has no effect on the already authenticated runner session,
+      # while OWNER applies to the static node immediately.
+      - name: Allow the runner user to use KVM
+        run: |
+          set -euo pipefail
+          printf 'KERNEL=="kvm", OWNER="%s", GROUP="kvm", MODE="0660", OPTIONS+="static_node=kvm"\n' \
+            "$(id -un)" | sudo tee /etc/udev/rules.d/99-kvm.rules > /dev/null
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+          sudo udevadm settle
+          if [ ! -r /dev/kvm ] || [ ! -w /dev/kvm ]; then
+            echo "::error::/dev/kvm is not accessible to $(id -un), the guests would fall back to TCG"
+            ls -l /dev/kvm
+            exit 1
+          fi
+
+      - name: Test stable releases on QEMU
+        run: |
+          set -euo pipefail
+          tox run -e qemu
+
+      - name: Upload Molecule logs
+        if: always() && hashFiles('molecule-logs/**') != ''
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: molecule-logs-qemu
+          path: molecule-logs/
+          retention-days: 14
