@@ -72,10 +72,12 @@ def walk(node: yaml.Node, found: list[yaml.MappingNode]) -> None:
 def load_inventory(root: Path) -> dict[str, dict[str, Any]]:
     """Return every task and handler under root/roles keyed by ``roles/<role>/<kind>/<file>:<line>``."""
     inventory: dict[str, dict[str, Any]] = {}
-    for path in sorted((root / "roles").glob("*/*/*.y*ml")):
-        role, kind = path.parts[-3], path.parts[-2]
-        if kind not in ("tasks", "handlers"):
-            continue
+    # Task files may sit in subdirectories of tasks and handlers, the callback reports them with the full path.
+    candidates = [path for kind in ("tasks", "handlers") for path in (root / "roles").glob(f"*/{kind}/**/*")
+                  if path.is_file() and path.suffix in (".yml", ".yaml")]
+    for path in sorted(candidates):
+        relative_to_roles = path.relative_to(root / "roles").parts
+        role, kind = relative_to_roles[0], relative_to_roles[1]
         document = yaml.compose(path.read_text(encoding="utf-8"))
         tasks: list[yaml.MappingNode] = []
         if document is not None:

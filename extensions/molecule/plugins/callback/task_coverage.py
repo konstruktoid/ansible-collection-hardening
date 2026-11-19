@@ -9,8 +9,9 @@ DOCUMENTATION = """
     description:
       - Writes one JSON object per task result and host to
         C(molecule-logs/<scenario>/task_coverage.jsonl) below the Molecule project directory.
-      - Only tasks and handlers defined under C(roles/<role>/tasks) or C(roles/<role>/handlers) are recorded,
-        so prepare, verify and create playbooks never count.
+      - Only tasks and handlers defined under C(roles/<role>/tasks) or C(roles/<role>/handlers) are recorded.
+      - Verify and prepare playbooks can still run role task files, so every record carries a C(phase) and the
+        report drops the verify and prepare phases.
       - Every record is a single O_APPEND write from the controller process, so it is safe with C(strategy free)
         and when several playbook runs append to the same file one after another.
       - A playbook named C(create*) truncates the file, which keeps a local rerun from mixing with stale data.

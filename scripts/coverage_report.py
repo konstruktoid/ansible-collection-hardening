@@ -17,15 +17,31 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from task_inventory import load_inventory, missing_from_inventory
+from task_inventory import load_inventory
+
+
+# Phases whose records never count: verify and prepare may run role task files but do not apply the roles.
+EXCLUDED_PHASES = {"verify", "prepare"}
 
 
 def read_records(jsonl_files: list[Path]) -> list[dict[str, Any]]:
-    """Read every record, skipping blank lines."""
+    """Read every usable record, warning about and skipping blank, truncated or malformed lines."""
     records: list[dict[str, Any]] = []
     for jsonl in jsonl_files:
         with jsonl.open(encoding="utf-8") as handle:
-            records.extend(json.loads(line) for line in handle if line.strip())
+            for number, line in enumerate(handle, start=1):
+                if not line.strip():
+                    continue
+                try:
+                    record = json.loads(line)
+                    absent = {"path", "scenario", "host"} - record.keys()
+                    if absent:
+                        raise KeyError(sorted(absent))
+                except (json.JSONDecodeError, KeyError, AttributeError) as error:
+                    print(f"::warning::{jsonl}:{number}: skipping unreadable coverage record ({error!r})",
+                          file=sys.stderr)
+                    continue
+                records.append(record)
     return records
 
 
@@ -37,7 +53,8 @@ def percent(part: int, whole: int) -> float:
 def build_report(inventory: dict[str, dict[str, Any]], records: list[dict[str, Any]],
                  missing: list[str]) -> dict[str, Any]:
     """Compute the coverage figures from the inventory and the runtime records."""
-    known = [record for record in records if record["path"] in inventory]
+    known = [record for record in records
+             if record["path"] in inventory and record.get("phase") not in EXCLUDED_PHASES]
     # A task is executed in a cell when it reported ok, which includes changed.
     executed_in: dict[str, set[str]] = defaultdict(set)
     statuses: dict[str, set[str]] = defaultdict(set)
@@ -70,10 +87,11 @@ def build_report(inventory: dict[str, dict[str, Any]], records: list[dict[str, A
     executed_only = sorted(p for p in inventory if has_when[p] and statuses[p] == {"ok"})
     skipped_only = sorted(p for p in inventory if has_when[p] and statuses[p] == {"skipped"})
 
-    platforms = sorted(platform_executed)
+    # A platform that only skipped or failed still gets a column, with zero counts.
+    platforms = sorted({f"{record['scenario']}/{record['host']}" for record in known})
     matrix = {
         platform: {
-            role: sum(1 for path in platform_executed[platform] if inventory[path]["role"] == role)
+            role: sum(1 for path in platform_executed.get(platform, set()) if inventory[path]["role"] == role)
             for role in roles
         }
         for platform in platforms
@@ -147,7 +165,10 @@ def find_jsonl(paths: list[Path]) -> list[Path]:
     """Expand directories into the task_coverage.jsonl files below them."""
     found: list[Path] = []
     for path in paths:
-        found += sorted(path.rglob("task_coverage.jsonl")) if path.is_dir() else [path]
+        if path.is_dir():
+            found += sorted(path.rglob("task_coverage.jsonl"))
+        elif path.is_file():
+            found.append(path)
     return found
 
 
@@ -164,11 +185,12 @@ def main() -> int:
         print("coverage_report: no task_coverage.jsonl found, nothing to report", file=sys.stderr)
         return 0
     inventory = load_inventory(args.root)
-    missing = missing_from_inventory(inventory, jsonl_files)
+    records = read_records(jsonl_files)
+    missing = sorted({record["path"] for record in records} - inventory.keys())
     if missing:
         print(f"::error title=Task coverage inventory mismatch::{len(missing)} runtime task paths are not in "
               "the static inventory", file=sys.stderr)
-    report = build_report(inventory, read_records(jsonl_files), missing)
+    report = build_report(inventory, records, missing)
 
     args.json_path.parent.mkdir(parents=True, exist_ok=True)
     args.json_path.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
