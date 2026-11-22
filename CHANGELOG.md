@@ -1,6 +1,14 @@
 # Change Log
 
-## Unreleased
+## 0.6.1 (2026-11-22)
+
+- Set the collection version in `galaxy.yml` to `0.6.1`. The `v0.6.0` tag was cut while
+  `galaxy.yml` still read `0.5.0`, so that release built as `konstruktoid-hardening-0.5.0` and
+  the changes listed below were never published under a version of their own. This release
+  contains no other changes. `galaxy.yml` and `CHANGELOG.md` are the only places in the
+  repository that record the version, keep them in step when tagging.
+
+## 0.6.0 (2026-11-19)
 
 - Security fix: `ufw_rate_limit: true` in the `ufw` role no longer runs `ufw limit in on <iface>`
   for every physical interface. That rule had no port or source, so it accepted all incoming
