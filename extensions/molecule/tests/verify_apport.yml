@@ -15,7 +15,7 @@
 - name: Assert Apport is disabled
   ansible.builtin.assert:
     that:
-      - "'enabled=0' in apport_settings.stdout"
+      - "'enabled=0' in apport_settings.stdout_lines"
     success_msg: "apport is disabled in /etc/default/apport"
     fail_msg: "apport is not disabled in /etc/default/apport: {{ apport_settings.stdout }}"
   when:
