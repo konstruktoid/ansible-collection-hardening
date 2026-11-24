@@ -3,7 +3,9 @@
 ## Unreleased
 
 - Validate `/etc/ssh/ssh_config` before the `ssh` role replaces it, using `ssh -F <file> -G localhost`
-  so an invalid client configuration is rejected instead of written. When `/usr/bin/ssh` is not
+  so an invalid client configuration is rejected instead of written. The check is bounded to ten
+  seconds with `timeout`, because `ssh -G` runs any `Match exec` command in an included drop-in.
+  When `/usr/bin/ssh` is not
   installed the check is a no-op, because there is no client to parse the file.
 - Validate `/etc/ssh/sshd_config` with `sshd -T` when the `ssh` role removes a duplicate `Subsystem`
   line, as the other `sshd_config` tasks already do.

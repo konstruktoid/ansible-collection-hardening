@@ -362,4 +362,4 @@
         mode: "0644"
         owner: root
         group: root
-        validate: "{{ '/usr/bin/ssh -F %s -G localhost' if ssh_client_bin.stat.exists else '/usr/bin/true %s' }}"
+        validate: "{{ '/usr/bin/timeout 10 /usr/bin/ssh -F %s -G localhost' if ssh_client_bin.stat.exists else '/usr/bin/true %s' }}"
