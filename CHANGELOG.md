@@ -1,5 +1,16 @@
 # Change Log
 
+## Unreleased
+
+- Stop the `aide` role adding a second daily check where the distribution ships its own.
+  `aide-common` renamed `/etc/cron.daily/aide` to `/etc/cron.daily/dailyaidecheck` in 0.18.6-2
+  and ships and enables `dailyaidecheck.timer`, so on Debian trixie and Ubuntu resolute the role
+  installed and enabled `aidecheck.timer` alongside it (issue #125). The role now skips
+  `aidecheck.service` and `aidecheck.timer` when `/usr/lib/systemd/system/dailyaidecheck.timer`
+  exists. It does not remove them from hosts converged by earlier releases. To do that, run
+  `systemctl disable --now aidecheck.timer`, delete `/etc/systemd/system/aidecheck.service` and
+  `/etc/systemd/system/aidecheck.timer`, and run `systemctl daemon-reload`.
+
 ## 0.6.1 (2026-11-22)
 
 - Set the collection version in `galaxy.yml` to `0.6.1`. The `v0.6.0` tag was cut while

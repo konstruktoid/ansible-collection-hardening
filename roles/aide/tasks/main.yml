@@ -22,6 +22,11 @@
         path: /etc/cron.daily/aide
       register: aidecron
 
+    - name: Stat AIDE package timer
+      ansible.builtin.stat:
+        path: /usr/lib/systemd/system/dailyaidecheck.timer
+      register: aide_package_timer
+
     - name: Install AIDE service
       ansible.builtin.template:
         src: etc/systemd/system/aidecheck.service.j2
@@ -32,6 +37,7 @@
         group: root
       when:
         - not aidecron.stat.exists
+        - not aide_package_timer.stat.exists
 
     - name: Install AIDE timer
       ansible.builtin.template:
@@ -43,6 +49,7 @@
         group: root
       when:
         - not aidecron.stat.exists
+        - not aide_package_timer.stat.exists
       notify:
         - Reload systemd
         - Enable aidecheck
