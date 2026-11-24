@@ -100,3 +100,34 @@
           - "'!/var/log/journal' in aide_settings.stdout"
       when:
         - aide_config_d.stat.exists
+
+- name: Verify a single daily AIDE check
+  become: true
+  block:
+    - name: Stat the distribution AIDE timer
+      ansible.builtin.stat:
+        path: /usr/lib/systemd/system/dailyaidecheck.timer
+      register: aide_package_timer
+
+    - name: Stat the aide role AIDE units
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - /etc/systemd/system/aidecheck.service
+        - /etc/systemd/system/aidecheck.timer
+      register: aide_role_units
+
+    - name: Assert that no aide role unit duplicates the distribution AIDE timer
+      ansible.builtin.assert:
+        that: "aide_role_units.results | selectattr('stat.exists') | list | length == 0"
+        fail_msg: >-
+          dailyaidecheck.timer is installed, and so are
+          {{ aide_role_units.results | selectattr('stat.exists') | map(attribute='item') | join(', ') }}.
+      when:
+        - aide_package_timer.stat.exists
+
+    - name: Assert that the aide role units are installed where the distribution ships no AIDE timer
+      ansible.builtin.assert:
+        that: "aide_role_units.results | selectattr('stat.exists') | list | length == 2"
+      when:
+        - not aide_package_timer.stat.exists

@@ -31,22 +31,23 @@ Defined in `roles/aide/defaults/main.yml`.
 2. Debian family AIDE installation
 3. RedHat family AIDE package installation
 4. Stat AIDE cron.daily
-5. Install AIDE service
-6. Install AIDE timer
-7. Configure AIDE checksums
-8. Get AIDE include config
-9. Set AIDE include directory as fact
-10. Check if AIDE include directory exists
-11. Add auditd tools
-12. Add AIDE dir exclusions
-13. Add auditd tools in include directory
-14. Add AIDE dir exclusions
-15. Stat Debian aide.db
-16. Stat RedHat aide.db
-17. Initialize RedHat AIDE
-18. Stat RedHat aide.db.new.gz
-19. Copy RedHat AIDE database
-20. Initialize Debian AIDE
+5. Stat AIDE package timer
+6. Install AIDE service
+7. Install AIDE timer
+8. Configure AIDE checksums
+9. Get AIDE include config
+10. Set AIDE include directory as fact
+11. Check if AIDE include directory exists
+12. Add auditd tools
+13. Add AIDE dir exclusions
+14. Add auditd tools in include directory
+15. Add AIDE dir exclusions
+16. Stat Debian aide.db
+17. Stat RedHat aide.db
+18. Initialize RedHat AIDE
+19. Stat RedHat aide.db.new.gz
+20. Copy RedHat AIDE database
+21. Initialize Debian AIDE
 
 ## Handlers
 
