@@ -1,4 +1,6 @@
 *.gz
+*.pyc
+__pycache__/
 .ansible/
 .cache
 .claude/STATE.md

@@ -9,10 +9,10 @@ domains.
 Conversion of [ansible-role-hardening](https://github.com/konstruktoid/ansible-role-hardening)
 to collection format.
 
-See [OVERVIEW.md](OVERVIEW.md) for a high-level overview of the repository's
+See [OVERVIEW.md](https://github.com/konstruktoid/ansible-collection-hardening/blob/main/OVERVIEW.md) for a high-level overview of the repository's
 purpose, components, and scope.
 
-See [PRESCRYB.md](PRESCRYB.md) for how to use
+See [PRESCRYB.md](https://github.com/konstruktoid/ansible-collection-hardening/blob/main/PRESCRYB.md) for how to use
 [`prescryb`](https://github.com/konstruktoid/prescryb), a companion MCP
 server, to scan a hardened host for outstanding CVEs and compliance gaps
 and get Ansible remediation suggestions referencing this collection's
@@ -30,7 +30,8 @@ Some roles require the following additional collections:
 | `community.crypto` | 3.2.1 | ssh |
 | `community.general` | 13.0.1 | automatic_updates, disable_wireless, firewalld, ssh, ufw |
 
-Install them with:
+`ansible-galaxy` installs them automatically with the collection. In a source
+checkout, install them with:
 
 ```console
 ansible-galaxy collection install -r requirements.yml
@@ -155,7 +156,7 @@ role. See each role's `README.md` for its variables and example usage.
 
 ## Security
 
-See [SECURITY.md](SECURITY.md) for the supported-versions policy and
+See [SECURITY.md](https://github.com/konstruktoid/ansible-collection-hardening/blob/main/SECURITY.md) for the supported-versions policy and
 vulnerability reporting.
 
 ## License

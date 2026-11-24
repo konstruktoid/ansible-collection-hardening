@@ -27,6 +27,7 @@ tags:
   - ubuntu
 build_ignore:
   - "*.gz"
+  - "*.pyc"
   - .agents
   - .ansible
   - .ansible-lint
@@ -42,11 +43,16 @@ build_ignore:
   - .venv
   - .yamllint
   - CLAUDE.md
+  - OVERVIEW.md
+  - PRESCRYB.md
+  - SECURITY.md
+  - __pycache__
   - ansible.cfg
   - ansible_collections
   - extensions
   - molecule-logs
   - requirements.txt
+  - requirements.yml
   - scripts
   - tox.ini
   - upstream-requirements.txt
