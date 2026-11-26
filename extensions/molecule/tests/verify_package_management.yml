@@ -32,6 +32,7 @@
         - 'Acquire::AllowWeakRepositories "0";'
         - 'Acquire::Check-Date "true";'
         - 'Acquire::http::AllowRedirect "false";'
+        - 'Acquire::Retries "0";'
         - 'APT::Get::AllowUnauthenticated "false";'
         - 'APT::Get::AutomaticRemove "true";'
         - 'APT::Install-Recommends "0";'
@@ -62,6 +63,24 @@
       when:
         - ansible_facts.distribution_release in package_management_seccomp_broken
 
+    - name: Find official APT archive URIs still using HTTP
+      become: true
+      ansible.builtin.command:
+        cmd: >-
+          grep -rE 'http://(deb\.debian\.org|security\.debian\.org|(archive|security|ports)\.ubuntu\.com)'
+          --include=*.list --include=*.sources /etc/apt
+      changed_when: false
+      failed_when: package_management_http_sources.rc != 1
+      register: package_management_http_sources
+
+    - name: Find official APT archive URIs using HTTPS
+      become: true
+      ansible.builtin.command:
+        cmd: >-
+          grep -rE 'https://(deb\.debian\.org|security\.debian\.org|(archive|security|ports)\.ubuntu\.com)'
+          --include=*.list --include=*.sources /etc/apt
+      changed_when: false
+
     - name: Get apt-config dump
       become: true
       ansible.builtin.command:
@@ -80,6 +99,13 @@
         - 'Acquire::AllowWeakRepositories "0";'
         - 'Acquire::AllowDowngradeToInsecureRepositories "0";'
         - 'Acquire::Check-Date "true";'
+
+    - name: Assert APT download retries are disabled (CVE-2026-109518)
+      ansible.builtin.assert:
+        that:
+          - >-
+            'Acquire::Retries "0";' in package_management_apt_config_dump.stdout_lines
+        fail_msg: "APT download retries are not disabled"
 
     - name: Assert apt options with a built-in default are present in apt-config dump
       ansible.builtin.assert:

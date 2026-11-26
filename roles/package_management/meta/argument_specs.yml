@@ -17,6 +17,7 @@ argument_specs:
           - 'Acquire::AllowWeakRepositories "0";'
           - 'Acquire::Check-Date "true";'
           - 'Acquire::http::AllowRedirect "false";'
+          - 'Acquire::Retries "0";'
           - 'APT::Get::AllowUnauthenticated "false";'
           - 'APT::Get::AutomaticRemove "true";'
           - 'APT::Install-Recommends "0";'
@@ -25,6 +26,12 @@ argument_specs:
           - 'APT::Sandbox::Seccomp "1";'
           - 'Unattended-Upgrade::Remove-Unused-Dependencies "true";'
           - 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";'
+      package_management_https_sources:
+        description: >-
+          If True, official Debian and Ubuntu archive URIs in the APT sources are changed from
+          HTTP to HTTPS. Other mirrors and third-party repositories are not changed.
+        type: "bool"
+        default: true
       apt_seccomp_broken_releases:
         description: >-
           Debian releases where APT's seccomp sandbox aborts the acquire methods,

@@ -6,6 +6,7 @@ apt_options:
   - 'Acquire::AllowWeakRepositories "0";'
   - 'Acquire::Check-Date "true";'
   - 'Acquire::http::AllowRedirect "false";'
+  - 'Acquire::Retries "0";'
   - 'APT::Get::AllowUnauthenticated "false";'
   - 'APT::Get::AutomaticRemove "true";'
   - 'APT::Install-Recommends "0";'
@@ -14,6 +15,9 @@ apt_options:
   - 'APT::Sandbox::Seccomp "1";'
   - 'Unattended-Upgrade::Remove-Unused-Dependencies "true";'
   - 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";'
+
+# If True, official Debian and Ubuntu archive URIs in the APT sources are changed from HTTP to HTTPS.
+package_management_https_sources: true
 
 # Debian releases where APT's seccomp sandbox aborts the acquire methods, C(E:Method file has died
 # unexpectedly!), and where C(APT::Sandbox::Seccomp) therefore has to be left off.

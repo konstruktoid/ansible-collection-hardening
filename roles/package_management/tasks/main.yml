@@ -30,6 +30,40 @@
       when:
         - ansible_facts.distribution_release in apt_seccomp_broken_releases
 
+    - name: Use HTTPS for the official APT archives
+      when:
+        - package_management_https_sources | bool
+      block:
+        - name: Install ca-certificates
+          ansible.builtin.apt:
+            name: ca-certificates
+            state: present
+            update_cache: true
+
+        - name: Find APT source files
+          ansible.builtin.find:
+            paths:
+              - /etc/apt
+              - /etc/apt/sources.list.d
+              - /etc/apt/mirrors
+            patterns:
+              - "*.list"
+              - "*.sources"
+          register: package_management_apt_sources
+
+        - name: Change official APT archive URIs to HTTPS
+          ansible.builtin.replace:
+            path: "{{ item }}"
+            regexp: 'http://(deb\.debian\.org|security\.debian\.org|(?:archive|security|ports)\.ubuntu\.com)(?=[/\s]|$)'
+            replace: 'https://\1'
+          loop: "{{ package_management_apt_sources.files | map(attribute='path') | sort }}"
+          notify:
+            - Update apt cache
+
+        # The package lists are stored per URI, so refresh them before anything installs a package.
+        - name: Flush handlers
+          ansible.builtin.meta: flush_handlers
+
     - name: Run apt upgrade
       ansible.builtin.apt:
         upgrade: safe
