@@ -40,19 +40,20 @@ Defined in `roles/package_management/defaults/main.yml`.
 4. Use HTTPS for the official APT archives
 5. Install ca-certificates
 6. Find APT source files
-7. Change official APT archive URIs to HTTPS
-8. Flush handlers
-9. Run apt upgrade
-10. Dnf configuration
-11. Set yum.conf gpgcheck
-12. Set yum.conf clean_requirements
-13. Set yum.conf localpkg_gpgcheck
-14. Set yum.conf repo_gpgcheck
-15. Enable dnf repositories and upgrades
-16. Stat PowerTools repository files
-17. Enable the PowerTools repository
-18. Update dnf cache
-19. Run dnf upgrade
+7. Stat APT source files
+8. Change official APT archive URIs to HTTPS
+9. Flush handlers
+10. Run apt upgrade
+11. Dnf configuration
+12. Set yum.conf gpgcheck
+13. Set yum.conf clean_requirements
+14. Set yum.conf localpkg_gpgcheck
+15. Set yum.conf repo_gpgcheck
+16. Enable dnf repositories and upgrades
+17. Stat PowerTools repository files
+18. Enable the PowerTools repository
+19. Update dnf cache
+20. Run dnf upgrade
 
 ## Handlers
 
@@ -69,6 +70,22 @@ Defined in `roles/package_management/defaults/main.yml`.
   roles:
     - konstruktoid.hardening.package_management
 ```
+
+## HTTPS archive sources
+
+The role changes the official APT archive sources to HTTPS by default. If a caching proxy has
+to read the traffic, disable this before the first run:
+
+```yaml
+- hosts: all
+  become: true
+  roles:
+    - role: konstruktoid.hardening.package_management
+      vars:
+        package_management_https_sources: false
+```
+
+Setting the variable to `false` later does not change converted sources back to HTTP.
 
 ## Tags
 

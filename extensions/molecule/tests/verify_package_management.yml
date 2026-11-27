@@ -67,7 +67,7 @@
       become: true
       ansible.builtin.command:
         cmd: >-
-          grep -rE 'http://(deb\.debian\.org|security\.debian\.org|(archive|security|ports)\.ubuntu\.com)'
+          grep -RE 'http://(deb\.debian\.org|security\.debian\.org|(archive|security|ports)\.ubuntu\.com)([:/[:space:]]|$)'
           --include=*.list --include=*.sources /etc/apt
       changed_when: false
       failed_when: package_management_http_sources.rc != 1
@@ -77,7 +77,7 @@
       become: true
       ansible.builtin.command:
         cmd: >-
-          grep -rE 'https://(deb\.debian\.org|security\.debian\.org|(archive|security|ports)\.ubuntu\.com)'
+          grep -RE 'https://(deb\.debian\.org|security\.debian\.org|(archive|security|ports)\.ubuntu\.com)([:/[:space:]]|$)'
           --include=*.list --include=*.sources /etc/apt
       changed_when: false
 
