@@ -7,6 +7,10 @@ enabled. `timesyncd` installs `epel-release` on the RedHat family, for example. 
 repository added after the upgrade has run leaves its packages upgradable, so the next
 run of this role reports changed again.
 
+On the Debian family, APT download retries are disabled by default to mitigate
+[CVE-2026-109518](https://ubuntu.com/security/CVE-2026-109518), so a transient download error
+fails the run. This does not replace upgrading `apt`.
+
 ## Requirements
 
 - Ansible-core >= 2.18
@@ -25,8 +29,8 @@ Defined in `roles/package_management/defaults/main.yml`.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `apt_options` | `['Acquire::AllowDowngradeToInsecureRepositories "0";', 'Acquire::AllowInsecureRepositories "0";', 'Acquire::AllowWeakRepositories "0";', 'Acquire::Check-Date "true";', 'Acquire::http::AllowRedirect "false";', 'Acquire::Retries "0";', 'APT::Get::AllowUnauthenticated "false";', 'APT::Get::AutomaticRemove "true";', 'APT::Install-Recommends "0";', 'APT::Install-Suggests "0";', 'APT::Periodic::AutocleanInterval "7";', 'APT::Sandbox::Seccomp "1";', 'Unattended-Upgrade::Remove-Unused-Dependencies "true";', 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";']` | Options used to configure the APT suite of tools. |
-| `package_management_https_sources` | `true` | If True, official Debian and Ubuntu archive URIs in the APT sources are changed from HTTP to HTTPS. Other mirrors and third-party repositories are not changed. |
+| `apt_options` | `['Acquire::AllowDowngradeToInsecureRepositories "0";', 'Acquire::AllowInsecureRepositories "0";', 'Acquire::AllowWeakRepositories "0";', 'Acquire::Check-Date "true";', 'Acquire::http::AllowRedirect "false";', 'Acquire::Retries "0";', 'APT::Get::AllowUnauthenticated "false";', 'APT::Get::AutomaticRemove "true";', 'APT::Install-Recommends "0";', 'APT::Install-Suggests "0";', 'APT::Periodic::AutocleanInterval "7";', 'APT::Sandbox::Seccomp "1";', 'Unattended-Upgrade::Remove-Unused-Dependencies "true";', 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";']` | Options used to configure the APT suite of tools. `Acquire::Retries "0";` mitigates CVE-2026-109518, keep it in the list if you override this variable. |
+| `package_management_https_sources` | `true` | If True, official Debian and Ubuntu archive URIs in the APT sources are changed from HTTP to HTTPS and `ca-certificates` is installed. Other mirrors and third-party repositories are not changed. Setting it to False later does not restore HTTP. |
 | `apt_seccomp_broken_releases` | `['forky', 'trixie']` | Debian releases where APT's seccomp sandbox aborts the acquire methods, `E:Method file has died unexpectedly!`, and where `APT::Sandbox::Seccomp` therefore has to be left off. |
 | `system_upgrade` | `true` | If True, then the installed packages will be upgraded to the latest version using `apt` or `dnf`. |
 
@@ -73,7 +77,8 @@ Defined in `roles/package_management/defaults/main.yml`.
 
 ## HTTPS archive sources
 
-The role changes the official APT archive sources to HTTPS by default. If a caching proxy has
+The role installs `ca-certificates` and changes the official APT archive sources to HTTPS by
+default. If a caching proxy has
 to read the traffic, disable this before the first run:
 
 ```yaml

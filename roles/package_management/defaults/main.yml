@@ -16,7 +16,7 @@ apt_options:
   - 'Unattended-Upgrade::Remove-Unused-Dependencies "true";'
   - 'Unattended-Upgrade::Remove-Unused-Kernel-Packages "true";'
 
-# If True, official Debian and Ubuntu archive URIs in the APT sources are changed from HTTP to HTTPS.
+# If True, install ca-certificates and change official Debian and Ubuntu archive URIs from HTTP to HTTPS.
 package_management_https_sources: true
 
 # Debian releases where APT's seccomp sandbox aborts the acquire methods, C(E:Method file has died

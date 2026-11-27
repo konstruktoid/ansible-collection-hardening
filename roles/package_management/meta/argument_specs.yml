@@ -4,11 +4,16 @@ argument_specs:
     short_description: "Configure the APT and DNF and optionally upgrade the installed packages to the latest version."
     description:
       - "Configure the APT and DNF and optionally upgrade the installed packages to the latest version."
+      - >-
+        On the Debian family, APT download retries are disabled by default to mitigate CVE-2026-109518,
+        and the official archive sources are changed to HTTPS. Upgrading C(apt) is still required.
     author:
       - "Thomas Sjögren (@konstruktoid)"
     options:
       apt_options:
-        description: "Options used to configure the APT suite of tools."
+        description: >-
+          Options used to configure the APT suite of tools. C(Acquire::Retries "0";) mitigates
+          CVE-2026-109518, keep it in the list if you override this variable.
         type: "list"
         elements: "str"
         default:
@@ -29,7 +34,8 @@ argument_specs:
       package_management_https_sources:
         description: >-
           If True, official Debian and Ubuntu archive URIs in the APT sources are changed from
-          HTTP to HTTPS. Other mirrors and third-party repositories are not changed.
+          HTTP to HTTPS and C(ca-certificates) is installed. Other mirrors and third-party
+          repositories are not changed. Setting it to False later does not restore HTTP.
         type: "bool"
         default: true
       apt_seccomp_broken_releases:
