@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Security: set `Acquire::Retries "0";` through `apt_options` in the `package_management` role to
+  mitigate CVE-2026-109518, APT root code execution by a package swapped during a retried download.
+  Upgrade `apt` as well, this setting is not the fix. A transient download error now fails the APT
+  run instead of being retried. If you override `apt_options`, add the option to your list.
+- The `package_management` role now changes `deb.debian.org`, `security.debian.org`,
+  `archive.ubuntu.com`, `security.ubuntu.com` and `ports.ubuntu.com` APT sources from HTTP to HTTPS
+  and installs `ca-certificates`. Set `package_management_https_sources: false` if a caching proxy
+  needs to read the traffic. Other mirrors and third-party repositories are not changed.
 - Validate `/etc/ssh/ssh_config` before the `ssh` role replaces it, using `ssh -F <file> -G localhost`
   so an invalid client configuration is rejected instead of written. The check is bounded to ten
   seconds with `timeout`, because `ssh -G` runs any `Match exec` command in an included drop-in.

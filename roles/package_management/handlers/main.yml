@@ -1,4 +1,9 @@
 ---
+- name: Update apt cache
+  become: true
+  ansible.builtin.apt:
+    update_cache: true
+
 - name: Run apt-get autoremove
   become: true
   ansible.builtin.apt:
